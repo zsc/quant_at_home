@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第一章：区块链基础与稳定币 - 区块链稳定币教程</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-brand">稳定币教程</a>
+            <button class="navbar-toggle" onclick="toggleMobileNav()">☰</button>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a href="intro.html" class="nav-link">引言</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link active">章节</a>
+                    <div class="dropdown-menu">
+                        <a href="chapter1.html" class="dropdown-item">第1章：区块链基础</a>
+                        <a href="chapter2.html" class="dropdown-item">第2章：稳定币分类</a>
+                        <a href="chapter3.html" class="dropdown-item">第3章：ERC-20标准</a>
+                        <a href="chapter4.html" class="dropdown-item">第4章：抵押型设计</a>
+                        <a href="chapter5.html" class="dropdown-item">第5章：数学模型</a>
+                        <a href="chapter6.html" class="dropdown-item">第6章：AMM集成</a>
+                        <a href="chapter7.html" class="dropdown-item">第7章：借贷协议</a>
+                        <a href="chapter8.html" class="dropdown-item">第8章：收益策略</a>
+                        <a href="chapter9.html" class="dropdown-item">第9章：智能合约安全</a>
+                        <a href="chapter10.html" class="dropdown-item">第10章：经济攻击</a>
+                        <a href="chapter11.html" class="dropdown-item">第11章：未来方向</a>
+                        <a href="chapter12.html" class="dropdown-item">第12章：生产部署</a>
+                        <a href="chapter13.html" class="dropdown-item">第13章：生态集成</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="#resources" class="nav-link">资源</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- 头部 -->
+    <header id="top">
+        <div class="container">
+            <h1>第一章：区块链基础与稳定币</h1>
+        </div>
+    </header>
+    
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="chapter">
+            <div class="intro-box">
+                <strong>本章概览：</strong>
+                <ul>
+                    <li>共识机制对稳定币设计的影响分析</li>
+                    <li>智能合约执行模型跨链对比</li>
+                    <li>实践：部署第一个稳定币合约</li>
+                    <li>Gas经济学与优化策略</li>
+                    <li>稳定币与PoW、比特币的关系</li>
+                </ul>
+            </div>
+            
+            <div class="theory-section">
+                <h3>1.1 共识机制及其对稳定币设计的影响</h3>
+                
+                <p>作为资深程序员和AI科学家，你可能已经熟悉基本的区块链概念。让我们直接深入探讨共识机制如何影响稳定币的设计选择。</p>
+                
+                <h4>共识机制深度技术分析与性能指标</h4>
+                
+                <div style="background: #f0f9ff; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <h5>🔍 关键性能指标对比</h5>
+                    <table style="width: 100%; font-size: 0.9rem;">
+                        <tr>
+                            <th style="padding: 8px; text-align: left;">共识机制</th>
+                            <th style="padding: 8px;">TPS</th>
+                            <th style="padding: 8px;">最终性</th>
+                            <th style="padding: 8px;">去中心化度</th>
+                            <th style="padding: 8px;">能耗</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><strong>PoW (Bitcoin)</strong></td>
+                            <td style="padding: 8px; text-align: center;">7</td>
+                            <td style="padding: 8px; text-align: center;">60分钟</td>
+                            <td style="padding: 8px; text-align: center;">极高</td>
+                            <td style="padding: 8px; text-align: center;">110 TWh/年</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><strong>PoS (Ethereum)</strong></td>
+                            <td style="padding: 8px; text-align: center;">30</td>
+                            <td style="padding: 8px; text-align: center;">15分钟</td>
+                            <td style="padding: 8px; text-align: center;">高</td>
+                            <td style="padding: 8px; text-align: center;">0.01 TWh/年</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><strong>Tendermint (Cosmos)</strong></td>
+                            <td style="padding: 8px; text-align: center;">10,000</td>
+                            <td style="padding: 8px; text-align: center;">6秒</td>
+                            <td style="padding: 8px; text-align: center;">中</td>
+                            <td style="padding: 8px; text-align: center;">低</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><strong>DPoS (Solana)</strong></td>
+                            <td style="padding: 8px; text-align: center;">65,000</td>
+                            <td style="padding: 8px; text-align: center;">400毫秒</td>
+                            <td style="padding: 8px; text-align: center;">低</td>
+                            <td style="padding: 8px; text-align: center;">低</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <ul>
+                    <li><strong>工作量证明（PoW）- 安全性的黄金标准</strong>
+                        <ul>
+                            <li><strong>技术特性</strong>：
+                                <ul>
+                                    <li>中本聪共识：最长链原则</li>
+                                    <li>概率性最终性：6个区块确认≈99.9%安全</li>
+                                    <li>51%攻击成本：比特币约$150亿/天</li>
+                                </ul>
+                            </li>
+                            <li><strong>对稳定币的影响</strong>：
+                                <ul>
+                                    <li>交易成本：$1-50（动态费用市场）</li>
+                                    <li>确认时间：10-60分钟（不适合即时支付）</li>
+                                    <li>MEV风险：三明治攻击可能影响大额交易</li>
+                                    <li>适用场景：大额结算、跨境转账</li>
+                                </ul>
+                            </li>
+                            <li><strong>实际案例</strong>：
+                                <ul>
+                                    <li>Omni USDT：基于比特币，日交易量$1-5亿</li>
+                                    <li>WBTC：以太坊上的比特币，用于DeFi</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                    <li><strong>权益证明（PoS）- 效率与去中心化的平衡</strong>
+                        <ul>
+                            <li><strong>技术特性</strong>：
+                                <ul>
+                                    <li>验证者选择：基于质押量的随机算法</li>
+                                    <li>罚没机制：恶意行为导致质押损失</li>
+                                    <li>分叉选择规则：LMD-GHOST（以太坊）</li>
+                                </ul>
+                            </li>
+                            <li><strong>对稳定币的影响</strong>：
+                                <ul>
+                                    <li>Gas优化空间：EIP-1559后更可预测</li>
+                                    <li>MEV-Boost：建设者分离带来的新机会</li>
+                                    <li>Layer2集成：Optimism/Arbitrum上的稳定币</li>
+                                    <li>流动性质押：stETH作为抵押品</li>
+                                </ul>
+                            </li>
+                            <li><strong>性能优化</strong>：
+                                <ul>
+                                    <li>账户抽象（ERC-4337）：无Gas费稳定币交易</li>
+                                    <li>Proto-danksharding：降低L2成本90%+</li>
+                                    <li>并行EVM：多核处理提升TPS</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <div class="exercise">
+                    <h4>练习题 1.1：共识机制选择</h4>
+                    <p>你正在为一个新的稳定币项目选择底层区块链。项目需求如下：</p>
+                    <ul>
+                        <li>目标用户：东南亚地区的小额支付（平均$5-50）</li>
+                        <li>预期TPS：10,000+</li>
+                        <li>监管要求：需要符合当地KYC/AML规定</li>
+                        <li>预算限制：有限的开发和运营资金</li>
+                    </ul>
+                    <p>请分析并推荐最适合的共识机制和区块链平台，说明理由。</p>
+                    
+                    <button class="answer-toggle" onclick="toggleAnswer('answer-1-1')">查看参考答案</button>
+                    <div class="answer" id="answer-1-1">
+                        <p><strong>推荐方案：</strong>基于Polygon PoS或BSC的稳定币</p>
+                        <p><strong>理由分析：</strong></p>
+                        <ul>
+                            <li><strong>性能满足</strong>：两者都能提供10,000+ TPS，满足高频小额支付需求</li>
+                            <li><strong>成本优势</strong>：
+                                <ul>
+                                    <li>Polygon：平均交易费用 $0.001-0.01</li>
+                                    <li>BSC：平均交易费用 $0.05-0.2</li>
+                                    <li>对比以太坊主网：$1-20（不适合小额支付）</li>
+                                </ul>
+                            </li>
+                            <li><strong>生态成熟度</strong>：
+                                <ul>
+                                    <li>丰富的DeFi生态，便于集成</li>
+                                    <li>现成的KYC/AML服务提供商</li>
+                                    <li>活跃的开发者社区</li>
+                                </ul>
+                            </li>
+                            <li><strong>合规友好</strong>：
+                                <ul>
+                                    <li>支持权限管理和黑名单功能</li>
+                                    <li>可以实现合规的铸造/销毁机制</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <p><strong>架构建议：</strong></p>
+                        <ul>
+                            <li>使用可升级代理模式，便于合规更新</li>
+                            <li>集成Chainlink预言机获取汇率</li>
+                            <li>实施多签管理，降低中心化风险</li>
+                            <li>考虑Layer2方案（如Polygon zkEVM）进一步降低成本</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="theory-section">
+                <h3>1.2 智能合约执行模型跨链对比</h3>
+                
+                <p>不同区块链的智能合约执行模型对稳定币功能实现有重要影响：</p>
+                
+                <h4>账户模型 vs UTXO模型</h4>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Solidity - 账户模型示例</span>
+                    </div>
+                    <div class="code-content">
+                        <pre><code class="language-solidity">// 以太坊账户模型示例
+contract AccountBasedStablecoin {
+    mapping(address => uint256) public balances;
+    
+    function transfer(address to, uint256 amount) public {
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        balances[msg.sender] -= amount;
+        balances[to] += amount;
+    }
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Cardano - UTXO模型伪代码</span>
+                    </div>
+                    <div class="code-content">
+                        <pre><code class="language-javascript">// Cardano UTXO模型伪代码
+UTXOStablecoin {
+    // 每个UTXO包含：
+    struct UTXO {
+        address: ScriptAddress,
+        value: {
+            ada: Integer,
+            stablecoin: Integer
+        },
+        datum: StablecoinDatum
+    }
+    
+    // 转账需要消费旧UTXO，创建新UTXO
+    validator transfer(datum: Datum, redeemer: Redeemer, context: ScriptContext) {
+        // 验证签名、金额等
+        // 确保输入UTXO总和 = 输出UTXO总和
+    }
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="warning-box">
+                    <strong>⚠️ 重要区别：</strong>UTXO模型天然支持并行处理，但实现复杂的DeFi逻辑更困难。账户模型编程直观，但容易产生竞态条件。
+                </div>
+                
+                <h4>深入理解：UTXO vs 账户模型的权衡</h4>
+                
+                <h5>并行处理能力对比</h5>
+                <p><strong>UTXO模型的并行优势：</strong></p>
+                <ul>
+                    <li><strong>交易独立性</strong>：每个UTXO只能被花费一次，不同UTXO的交易可以并行验证
+                        <ul>
+                            <li>示例：Alice→Bob和Carol→Dave的交易使用不同UTXO，可同时处理</li>
+                            <li>结果：理论吞吐量更高，适合支付场景</li>
+                        </ul>
+                    </li>
+                    <li><strong>无状态竞争</strong>：不存在账户余额的读写竞争
+                        <ul>
+                            <li>每笔交易明确指定输入输出</li>
+                            <li>验证只需检查UTXO是否未花费</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <p><strong>账户模型的串行瓶颈：</strong></p>
+                <ul>
+                    <li><strong>状态依赖</strong>：多笔交易修改同一账户时必须串行执行
+                        <ul>
+                            <li>示例：Alice同时向Bob和Carol转账，需要顺序更新Alice余额</li>
+                            <li>以太坊的nonce机制强制交易顺序</li>
+                        </ul>
+                    </li>
+                    <li><strong>竞态条件风险</strong>：
+                        <ul>
+                            <li>MEV（最大可提取价值）攻击利用交易顺序</li>
+                            <li>三明治攻击在DeFi中普遍存在</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <h5>DeFi编程复杂度分析</h5>
+                <p><strong>UTXO模型的DeFi挑战：</strong></p>
+                <ul>
+                    <li><strong>状态管理困难</strong>：
+                        <ul>
+                            <li>无全局状态概念，需要通过UTXO链传递状态</li>
+                            <li>示例：实现ERC20需要为每个余额创建独立UTXO</li>
+                        </ul>
+                    </li>
+                    <li><strong>复杂交互受限</strong>：
+                        <ul>
+                            <li>多方交互需要预先协调（如原子交换）</li>
+                            <li>难以实现复杂的DeFi协议（如Uniswap V3）</li>
+                        </ul>
+                    </li>
+                    <li><strong>解决方案</strong>：
+                        <ul>
+                            <li>扩展UTXO（eUTXO）：Cardano的Plutus添加datum存储状态</li>
+                            <li>Cell模型：Nervos CKB的通用化UTXO</li>
+                            <li>RGB协议：在Bitcoin上实现智能合约</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <p><strong>账户模型的DeFi优势：</strong></p>
+                <ul>
+                    <li><strong>直观的编程模型</strong>：
+                        <ul>
+                            <li>合约即账户，拥有持久存储</li>
+                            <li>函数调用模式符合传统编程习惯</li>
+                        </ul>
+                    </li>
+                    <li><strong>复杂逻辑支持</strong>：
+                        <ul>
+                            <li>轻松实现多方交互（如AMM、借贷协议）</li>
+                            <li>状态机模型适合复杂业务逻辑</li>
+                        </ul>
+                    </li>
+                    <li><strong>生态系统成熟</strong>：
+                        <ul>
+                            <li>丰富的开发工具和框架</li>
+                            <li>大量可复用的合约库（OpenZeppelin等）</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <h5>稳定币设计的模型选择</h5>
+                <table style="width: 100%; margin: 1rem 0;">
+                    <tr>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">场景</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">推荐模型</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">原因</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">支付型稳定币</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">UTXO</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">高并发、隐私性好、防双花</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">DeFi稳定币</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">账户</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">复杂交互、可组合性、生态丰富</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">跨链稳定币</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">混合</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">不同链采用不同模型，通过桥接适配</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">CBDC</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">UTXO</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">监管友好、审计清晰、批量处理</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="theory-section">
+                <h3>1.3 实践：在本地Hardhat节点部署"Hello Stablecoin"</h3>
+                
+                <p>让我们快速搭建开发环境并部署第一个稳定币合约。</p>
+                
+                <h4>步骤1：环境搭建</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>bash - 环境初始化</span>
+                    </div>
+                    <div class="code-content">
+                        <pre><code class="language-bash"># 安装必要工具
+npm init -y
+npm install --save-dev hardhat @openzeppelin/contracts
+npm install --save-dev @nomicfoundation/hardhat-toolbox
+
+# 初始化Hardhat项目
+npx hardhat init
+# 选择 "Create a JavaScript project"</code></pre>
+                    </div>
+                </div>
+                
+                <h4>步骤2：编写最小化的中心化稳定币合约</h4>
+                <p>让我们实现一个更贴近真实USDT/USDC的合约，展示中心化稳定币的核心特征：</p>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Solidity - CentralizedStablecoin.sol</span>
+                    </div>
+                    <div class="code-content">
+                        <pre><code class="language-solidity">// contracts/CentralizedStablecoin.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+// 导入OpenZeppelin标准合约库 - 行业最佳实践
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+
+/**
+ * @title CentralizedStablecoin
+ * @dev 最小化的法币抵押型稳定币实现
+ * 展示了USDT/USDC等中心化稳定币的核心机制
+ */
+contract CentralizedStablecoin is ERC20, Ownable, Pausable {
+    // 状态变量
+    uint8 private constant DECIMALS = 6;  // USDC标准精度
+    mapping(address => bool) public blacklisted;  // 黑名单机制
+    
+    // 事件定义 - 用于链上活动追踪
+    event Mint(address indexed to, uint256 amount);
+    event Burn(address indexed from, uint256 amount);
+    event Blacklist(address indexed account, bool status);
+    event Redeem(address indexed from, uint256 amount, string txId);
+    
+    // 修饰符 - 可重用的访问控制
+    modifier notBlacklisted(address account) {
+        require(!blacklisted[account], "Account is blacklisted");
+        _;
+    }
+    
+    constructor() ERC20("Centralized Stablecoin", "CSTABLE") Ownable(msg.sender) {
+        // 部署时不铸造初始供应量 - 符合真实稳定币模式
+    }
+    
+    function decimals() public pure override returns (uint8) {
+        return DECIMALS;
+    }
+    
+    /**
+     * @notice 铸造新代币 - 对应用户存入法币
+     * @dev 只有owner可调用，模拟KYC后的法币存入流程
+     * @param to 接收代币的地址
+     * @param amount 铸造数量（最小单位）
+     */
+    function mint(address to, uint256 amount) 
+        external 
+        onlyOwner 
+        notBlacklisted(to) 
+        whenNotPaused 
+    {
+        _mint(to, amount);
+        emit Mint(to, amount);
+    }
+    
+    /**
+     * @notice 销毁代币并记录赎回请求
+     * @dev 实际稳定币需要链下处理法币提现
+     * @param amount 销毁数量
+     * @param txId 链下银行转账ID（用于审计）
+     */
+    function redeem(uint256 amount, string memory txId) 
+        external 
+        notBlacklisted(msg.sender) 
+        whenNotPaused 
+    {
+        _burn(msg.sender, amount);
+        emit Redeem(msg.sender, amount, txId);
+    }
+    
+    /**
+     * @notice 黑名单管理 - 合规要求
+     * @dev 被黑名单的地址无法转账
+     */
+    function setBlacklist(address account, bool status) 
+        external 
+        onlyOwner 
+    {
+        blacklisted[account] = status;
+        emit Blacklist(account, status);
+    }
+    
+    /**
+     * @notice 紧急暂停 - 应对安全事件
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+    
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+    
+    /**
+     * @notice 重写transfer函数，加入黑名单和暂停检查
+     */
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override {
+        super._beforeTokenTransfer(from, to, amount);
+        
+        require(!paused(), "Token transfers are paused");
+        require(!blacklisted[from], "Sender is blacklisted");
+        require(!blacklisted[to], "Recipient is blacklisted");
+    }
+}
+
+// 思考题：
+// 1. 这个合约的中心化风险点在哪里？如何通过多签改进？
+// 2. 如何实现合约升级？（提示：代理模式）
+// 3. 黑名单机制的法律和道德影响是什么？
+// 4. 如何增加审计日志功能来提高透明度？</code></pre>
+                    </div>
+                </div>
+                
+                <div class="tip-box">
+                    <strong>💡 关键洞察：</strong>这个合约展示了中心化稳定币的核心特征：
+                    <ul>
+                        <li>单点控制（owner权限）</li>
+                        <li>合规功能（黑名单、暂停）</li>
+                        <li>链上记账，链下结算的模式</li>
+                        <li>信任依赖于发行方而非代码</li>
+                    </ul>
+                </div>
+                
+                <h4>链上 vs 链下：理解稳定币的双重世界</h4>
+                <div style="background: #e0f2fe; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                    <p><strong>关键概念澄清：</strong></p>
+                    <ul>
+                        <li><strong>链上（On-chain）</strong>：
+                            <ul>
+                                <li>ERC-20合约是一个<strong>权威的IOU（我欠你）记账本</strong></li>
+                                <li><code>balanceOf</code>返回的不是美元，而是<strong>发行方承诺兑付的美元债权</strong></li>
+                                <li><code>transfer</code>转移的是<strong>债权记录</strong>，不是实际美元</li>
+                            </ul>
+                        </li>
+                        <li><strong>链下（Off-chain）</strong>：
+                            <ul>
+                                <li>真实的美元储备在传统银行账户中</li>
+                                <li>KYC/AML合规流程完全在链外进行</li>
+                                <li>审计报告、监管文件等都是链下活动</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                    <div class="warning-box" style="margin-top: 1rem;">
+                        <strong>⚠️ 常见误解：</strong>智能合约本身<strong>不知道</strong>也<strong>不保管</strong>任何美元。它只是一个由中心化实体控制的数字账本。用户的信任基础是发行方的信誉、监管合规和审计报告，而非智能合约代码。
+                    </div>
+                </div>
+                
+                <h4>步骤3：部署脚本</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>JavaScript - deploy.js</span>
+                    </div>
+                    <div class="code-content">
+                        <pre><code class="language-javascript">// scripts/deploy.js
+async function main() {
+    const [deployer] = await ethers.getSigners();
+    console.log("部署账户:", deployer.address);
+    
+    const CentralizedStablecoin = await ethers.getContractFactory("CentralizedStablecoin");
+    const stablecoin = await CentralizedStablecoin.deploy();
+    await stablecoin.deployed();
+    
+    console.log("CentralizedStablecoin 部署地址:", stablecoin.address);
+    
+    // 验证初始状态
+    const name = await stablecoin.name();
+    const symbol = await stablecoin.symbol();
+    const decimals = await stablecoin.decimals();
+    const totalSupply = await stablecoin.totalSupply();
+    
+    console.log(`名称: ${name}`);
+    console.log(`符号: ${symbol}`);
+    console.log(`精度: ${decimals}`);
+    console.log(`总供应量: ${totalSupply.toString()}`);
+}
+
+main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+});</code></pre>
+                    </div>
+                </div>
+                
+                <h4>步骤4：运行本地节点并部署</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>bash - 部署命令</span>
+                    </div>
+                    <div class="code-content">
+                        <pre><code class="language-bash"># 终端1：启动本地节点
+npx hardhat node
+
+# 终端2：部署合约
+npx hardhat run scripts/deploy.js --network localhost</code></pre>
+                    </div>
+                </div>
+                
+                <div class="exercise">
+                    <h4>练习题 1.2：改进稳定币合约</h4>
+                    <p>基于上面的CentralizedStablecoin合约，请实现以下改进：</p>
+                    <ol>
+                        <li>添加多签功能，要求至少2/3的管理员同意才能执行关键操作</li>
+                        <li>实现手续费机制，每笔转账收取0.1%的费用</li>
+                        <li>添加每日铸造/销毁限额，防止大规模操作</li>
+                        <li>实现白名单功能，允许特定地址免除手续费</li>
+                    </ol>
+                    
+                    <button class="answer-toggle" onclick="toggleAnswer('answer-1-2')">查看参考答案</button>
+                    <div class="answer" id="answer-1-2">
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>Solidity - 改进版本</span>
+                            </div>
+                            <div class="code-content">
+                                <pre><code class="language-solidity">// 改进版稳定币合约关键代码片段
+
+contract ImprovedStablecoin is CentralizedStablecoin {
+    // 多签相关
+    mapping(address => bool) public admins;
+    uint256 public constant ADMIN_THRESHOLD = 2;
+    uint256 public adminCount;
+    
+    struct Proposal {
+        address target;
+        bytes data;
+        uint256 approvals;
+        mapping(address => bool) approved;
+        bool executed;
+    }
+    mapping(uint256 => Proposal) public proposals;
+    uint256 public proposalCount;
+    
+    // 手续费相关
+    uint256 public constant FEE_RATE = 10; // 0.1% = 10/10000
+    uint256 public constant FEE_DENOMINATOR = 10000;
+    address public feeCollector;
+    mapping(address => bool) public feeWhitelist;
+    
+    // 限额相关
+    uint256 public dailyMintLimit = 1000000 * 10**6; // 100万
+    uint256 public dailyBurnLimit = 1000000 * 10**6;
+    uint256 public lastResetTime;
+    uint256 public currentDayMinted;
+    uint256 public currentDayBurned;
+    
+    // 重写transfer函数，加入手续费
+    function transfer(address to, uint256 amount) 
+        public 
+        override 
+        returns (bool) 
+    {
+        uint256 fee = 0;
+        if (!feeWhitelist[msg.sender] && !feeWhitelist[to]) {
+            fee = (amount * FEE_RATE) / FEE_DENOMINATOR;
+        }
+        
+        uint256 netAmount = amount - fee;
+        
+        if (fee > 0) {
+            super.transfer(feeCollector, fee);
+        }
+        
+        return super.transfer(to, netAmount);
+    }
+    
+    // 每日限额检查
+    modifier checkDailyLimit(uint256 amount, bool isMint) {
+        _resetDailyLimits();
+        
+        if (isMint) {
+            require(
+                currentDayMinted + amount <= dailyMintLimit, 
+                "Daily mint limit exceeded"
+            );
+            currentDayMinted += amount;
+        } else {
+            require(
+                currentDayBurned + amount <= dailyBurnLimit,
+                "Daily burn limit exceeded"
+            );
+            currentDayBurned += amount;
+        }
+        _;
+    }
+    
+    function _resetDailyLimits() private {
+        if (block.timestamp >= lastResetTime + 1 days) {
+            lastResetTime = block.timestamp;
+            currentDayMinted = 0;
+            currentDayBurned = 0;
+        }
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="theory-section">
+                <h3>1.4 Gas经济学与优化策略</h3>
+                
+                <p>Gas优化对稳定币至关重要，因为它们通常有高频交易需求。让我们深入了解各种优化技术：</p>
+                
+                <h4>存储优化技术</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Solidity - 存储槽打包</span>
+                    </div>
+                    <div class="code-content">
+                        <pre><code class="language-solidity">// 存储槽打包示例
+contract StorageOptimized {
+    // 差劣实践：每个变量占用一个槽（32字节）
+    uint8 public decimals;        // 槽0：使用1字节，浪费31字节
+    address public owner;         // 槽1：使用20字节，浪费12字节  
+    uint16 public feeRate;        // 槽2：使用2字节，浪费30字节
+    bool public paused;           // 槽3：使用1字节，浪费31字节
+    
+    // 优化实践：打包到1个槽
+    struct PackedData {
+        uint8 decimals;    // 1字节
+        bool paused;       // 1字节
+        uint16 feeRate;    // 2字节
+        address owner;     // 20字节
+        uint64 timestamp;  // 8字节
+        // 总计：32字节 = 1个槽
+    }
+    PackedData public data;
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="tip-box">
+                    <strong>💡 EVM存储规则：</strong>
+                    <ul>
+                        <li>SSTORE（存储写入）：20,000 gas（冷槽）或 2,900 gas（热槽）</li>
+                        <li>SLOAD（存储读取）：2,100 gas（冷槽）或 100 gas（热槽）</li>
+                        <li>内存操作：3 gas per 32字节</li>
+                    </ul>
+                </div>
+                
+                <h4>批量操作优化</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Solidity - 批量转账优化</span>
+                    </div>
+                    <div class="code-content">
+                        <pre><code class="language-solidity">contract GasOptimizedStablecoin {
+    // 单次转账：约65,000 gas
+    function transfer(address to, uint256 amount) public {
+        // 标准ERC20转账
+    }
+    
+    // 批量转账：节省约40% gas
+    function batchTransfer(
+        address[] calldata recipients,
+        uint256[] calldata amounts
+    ) external {
+        require(recipients.length == amounts.length, "Length mismatch");
+        
+        uint256 totalAmount = 0;
+        uint256 length = recipients.length;
+        
+        // 先计算总额，一次性检查余额
+        for (uint256 i = 0; i < length; ) {
+            totalAmount += amounts[i];
+            unchecked { ++i; }
+        }
+        
+        require(balances[msg.sender] >= totalAmount, "Insufficient balance");
+        
+        // 批量执行转账
+        balances[msg.sender] -= totalAmount;
+        
+        for (uint256 i = 0; i < length; ) {
+            balances[recipients[i]] += amounts[i];
+            emit Transfer(msg.sender, recipients[i], amounts[i]);
+            unchecked { ++i; }
+        }
+    }
+    
+    // Gas对比（10个接收者）：
+    // 10次单独transfer: ~650,000 gas
+    // 1次batchTransfer: ~380,000 gas
+    // 节省: ~41%
+}</code></pre>
+                    </div>
+                </div>
+                
+                <h4>Layer2 优化策略</h4>
+                <div class="info-box">
+                    <h5>不同Layer2的Gas成本对比（2024年数据）</h5>
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Layer2</th>
+                            <th>转账成本</th>
+                            <th>相比L1节省</th>
+                            <th>最适合场景</th>
+                        </tr>
+                        <tr>
+                            <td>Arbitrum One</td>
+                            <td>$0.10-0.50</td>
+                            <td>90-95%</td>
+                            <td>DeFi交互</td>
+                        </tr>
+                        <tr>
+                            <td>Optimism</td>
+                            <td>$0.05-0.30</td>
+                            <td>92-97%</td>
+                            <td>通用应用</td>
+                        </tr>
+                        <tr>
+                            <td>zkSync Era</td>
+                            <td>$0.01-0.10</td>
+                            <td>95-99%</td>
+                            <td>高频交易</td>
+                        </tr>
+                        <tr>
+                            <td>Polygon zkEVM</td>
+                            <td>$0.01-0.05</td>
+                            <td>97-99%</td>
+                            <td>小额支付</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="exercise">
+                    <h4>综合练习：设计高性能稳定币架构</h4>
+                    <p>基于本章所学，设计一个能够支持以下需求的稳定币架构：</p>
+                    <ul>
+                        <li>每秒处理10,000笔交易</li>
+                        <li>平均交易成本低于$0.01</li>
+                        <li>支持跨链转账（至少3条链）</li>
+                        <li>具备紧急暂停和恢复机制</li>
+                        <li>兼容主流DeFi协议</li>
+                    </ul>
+                    <p>请提供：架构图、核心合约接口、Gas估算、安全考虑</p>
+                    
+                    <button class="answer-toggle" onclick="toggleAnswer('answer-1-4')">查看参考答案</button>
+                    <div class="answer" id="answer-1-4">
+                        <h5>参考架构方案</h5>
+                        
+                        <p><strong>1. 多层架构设计</strong></p>
+                        <ul>
+                            <li><strong>Layer 1（结算层）</strong>：以太坊主网
+                                <ul>
+                                    <li>部署主合约，处理大额转账和最终结算</li>
+                                    <li>使用Chainlink CCIP进行跨链消息传递</li>
+                                </ul>
+                            </li>
+                            <li><strong>Layer 2（执行层）</strong>：zkSync Era + Arbitrum
+                                <ul>
+                                    <li>处理99%的日常交易</li>
+                                    <li>成本：$0.001-0.01 per tx</li>
+                                </ul>
+                            </li>
+                            <li><strong>侧链（扩展层）</strong>：Polygon PoS
+                                <ul>
+                                    <li>面向特定地区的高频小额支付</li>
+                                    <li>成本：<$0.001 per tx</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        
+                        <p><strong>2. 核心合约接口</strong></p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>Solidity - 接口设计</span>
+                            </div>
+                            <div class="code-content">
+                                <pre><code class="language-solidity">interface IHighPerformanceStablecoin {
+    // 批量操作
+    function batchTransfer(address[] calldata recipients, uint256[] calldata amounts) external;
+    function batchTransferFrom(address[] calldata from, address[] calldata to, uint256[] calldata amounts) external;
+    
+    // Layer2优化
+    function depositToL2(uint256 amount, uint256 chainId) external;
+    function withdrawFromL2(uint256 amount, bytes calldata proof) external;
+    
+    // 跨链功能
+    function crossChainTransfer(address to, uint256 amount, uint256 destChainId) external payable;
+    
+    // 紧急控制
+    function emergencyPause() external;
+    function emergencyResume() external;
+    
+    // DeFi集成
+    function permitAndCall(
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        bytes calldata data
+    ) external;
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <p><strong>3. Gas优化策略</strong></p>
+                        <ul>
+                            <li>使用CREATE2部署确定性地址</li>
+                            <li>实施EIP-2612 permit功能，支持无gas转账</li>
+                            <li>采用Merkle Tree批量处理空投</li>
+                            <li>使用事件日志替代链上存储非关键数据</li>
+                        </ul>
+                        
+                        <p><strong>4. 安全考虑</strong></p>
+                        <ul>
+                            <li>多签时间锁：关键操作需要48小时延迟</li>
+                            <li>断路器机制：异常情况自动暂停</li>
+                            <li>速率限制：防止闪电贷攻击</li>
+                            <li>审计跟踪：所有操作记录链上事件</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="theory-section">
+                <h3>1.5 稳定币与PoW、比特币的关系</h3>
+                
+                <h4>稳定币与比特币的共生关系</h4>
+                
+                <h5>1. 交易对关系</h5>
+                <ul>
+                    <li><strong>BTC/USDT</strong>：最大交易对，日交易量$10B+</li>
+                    <li><strong>价格发现</strong>：稳定币成为BTC定价基准</li>
+                    <li><strong>流动性桥梁</strong>：法币→稳定币→BTC的主要通道</li>
+                </ul>
+                
+                <h5>2. 功能互补</h5>
+                <table style="width: 100%; margin: 1rem 0;">
+                    <tr>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">特性</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">比特币</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">稳定币</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">角色</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">价值存储、数字黄金</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">交换媒介、记账单位</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">波动性</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">高（日波动5-10%）</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">低（目标<0.1%）</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">使用场景</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">长期投资、对冲通胀</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">日常支付、DeFi操作</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">去中心化程度</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">极高</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">低到中等</td>
+                    </tr>
+                </table>
+                
+                <h5>3. 市场行为模式</h5>
+                <ul>
+                    <li><strong>牛市</strong>：BTC上涨→获利了结到稳定币→等待回调买入</li>
+                    <li><strong>熊市</strong>：稳定币避险→等待BTC抄底机会</li>
+                    <li><strong>震荡</strong>：BTC/稳定币高频交易套利</li>
+                </ul>
+                
+                <h5>4. PoW对稳定币的影响</h5>
+                <div class="concept">
+                    <p><strong>安全性传承：</strong></p>
+                    <ul>
+                        <li>比特币PoW提供了加密货币生态的安全基石</li>
+                        <li>稳定币虽然多部署在PoS链上，但其价值锚定和信任基础部分来自比特币的成功</li>
+                        <li>许多稳定币项目持有BTC作为储备资产的一部分</li>
+                    </ul>
+                    
+                    <p><strong>能源成本考量：</strong></p>
+                    <ul>
+                        <li>PoW高能耗推动稳定币选择更高效的链（PoS、DPoS）</li>
+                        <li>但比特币网络的安全性为整个生态提供信心</li>
+                    </ul>
+                </div>
+                
+                <h5>5. 稳定币在各链的分布（2024年数据）</h5>
+                <table style="width: 100%; margin: 1rem 0;">
+                    <tr>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">区块链</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">共识机制</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">稳定币市场份额</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">主要稳定币</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">Ethereum</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">PoS</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">45%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">USDT, USDC, DAI</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">Tron</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">DPoS</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">35%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">USDT</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">BSC</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">PoSA</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">10%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">BUSD, USDT</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">比特币（Omni）</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">PoW</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">1%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">USDT</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">其他</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">混合</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">9%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">各类稳定币</td>
+                    </tr>
+                </table>
+                
+                <div class="tip-box">
+                    <strong>💡 关键洞察：</strong>
+                    <ul>
+                        <li>虽然比特币的PoW不适合高频稳定币交易，但它为整个加密生态提供了信任基础</li>
+                        <li>稳定币选择更高效的链部署，但价值最终还是以比特币和法币为锚定</li>
+                        <li>比特币和稳定币形成了"数字黄金"和"数字现金"的互补关系</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 章节总结 -->
+            <div class="theory-section">
+                <h3>本章总结</h3>
+                <p>在本章中，我们深入探讨了区块链基础技术如何影响稳定币的设计和实现：</p>
+                <ul>
+                    <li><strong>共识机制</strong>：不同的共识机制在安全性、效率和去中心化之间做出不同权衡，直接影响稳定币的使用场景</li>
+                    <li><strong>执行模型</strong>：UTXO vs 账户模型各有优劣，选择取决于稳定币的具体需求</li>
+                    <li><strong>实践经验</strong>：通过部署简单的稳定币合约，理解了中心化稳定币的核心机制和权衡</li>
+                    <li><strong>Gas优化</strong>：对于高频交易的稳定币，Gas优化至关重要，需要综合运用多种技术</li>
+                    <li><strong>生态关系</strong>：稳定币与比特币形成互补关系，共同构建了加密货币生态系统</li>
+                </ul>
+                
+                <p>下一章，我们将深入探讨稳定币的分类和经济模型，理解不同类型稳定币的设计理念和风险特征。</p>
+            </div>
+            
+            <!-- 章节导航 -->
+            <div class="chapter-nav">
+                <a href="intro.html">← 引言</a>
+                <a href="chapter2.html">第2章：稳定币分类与经济模型 →</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-solidity.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

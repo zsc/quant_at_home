@@ -1,0 +1,3531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第五章：数学模型与控制理论 - 区块链稳定币教程</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-brand">稳定币教程</a>
+            <button class="navbar-toggle" onclick="toggleMobileNav()">☰</button>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a href="intro.html" class="nav-link">引言</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">章节</a>
+                    <div class="dropdown-menu">
+                        <a href="chapter1.html" class="dropdown-item">第1章：区块链基础</a>
+                        <a href="chapter2.html" class="dropdown-item">第2章：稳定币分类</a>
+                        <a href="chapter3.html" class="dropdown-item">第3章：ERC-20标准</a>
+                        <a href="chapter4.html" class="dropdown-item">第4章：抵押型设计</a>
+                        <a href="chapter5.html" class="dropdown-item">第5章：数学模型</a>
+                        <a href="chapter6.html" class="dropdown-item">第6章：AMM集成</a>
+                        <a href="chapter7.html" class="dropdown-item">第7章：借贷协议</a>
+                        <a href="chapter8.html" class="dropdown-item">第8章：收益策略</a>
+                        <a href="chapter9.html" class="dropdown-item">第9章：智能合约安全</a>
+                        <a href="chapter10.html" class="dropdown-item">第10章：经济攻击</a>
+                        <a href="chapter11.html" class="dropdown-item">第11章：未来方向</a>
+                        <a href="chapter12.html" class="dropdown-item">第12章：生产部署</a>
+                        <a href="chapter13.html" class="dropdown-item">第13章：生态集成</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="#resources" class="nav-link">资源</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- 头部 -->
+    <header id="top">
+        <div class="container">
+            <h1>第五章：数学模型与控制理论</h1>
+        </div>
+    </header>
+    
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="chapter">
+<h2>第五章：数学模型与控制理论</h2>
+        
+        <div class="intro-box">
+            <strong>本章概览：</strong>
+            <ul>
+                <li>PID控制器在算法稳定币中的应用</li>
+                <li>清算博弈论与最优策略分析</li>
+                <li>Black-Scholes期权定价模型在抵押率设计中的应用</li>
+                <li>市场压力测试与蒙特卡洛模拟</li>
+                <li>实战：构建稳定币参数优化引擎</li>
+            </ul>
+        </div>
+        
+        <div class="tip-box">
+            <strong>🎯 章节目标：</strong>
+            <p>本章将深入探讨稳定币系统背后的数学原理。对于AI科学家和资深程序员，这些数学模型不仅是理论工具，更是设计和优化稳定币系统的实用方法。我们将通过实际代码和数据分析，展示如何将这些理论应用于实践。</p>
+        </div>
+
+        <div class="info-box">
+            <h4>📊 链上环境与理论模型的差异</h4>
+            <p>在将经典控制理论和金融模型应用于区块链时，需要考虑以下关键差异：</p>
+            <ul>
+                <li><strong>离散时间 vs 连续时间：</strong>区块链以区块为单位更新，而非连续</li>
+                <li><strong>定点数 vs 浮点数：</strong>Solidity缺乏原生浮点支持，需要精度权衡</li>
+                <li><strong>Gas限制：</strong>复杂计算可能超出单笔交易的Gas上限</li>
+                <li><strong>预言机延迟：</strong>价格数据存在延迟和潜在的操纵风险</li>
+                <li><strong>MEV影响：</strong>参数更新可能被抢先交易利用</li>
+            </ul>
+        </div>
+
+        <h3>5.1 PID控制器在算法稳定币中的应用</h3>
+        
+        <h4>5.1.1 控制理论基础</h4>
+        <p>PID（比例-积分-微分）控制器是工业控制中最常用的反馈控制器。在稳定币系统中，PID控制器可以用来动态调整参数以维持价格稳定。</p>
+        
+        <div class="tip">
+            💡 <strong>关键洞察：</strong>稳定币价格稳定问题本质上是一个控制系统问题：我们需要通过调整系统参数（如稳定费率、抵押率等）来使输出（稳定币价格）跟踪参考值（1美元）。
+        </div>
+        
+        <h4>5.1.2 PID控制器数学模型</h4>
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+            <p><strong>连续时间PID控制器：</strong></p>
+            <p style="text-align: center; font-size: 1.2em;">
+                u(t) = K<sub>p</sub>e(t) + K<sub>i</sub>∫<sub>0</sub><sup>t</sup>e(τ)dτ + K<sub>d</sub>de(t)/dt
+            </p>
+            
+            <p><strong>离散时间PID控制器（区块链适用）：</strong></p>
+            <p style="text-align: center; font-size: 1.2em;">
+                u[k] = K<sub>p</sub>e[k] + K<sub>i</sub>T<sub>s</sub>Σ<sub>j=0</sub><sup>k</sup>e[j] + K<sub>d</sub>(e[k]-e[k-1])/T<sub>s</sub>
+            </p>
+            
+            <p>其中：</p>
+            <ul>
+                <li><strong>e(t) / e[k]</strong> = 误差信号 = 参考值(r) - 实际值(y)</li>
+                <li><strong>K<sub>p</sub></strong> = 比例增益（快速响应）</li>
+                <li><strong>K<sub>i</sub></strong> = 积分增益（消除稳态误差）</li>
+                <li><strong>K<sub>d</sub></strong> = 微分增益（预测未来，减少超调）</li>
+                <li><strong>T<sub>s</sub></strong> = 采样时间（区块时间）</li>
+                <li><strong>u(t) / u[k]</strong> = 控制输出</li>
+            </ul>
+        </div>
+        
+        <h4>5.1.3 Python模拟环境</h4>
+        <p>在实现链上版本前，我们先用Python建立直观理解：</p>
+        
+        <div class="code-block">
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+import pandas as pd
+
+class PIDController:
+    """稳定币价格PID控制器模拟"""
+    
+    def __init__(self, Kp=0.01, Ki=0.001, Kd=0.005, 
+                 target=1.0, dt=15.0, deadband=0.001):
+        self.Kp = Kp
+        self.Ki = Ki
+        self.Kd = Kd
+        self.target = target
+        self.dt = dt  # 区块时间（秒）
+        self.deadband = deadband
+        
+        # 状态变量
+        self.integral = 0
+        self.last_error = 0
+        self.output_limits = (-0.05, 0.05)  # ±5%调整限制
+        
+    def update(self, current_price):
+        """计算PID输出"""
+        error = self.target - current_price
+        
+        # 死区处理
+        if abs(error) < self.deadband:
+            return 0
+        
+        # P项
+        P = self.Kp * error
+        
+        # I项（带抗积分饱和）
+        self.integral += error * self.dt
+        # 积分限幅
+        integral_limit = self.output_limits[1] / self.Ki
+        self.integral = np.clip(self.integral, -integral_limit, integral_limit)
+        I = self.Ki * self.integral
+        
+        # D项（带滤波）
+        if self.dt > 0:
+            derivative = (error - self.last_error) / self.dt
+            D = self.Kd * derivative
+        else:
+            D = 0
+            
+        # 计算总输出
+        output = P + I + D
+        
+        # 输出限幅
+        output = np.clip(output, self.output_limits[0], self.output_limits[1])
+        
+        # 更新状态
+        self.last_error = error
+        
+        return output
+    
+    def reset(self):
+        """重置控制器状态"""
+        self.integral = 0
+        self.last_error = 0
+
+# 参数自动调优 - Ziegler-Nichols方法
+def ziegler_nichols_tuning(system_response):
+    """
+    基于系统阶跃响应的Ziegler-Nichols调参
+    返回推荐的PID参数
+    """
+    # 找到最大斜率点
+    max_slope_idx = np.argmax(np.gradient(system_response))
+    max_slope = np.gradient(system_response)[max_slope_idx]
+    
+    # 估计延迟和时间常数
+    L = max_slope_idx * 0.1  # 假设0.1秒采样
+    T = len(system_response) * 0.1 / 3  # 粗略估计
+    
+    # Ziegler-Nichols PID参数
+    Kp = 1.2 * T / L
+    Ki = Kp / (2 * L)
+    Kd = Kp * L / 2
+    
+    return Kp, Ki, Kd
+
+# 模拟稳定币系统
+def simulate_stablecoin_system(controller, market_shocks, blocks=1000):
+    """
+    模拟稳定币价格控制系统
+    包含市场冲击和噪声
+    """
+    prices = [1.0]  # 初始价格$1
+    rates = [0.02]  # 初始稳定费率2%
+    
+    for i in range(blocks):
+        # 当前价格 = 上一价格 + 市场力量 + 噪声
+        market_pressure = market_shocks[i] if i < len(market_shocks) else 0
+        noise = np.random.normal(0, 0.001)  # 0.1%标准差的噪声
+        
+        # 稳定费率对价格的影响（简化模型）
+        rate_effect = -rates[-1] * 0.1  # 费率越高，卖压越大
+        
+        new_price = prices[-1] + market_pressure + noise + rate_effect
+        
+        # PID控制器输出
+        rate_adjustment = controller.update(new_price)
+        new_rate = max(0, rates[-1] + rate_adjustment)  # 费率不能为负
+        
+        prices.append(new_price)
+        rates.append(new_rate)
+    
+    return np.array(prices), np.array(rates)
+
+# 运行模拟
+if __name__ == "__main__":
+    # 创建市场冲击场景
+    market_shocks = np.zeros(1000)
+    market_shocks[100:150] = -0.02  # 5%的持续卖压
+    market_shocks[500] = -0.05      # 5%的瞬间冲击
+    market_shocks[700:750] = 0.01   # 1%的买压
+    
+    # 创建控制器
+    pid = PIDController(Kp=0.02, Ki=0.002, Kd=0.01)
+    
+    # 运行模拟
+    prices, rates = simulate_stablecoin_system(pid, market_shocks)
+    
+    # 可视化结果
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
+    
+    # 价格图
+    ax1.plot(prices, label='稳定币价格')
+    ax1.axhline(y=1.0, color='r', linestyle='--', label='目标价格 $1')
+    ax1.fill_between(range(len(prices)), 0.99, 1.01, alpha=0.3, color='green')
+    ax1.set_ylabel('价格 (USD)')
+    ax1.set_title('PID控制下的稳定币价格')
+    ax1.legend()
+    ax1.grid(True)
+    
+    # 费率图
+    ax2.plot(rates * 100, label='稳定费率')
+    ax2.set_xlabel('区块数')
+    ax2.set_ylabel('费率 (%)')
+    ax2.set_title('动态调整的稳定费率')
+    ax2.legend()
+    ax2.grid(True)
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # 计算性能指标
+    rmse = np.sqrt(np.mean((prices - 1.0)**2))
+    max_deviation = np.max(np.abs(prices - 1.0))
+    settling_time = np.argmax(np.abs(prices[100:] - 1.0) < 0.01) if any(np.abs(prices[100:] - 1.0) < 0.01) else len(prices)
+    
+    print(f"RMSE: {rmse:.4f}")
+    print(f"最大偏离: {max_deviation:.4f}")
+    print(f"稳定时间: {settling_time} 区块")</code></pre>
+        </div>
+        
+        <h4>5.1.4 高级控制模型展望</h4>
+        <div class="info-box">
+            <h5>🚀 超越PID：下一代控制策略</h5>
+            <p>虽然PID控制器简单有效，但现代控制理论提供了更强大的工具：</p>
+            
+            <ul>
+                <li><strong>模型预测控制（MPC）：</strong>考虑未来多步预测，优化控制序列
+                    <pre><code class="language-python"># MPC伪代码
+def mpc_controller(current_state, prediction_horizon=10):
+    # 预测未来状态
+    future_states = predict_system_evolution(current_state, horizon)
+    # 优化控制序列
+    optimal_controls = optimize_control_sequence(future_states)
+    # 只执行第一步
+    return optimal_controls[0]</code></pre>
+                </li>
+                
+                <li><strong>强化学习（RL）控制器：</strong>通过与环境交互学习最优策略
+                    <pre><code class="language-python"># RL控制器概念
+class RLStablecoinController:
+    def __init__(self):
+        self.q_network = build_neural_network()
+        self.replay_buffer = []
+    
+    def get_action(self, state):
+        # ε-贪心策略
+        if random.random() < self.epsilon:
+            return random_action()
+        return self.q_network.predict(state)</code></pre>
+                </li>
+                
+                <li><strong>自适应控制：</strong>实时调整控制器参数
+                    <ul>
+                        <li>递归最小二乘（RLS）参数估计</li>
+                        <li>卡尔曼滤波状态估计</li>
+                        <li>贝叶斯优化参数调优</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <p><strong>挑战：</strong>这些高级方法在链上实现面临Gas成本和计算复杂度限制，通常需要链下计算+链上验证的混合架构。</p>
+        </div>
+        
+        <h4>5.1.5 Solidity实现</h4>
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">PID控制器完整实现 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract PIDController {
+    // PID参数
+    int256 public Kp = 1e16;      // 比例系数 (0.01)
+    int256 public Ki = 1e15;      // 积分系数 (0.001)
+    int256 public Kd = 5e15;      // 微分系数 (0.005)
+    
+    // 状态变量
+    int256 public integral;        // 积分项
+    int256 public lastError;       // 上次误差
+    uint256 public lastTime;       // 上次更新时间
+    
+    // 目标价格和界限
+    uint256 public constant TARGET_PRICE = 1e18;  // 1 USD
+    int256 public constant MAX_OUTPUT = 5e16;     // 最大调整5%
+    int256 public constant MIN_OUTPUT = -5e16;    // 最小调整-5%
+    
+    // 死区设置（减少频繁调整）
+    uint256 public constant DEADBAND = 1e15;      // 0.1%死区
+    
+    // 计算PID输出
+    function computePID(uint256 currentPrice) public returns (int256) {
+        require(currentPrice > 0, "Invalid price");
+        
+        uint256 currentTime = block.timestamp;
+        uint256 deltaTime = currentTime - lastTime;
+        
+        // 计算误差（可以为负）
+        int256 error = int256(TARGET_PRICE) - int256(currentPrice);
+        
+        // 死区处理
+        if (abs(error) < int256(DEADBAND)) {
+            return 0;
+        }
+        
+        // 计算PID各项
+        int256 proportional = Kp * error / 1e18;
+        
+        // 积分项（带抗积分饱和）
+        integral += error * int256(deltaTime);
+        // 限制积分项防止积分饱和
+        if (integral > MAX_OUTPUT * 1e18 / Ki) {
+            integral = MAX_OUTPUT * 1e18 / Ki;
+        } else if (integral < MIN_OUTPUT * 1e18 / Ki) {
+            integral = MIN_OUTPUT * 1e18 / Ki;
+        }
+        int256 integralTerm = Ki * integral / 1e18;
+        
+        // 微分项（带滤波）
+        int256 derivative = 0;
+        if (deltaTime > 0) {
+            derivative = Kd * (error - lastError) * 1e18 / int256(deltaTime);
+        }
+        
+        // 计算总输出
+        int256 output = proportional + integralTerm + derivative;
+        
+        // 输出限幅
+        if (output > MAX_OUTPUT) {
+            output = MAX_OUTPUT;
+        } else if (output < MIN_OUTPUT) {
+            output = MIN_OUTPUT;
+        }
+        
+        // 更新状态
+        lastError = error;
+        lastTime = currentTime;
+        
+        emit PIDComputed(currentPrice, error, output);
+        
+        return output;
+    }
+    
+    // 参数自适应调整
+    function adaptiveParameterTuning(
+        uint256 volatility,
+        uint256 volume
+    ) external {
+        // 高波动性时增加Kd，减少Ki
+        if (volatility > 2e16) { // 2%波动率
+            Kd = Kd * 12 / 10;    // 增加20%
+            Ki = Ki * 8 / 10;     // 减少20%
+        }
+        
+        // 低交易量时减少所有增益
+        if (volume < 1e6 * 1e18) { // 少于100万美元
+            Kp = Kp * 9 / 10;
+            Ki = Ki * 9 / 10;
+            Kd = Kd * 9 / 10;
+        }
+    }
+    
+    // 辅助函数：计算绝对值
+    function abs(int256 x) private pure returns (int256) {
+        return x >= 0 ? x : -x;
+    }
+    
+    event PIDComputed(uint256 price, int256 error, int256 output);
+}</code></pre>
+            </div>
+        </div>
+        
+        <h4>5.1.6 稳定费率动态调整</h4>
+        <p>将PID控制器应用于稳定费率调整，实现价格的自动稳定：</p>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">稳定费率控制系统 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">contract StabilityFeeController {
+    PIDController public pidController;
+    IPriceOracle public priceOracle;
+    
+    // 费率参数
+    uint256 public baseRate = 2e16;        // 基础费率2%
+    uint256 public currentRate;            // 当前费率
+    uint256 public minRate = 0;            // 最低费率0%
+    uint256 public maxRate = 20e16;        // 最高费率20%
+    
+    // 更新频率控制
+    uint256 public lastUpdate;
+    uint256 public constant UPDATE_INTERVAL = 1 hours;
+    
+    // 历史数据记录（用于分析）
+    struct RateHistory {
+        uint256 timestamp;
+        uint256 price;
+        uint256 rate;
+        int256 adjustment;
+    }
+    
+    RateHistory[] public rateHistory;
+    
+    function updateStabilityFee() external {
+        require(block.timestamp >= lastUpdate + UPDATE_INTERVAL, "Too frequent");
+        
+        // 获取当前价格（可能是TWAP）
+        uint256 currentPrice = priceOracle.getPrice();
+        
+        // 计算PID输出
+        int256 adjustment = pidController.computePID(currentPrice);
+        
+        // 应用调整
+        if (adjustment > 0) {
+            currentRate = currentRate + uint256(adjustment);
+        } else {
+            uint256 decrease = uint256(-adjustment);
+            currentRate = currentRate > decrease ? currentRate - decrease : 0;
+        }
+        
+        // 限制范围
+        if (currentRate > maxRate) {
+            currentRate = maxRate;
+        } else if (currentRate < minRate) {
+            currentRate = minRate;
+        }
+        
+        // 记录历史
+        rateHistory.push(RateHistory({
+            timestamp: block.timestamp,
+            price: currentPrice,
+            rate: currentRate,
+            adjustment: adjustment
+        }));
+        
+        // 更新CDP系统的费率
+        cdpEngine.updateStabilityFee(currentRate);
+        
+        lastUpdate = block.timestamp;
+        
+        emit StabilityFeeUpdated(currentRate, adjustment, currentPrice);
+    }
+    
+    // 获取系统性能指标
+    function getPerformanceMetrics(uint256 periods) 
+        external 
+        view 
+        returns (
+            uint256 avgPrice,
+            uint256 priceStdDev,
+            uint256 avgRate,
+            uint256 adjustmentCount
+        ) 
+    {
+        require(periods > 0 && periods <= rateHistory.length, "Invalid periods");
+        
+        uint256 startIdx = rateHistory.length - periods;
+        uint256 sumPrice;
+        uint256 sumRate;
+        uint256 sumSquaredDev;
+        
+        // 计算平均值
+        for (uint256 i = startIdx; i < rateHistory.length; i++) {
+            sumPrice += rateHistory[i].price;
+            sumRate += rateHistory[i].rate;
+            if (rateHistory[i].adjustment != 0) {
+                adjustmentCount++;
+            }
+        }
+        
+        avgPrice = sumPrice / periods;
+        avgRate = sumRate / periods;
+        
+        // 计算标准差
+        for (uint256 i = startIdx; i < rateHistory.length; i++) {
+            int256 deviation = int256(rateHistory[i].price) - int256(avgPrice);
+            sumSquaredDev += uint256(deviation * deviation);
+        }
+        
+        priceStdDev = sqrt(sumSquaredDev / periods);
+    }
+    
+    // 平方根函数（用于标准差计算）
+    function sqrt(uint256 x) private pure returns (uint256 y) {
+        uint256 z = (x + 1) / 2;
+        y = x;
+        while (z < y) {
+            y = z;
+            z = (x / z + z) / 2;
+        }
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <h3>5.2 预言机安全与治理</h3>
+        
+        <h4>5.2.1 预言机在稳定币系统中的关键作用</h4>
+        <p>预言机是稳定币系统的"眼睛"，提供链外世界的价格数据。其安全性直接影响整个系统的稳定性。</p>
+        
+        <div class="info-box">
+            <h5>⚠️ 预言机风险分类</h5>
+            <ul>
+                <li><strong>技术风险：</strong>节点故障、网络延迟、数据源错误</li>
+                <li><strong>经济攻击：</strong>价格操纵、闪电贷攻击、MEV抢先交易</li>
+                <li><strong>治理风险：</strong>恶意提案、参数操纵、紧急响应延迟</li>
+                <li><strong>系统性风险：</strong>级联故障、流动性枯竭、黑天鹅事件</li>
+            </ul>
+        </div>
+        
+        <h4>5.2.2 多层防御机制</h4>
+        <div class="code-block">
+            <pre><code class="language-solidity">// 安全预言机聚合器
+contract SecureOracleAggregator {
+    using FixedPoint for uint256;
+    
+    struct PriceData {
+        uint256 price;
+        uint256 timestamp;
+        uint256 confidence;  // 置信度评分
+        address source;
+    }
+    
+    struct OracleConfig {
+        address oracle;
+        uint256 weight;      // 权重
+        uint256 deviation;   // 允许偏差
+        bool isActive;
+    }
+    
+    // 多个预言机源
+    OracleConfig[] public oracles;
+    mapping(address => PriceData) public latestPrices;
+    
+    // 安全参数
+    uint256 public constant MIN_SOURCES = 3;
+    uint256 public constant MAX_DEVIATION = 0.05e18;  // 5%
+    uint256 public constant PRICE_STALENESS = 3600;   // 1小时
+    uint256 public constant EMERGENCY_PAUSE_THRESHOLD = 0.1e18;  // 10%
+    
+    // TWAP（时间加权平均价格）
+    mapping(address => uint256[]) public priceHistory;
+    uint256 public constant TWAP_WINDOW = 24;  // 24个数据点
+    
+    // 断路器状态
+    bool public emergencyPause;
+    uint256 public lastValidPrice;
+    
+    function getSecurePrice(address asset) external returns (uint256) {
+        require(!emergencyPause, "Oracle paused");
+        
+        uint256[] memory prices = new uint256[](oracles.length);
+        uint256[] memory weights = new uint256[](oracles.length);
+        uint256 validSources = 0;
+        
+        // 收集所有活跃预言机的价格
+        for (uint i = 0; i < oracles.length; i++) {
+            if (!oracles[i].isActive) continue;
+            
+            try IOracle(oracles[i].oracle).getPrice(asset) returns (uint256 price) {
+                // 检查价格时效性
+                if (block.timestamp - latestPrices[oracles[i].oracle].timestamp < PRICE_STALENESS) {
+                    prices[validSources] = price;
+                    weights[validSources] = oracles[i].weight;
+                    validSources++;
+                    
+                    // 更新价格记录
+                    latestPrices[oracles[i].oracle] = PriceData({
+                        price: price,
+                        timestamp: block.timestamp,
+                        confidence: calculateConfidence(price, asset),
+                        source: oracles[i].oracle
+                    });
+                }
+            } catch {
+                // 记录失败但继续
+                emit OracleFailure(oracles[i].oracle, asset);
+            }
+        }
+        
+        require(validSources >= MIN_SOURCES, "Insufficient oracle sources");
+        
+        // 计算加权中位数
+        uint256 finalPrice = calculateWeightedMedian(prices, weights, validSources);
+        
+        // 异常检测
+        if (lastValidPrice > 0) {
+            uint256 priceChange = finalPrice > lastValidPrice 
+                ? (finalPrice - lastValidPrice).div(lastValidPrice)
+                : (lastValidPrice - finalPrice).div(lastValidPrice);
+                
+            if (priceChange > EMERGENCY_PAUSE_THRESHOLD) {
+                emergencyPause = true;
+                emit EmergencyPause(asset, lastValidPrice, finalPrice);
+                return lastValidPrice;  // 返回最后有效价格
+            }
+        }
+        
+        // 更新TWAP
+        updateTWAP(asset, finalPrice);
+        lastValidPrice = finalPrice;
+        
+        return finalPrice;
+    }
+    
+    // 计算加权中位数（抗操纵）
+    function calculateWeightedMedian(
+        uint256[] memory prices,
+        uint256[] memory weights,
+        uint256 count
+    ) private pure returns (uint256) {
+        // 排序价格数组（带权重）
+        for (uint i = 0; i < count - 1; i++) {
+            for (uint j = 0; j < count - i - 1; j++) {
+                if (prices[j] > prices[j + 1]) {
+                    // 交换价格和权重
+                    (prices[j], prices[j + 1]) = (prices[j + 1], prices[j]);
+                    (weights[j], weights[j + 1]) = (weights[j + 1], weights[j]);
+                }
+            }
+        }
+        
+        // 找到加权中位数
+        uint256 totalWeight;
+        for (uint i = 0; i < count; i++) {
+            totalWeight += weights[i];
+        }
+        
+        uint256 targetWeight = totalWeight / 2;
+        uint256 cumulativeWeight;
+        
+        for (uint i = 0; i < count; i++) {
+            cumulativeWeight += weights[i];
+            if (cumulativeWeight >= targetWeight) {
+                return prices[i];
+            }
+        }
+        
+        return prices[count - 1];
+    }
+    
+    // MEV保护：延迟价格更新
+    mapping(bytes32 => PriceCommitment) public priceCommitments;
+    
+    struct PriceCommitment {
+        bytes32 commitment;
+        uint256 revealDeadline;
+        bool revealed;
+    }
+    
+    function commitPrice(bytes32 commitment) external onlyOracle {
+        priceCommitments[commitment] = PriceCommitment({
+            commitment: commitment,
+            revealDeadline: block.timestamp + 15 minutes,
+            revealed: false
+        });
+    }
+    
+    function revealPrice(
+        address asset,
+        uint256 price,
+        uint256 nonce
+    ) external onlyOracle {
+        bytes32 commitment = keccak256(abi.encodePacked(asset, price, nonce, msg.sender));
+        PriceCommitment storage pc = priceCommitments[commitment];
+        
+        require(pc.commitment == commitment, "Invalid commitment");
+        require(block.timestamp <= pc.revealDeadline, "Reveal deadline passed");
+        require(!pc.revealed, "Already revealed");
+        
+        pc.revealed = true;
+        // 处理揭示的价格...
+    }
+}</code></pre>
+        </div>
+        
+        <h4>5.2.3 治理与紧急响应</h4>
+        <div class="code-block">
+            <pre><code class="language-solidity">// 治理模块
+contract OracleGovernance {
+    using SafeMath for uint256;
+    
+    // 时间锁参数
+    uint256 public constant MINIMUM_DELAY = 2 days;
+    uint256 public constant MAXIMUM_DELAY = 30 days;
+    uint256 public constant GRACE_PERIOD = 14 days;
+    
+    // 提案类型
+    enum ProposalType {
+        ADD_ORACLE,
+        REMOVE_ORACLE,
+        UPDATE_WEIGHT,
+        UPDATE_PARAMETERS,
+        EMERGENCY_ACTION
+    }
+    
+    struct Proposal {
+        ProposalType proposalType;
+        address target;
+        uint256 value;
+        bytes data;
+        uint256 eta;  // 执行时间
+        bool executed;
+        bool cancelled;
+    }
+    
+    mapping(uint256 => Proposal) public proposals;
+    uint256 public proposalCount;
+    
+    // 紧急多签
+    mapping(address => bool) public guardians;
+    uint256 public constant GUARDIAN_THRESHOLD = 3;
+    
+    // 紧急暂停（需要多个守护者签名）
+    function emergencyPause() external {
+        require(guardians[msg.sender], "Not a guardian");
+        
+        bytes32 actionHash = keccak256(abi.encodePacked("EMERGENCY_PAUSE", block.timestamp));
+        
+        if (confirmations[actionHash].length >= GUARDIAN_THRESHOLD) {
+            IOracle(oracleAggregator).pause();
+            emit EmergencyActionExecuted("PAUSE", block.timestamp);
+        } else {
+            confirmations[actionHash].push(msg.sender);
+            emit GuardianConfirmation(msg.sender, actionHash);
+        }
+    }
+    
+    // 参数更新的渐进式实施
+    function executeParameterUpdate(
+        uint256 proposalId
+    ) external {
+        Proposal storage proposal = proposals[proposalId];
+        require(!proposal.executed, "Already executed");
+        require(block.timestamp >= proposal.eta, "Too early");
+        require(block.timestamp <= proposal.eta.add(GRACE_PERIOD), "Stale");
+        
+        // 渐进式更新，避免突变
+        if (proposal.proposalType == ProposalType.UPDATE_PARAMETERS) {
+            uint256 currentValue = IOracle(proposal.target).getParameter(proposal.data);
+            uint256 targetValue = proposal.value;
+            
+            // 每次最多改变10%
+            uint256 maxChange = currentValue.mul(10).div(100);
+            uint256 actualChange = targetValue > currentValue
+                ? Math.min(targetValue - currentValue, maxChange)
+                : Math.min(currentValue - targetValue, maxChange);
+                
+            uint256 newValue = targetValue > currentValue
+                ? currentValue.add(actualChange)
+                : currentValue.sub(actualChange);
+                
+            IOracle(proposal.target).setParameter(proposal.data, newValue);
+            
+            // 如果还未达到目标，创建新提案
+            if (newValue != targetValue) {
+                _createFollowUpProposal(proposal, newValue, targetValue);
+            }
+        }
+        
+        proposal.executed = true;
+    }
+}</code></pre>
+        </div>
+        
+        <h4>5.2.4 2024年预言机创新</h4>
+        <div class="info-box">
+            <h5>🔮 最新发展趋势</h5>
+            <ul>
+                <li><strong>零知识预言机：</strong>使用ZK证明验证链下计算，如zkOracles</li>
+                <li><strong>TEE预言机：</strong>利用可信执行环境（如Intel SGX）保证数据完整性</li>
+                <li><strong>AI增强预言机：</strong>使用机器学习检测异常和预测价格</li>
+                <li><strong>跨链预言机标准：</strong>统一的预言机接口支持多链部署</li>
+            </ul>
+        </div>
+        
+        <h3>5.3 清算博弈论与激励机制</h3>
+        
+        <h4>5.3.1 清算博弈模型</h4>
+        <p>清算过程可以建模为一个多方博弈，参与者包括：CDP持有者、Keeper（清算者）和协议本身。</p>
+        
+        <div class="tip-box">
+            <strong>🎮 博弈论视角：</strong>
+            <ul>
+                <li><strong>CDP持有者：</strong>希望避免清算，但也希望最大化资本效率</li>
+                <li><strong>Keeper：</strong>寻求清算利润，但需要承担Gas成本和价格风险</li>
+                <li><strong>协议：</strong>需要平衡系统安全性和用户体验</li>
+            </ul>
+        </div>
+        
+        <h4>5.3.2 纳什均衡分析</h4>
+        <div style="background: #fef3c7; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+            <p><strong>清算博弈的纳什均衡条件：</strong></p>
+            <ol>
+                <li><strong>Keeper参与条件：</strong>
+                    <p>E[清算利润] > Gas成本 + 机会成本 + 风险溢价</p>
+                </li>
+                <li><strong>CDP持有者最优抵押率：</strong>
+                    <p>边际收益率 = 清算概率 × 清算损失率</p>
+                </li>
+                <li><strong>协议最优参数：</strong>
+                    <p>最小化（系统风险 + 用户成本）</p>
+                </li>
+            </ol>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">清算博弈建模 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">contract LiquidationGameTheory {
+    using ABDKMath64x64 for int128;
+    
+    struct GameParameters {
+        uint256 liquidationPenalty;    // 清算罚金
+        uint256 gasPrice;             // 当前Gas价格
+        uint256 volatility;           // 市场波动率
+        uint256 keeperCount;          // 活跃Keeper数量
+    }
+    
+    // 计算Keeper的期望收益
+    function calculateKeeperExpectedProfit(
+        uint256 collateralValue,
+        uint256 debtValue,
+        GameParameters memory params
+    ) public pure returns (int256 expectedProfit) {
+        // 清算折扣收益
+        uint256 discount = collateralValue * params.liquidationPenalty / 1e18;
+        
+        // 预期Gas成本（考虑竞争）
+        uint256 gasCost = estimateGasCost(params.gasPrice, params.keeperCount);
+        
+        // 价格滑点风险（基于波动率）
+        uint256 slippageRisk = collateralValue * params.volatility / 1e18;
+        
+        // 竞争风险（其他Keeper抢先）
+        uint256 competitionRisk = discount * min(params.keeperCount, 10) / 20;
+        
+        // 期望利润 = 折扣 - Gas成本 - 滑点风险 - 竞争风险
+        expectedProfit = int256(discount) - int256(gasCost) - 
+                        int256(slippageRisk) - int256(competitionRisk);
+    }
+    
+    // 计算最优抵押率（CDP持有者视角）
+    function calculateOptimalCollateralRatio(
+        uint256 stabilityFee,      // 年化稳定费
+        uint256 collateralReturn,  // 抵押品预期收益率
+        uint256 volatility,        // 波动率
+        uint256 liquidationRatio   // 清算线
+    ) public pure returns (uint256 optimalRatio) {
+        // 使用Kelly准则的变体
+        // f* = (p*b - q) / b
+        // 其中：p是盈利概率，b是盈亏比，q是亏损概率
+        
+        // 计算持有收益
+        int256 holdingReturn = int256(collateralReturn) - int256(stabilityFee);
+        
+        // 计算清算概率（基于波动率和距离清算线的距离）
+        uint256 liquidationProb = calculateLiquidationProbability(
+            liquidationRatio,
+            volatility
+        );
+        
+        // Kelly准则计算
+        if (holdingReturn > 0) {
+            // 有正收益时的最优抵押率
+            optimalRatio = liquidationRatio * (1e18 + volatility) / 1e18;
+            
+            // 加入安全边际
+            optimalRatio = optimalRatio * 115 / 100; // 15%安全边际
+        } else {
+            // 负收益时保守策略
+            optimalRatio = liquidationRatio * 150 / 100;
+        }
+    }
+    
+    // 计算清算概率（使用正态分布近似）
+    function calculateLiquidationProbability(
+        uint256 liquidationRatio,
+        uint256 annualVolatility
+    ) private pure returns (uint256) {
+        // 将年化波动率转换为每日波动率
+        uint256 dailyVol = annualVolatility * 1e18 / sqrt(365 * 1e18);
+        
+        // 计算到达清算线的概率（简化模型）
+        // P(清算) ≈ Φ(-d), 其中d = ln(当前比率/清算比率) / σ
+        
+        // 这里使用近似公式
+        uint256 distance = 1e18 - (1e36 / liquidationRatio);
+        uint256 probability = distance * 1e18 / (dailyVol * 3); // 简化的概率估计
+        
+        return probability > 1e18 ? 1e18 : probability;
+    }
+    
+    // 协议参数优化（多目标优化）
+    function optimizeProtocolParameters(
+        uint256 systemRisk,
+        uint256 userCost,
+        uint256 keeperProfit
+    ) public pure returns (
+        uint256 optimalPenalty,
+        uint256 optimalLiquidationRatio
+    ) {
+        // 目标函数：minimize(α*systemRisk + β*userCost - γ*keeperProfit)
+        // 其中α、β、γ是权重参数
+        
+        uint256 alpha = 5;  // 系统风险权重
+        uint256 beta = 3;   // 用户成本权重
+        uint256 gamma = 2;  // Keeper利润权重
+        
+        // 使用梯度下降或其他优化算法
+        // 这里简化为规则基础的调整
+        
+        if (systemRisk > 1e16) { // 系统风险高于1%
+            optimalLiquidationRatio = 150; // 提高到150%
+            optimalPenalty = 15e16;        // 15%罚金
+        } else if (userCost > 5e16) { // 用户成本过高
+            optimalLiquidationRatio = 130; // 降低到130%
+            optimalPenalty = 10e16;        // 10%罚金
+        } else {
+            optimalLiquidationRatio = 140; // 标准140%
+            optimalPenalty = 13e16;        // 13%罚金
+        }
+    }
+    
+    // 辅助函数
+    function min(uint256 a, uint256 b) private pure returns (uint256) {
+        return a < b ? a : b;
+    }
+    
+    function sqrt(uint256 x) private pure returns (uint256) {
+        if (x == 0) return 0;
+        uint256 z = (x + 1) / 2;
+        uint256 y = x;
+        while (z < y) {
+            y = z;
+            z = (x / z + z) / 2;
+        }
+        return y;
+    }
+    
+    function estimateGasCost(uint256 gasPrice, uint256 keeperCount) 
+        private 
+        pure 
+        returns (uint256) 
+    {
+        // 基础Gas消耗
+        uint256 baseGas = 200000;
+        
+        // 竞争导致的Gas溢价
+        uint256 premiumMultiplier = 100 + keeperCount * 10;
+        
+        return baseGas * gasPrice * premiumMultiplier / 100;
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <h3>5.4 Black-Scholes模型在抵押率设计中的应用</h3>
+        
+        <h4>5.4.1 期权理论视角</h4>
+        <p>CDP可以被视为一个期权结构：</p>
+        <ul>
+            <li>借款人持有一个<strong>看跌期权</strong>：有权以债务金额"卖出"抵押品给协议</li>
+            <li>协议隐含地<strong>卖出了看跌期权</strong>：承担了抵押品价值下跌的风险</li>
+        </ul>
+        
+        <div class="tip">
+            💡 <strong>关键洞察：</strong>清算线的设定本质上是在为这个隐含期权定价。过高的清算线相当于期权费过高，降低了资本效率；过低则增加了协议的风险敞口。
+        </div>
+        
+        <h4>5.4.2 Black-Scholes公式应用</h4>
+        <div style="background: #e0e7ff; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+            <p><strong>适配后的Black-Scholes公式：</strong></p>
+            <p>看跌期权价值 P = Ke<sup>-rt</sup>N(-d₂) - S₀N(-d₁)</p>
+            <p>其中：</p>
+            <ul>
+                <li>S₀ = 抵押品当前价值</li>
+                <li>K = 债务价值（行权价）</li>
+                <li>r = 无风险利率</li>
+                <li>t = 期限</li>
+                <li>σ = 抵押品波动率</li>
+                <li>d₁ = [ln(S₀/K) + (r + σ²/2)t] / (σ√t)</li>
+                <li>d₂ = d₁ - σ√t</li>
+            </ul>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">Black-Scholes抵押率计算 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">// 使用ABDKMath64x64库进行高精度数学计算
+import "./ABDKMath64x64.sol";
+
+contract BlackScholesCollateral {
+    using ABDKMath64x64 for int128;
+    
+    // 常数
+    int128 private constant ONE = 0x10000000000000000; // 1.0 in 64.64
+    int128 private constant HALF = 0x8000000000000000; // 0.5 in 64.64
+    
+    struct OptionParameters {
+        uint256 spotPrice;      // 抵押品现价
+        uint256 strikePrice;    // 债务价值（行权价）
+        uint256 timeToMaturity; // 到期时间（秒）
+        uint256 volatility;     // 年化波动率（基点）
+        uint256 riskFreeRate;   // 无风险利率（基点）
+    }
+    
+    // 计算理论清算比率
+    function calculateOptimalLiquidationRatio(
+        OptionParameters memory params
+    ) public pure returns (uint256 liquidationRatio) {
+        // 转换参数为64.64定点数
+        int128 S = ABDKMath64x64.divu(params.spotPrice, 1e18);
+        int128 K = ABDKMath64x64.divu(params.strikePrice, 1e18);
+        int128 t = ABDKMath64x64.divu(params.timeToMaturity, 365 days);
+        int128 sigma = ABDKMath64x64.divu(params.volatility, 10000);
+        int128 r = ABDKMath64x64.divu(params.riskFreeRate, 10000);
+        
+        // 计算d1和d2
+        (int128 d1, int128 d2) = calculateD1D2(S, K, r, sigma, t);
+        
+        // 计算期权价值
+        int128 putValue = calculatePutValue(S, K, r, t, d1, d2);
+        
+        // 清算比率 = (债务 + 期权价值) / 债务
+        // 这确保了协议得到充分补偿
+        int128 ratio = ONE.add(putValue.div(K));
+        
+        // 转换回uint256（基点）
+        liquidationRatio = uint256(int256(ratio.mul(ABDKMath64x64.fromUInt(10000))));
+        
+        // 加入安全边际（根据波动率调整）
+        uint256 safetyMargin = 10000 + params.volatility / 2; // 基础100% + 波动率的一半
+        liquidationRatio = liquidationRatio * safetyMargin / 10000;
+    }
+    
+    // 计算d1和d2
+    function calculateD1D2(
+        int128 S,
+        int128 K,
+        int128 r,
+        int128 sigma,
+        int128 t
+    ) private pure returns (int128 d1, int128 d2) {
+        // ln(S/K)
+        int128 lnSK = S.div(K).ln();
+        
+        // (r + σ²/2)t
+        int128 sigma2 = sigma.mul(sigma);
+        int128 drift = r.add(sigma2.div(ABDKMath64x64.fromUInt(2))).mul(t);
+        
+        // σ√t
+        int128 sigmaRootT = sigma.mul(t.sqrt());
+        
+        // d1 = [ln(S/K) + (r + σ²/2)t] / (σ√t)
+        d1 = lnSK.add(drift).div(sigmaRootT);
+        
+        // d2 = d1 - σ√t
+        d2 = d1.sub(sigmaRootT);
+    }
+    
+    // 计算看跌期权价值
+    function calculatePutValue(
+        int128 S,
+        int128 K,
+        int128 r,
+        int128 t,
+        int128 d1,
+        int128 d2
+    ) private pure returns (int128) {
+        // e^(-rt)
+        int128 discountFactor = (r.neg()).mul(t).exp();
+        
+        // N(-d1) 和 N(-d2)
+        int128 Nd1 = normalCDF(d1.neg());
+        int128 Nd2 = normalCDF(d2.neg());
+        
+        // P = Ke^(-rt)N(-d2) - S*N(-d1)
+        int128 putValue = K.mul(discountFactor).mul(Nd2).sub(S.mul(Nd1));
+        
+        return putValue;
+    }
+    
+    // 正态分布累积分布函数（近似）
+    function normalCDF(int128 x) private pure returns (int128) {
+        // 使用Abramowitz和Stegun近似
+        int128 L = x.abs();
+        int128 K = ONE.div(ONE.add(L.mul(ABDKMath64x64.divu(2316419, 10000000))));
+        
+        int128 a1 = ABDKMath64x64.divu(319381530, 1000000000);
+        int128 a2 = ABDKMath64x64.divu(356563782, 1000000000).neg();
+        int128 a3 = ABDKMath64x64.divu(1781477937, 1000000000);
+        int128 a4 = ABDKMath64x64.divu(1821255978, 1000000000).neg();
+        int128 a5 = ABDKMath64x64.divu(1330274429, 1000000000);
+        
+        int128 K2 = K.mul(K);
+        int128 K3 = K2.mul(K);
+        int128 K4 = K3.mul(K);
+        int128 K5 = K4.mul(K);
+        
+        int128 sum = a1.mul(K).add(a2.mul(K2)).add(a3.mul(K3))
+                    .add(a4.mul(K4)).add(a5.mul(K5));
+        
+        // 1.0 - 1.0/√(2π) * e^(-L²/2) * sum
+        int128 sqrtTwoPi = ABDKMath64x64.divu(2506628274, 1000000000);
+        int128 expTerm = L.mul(L).div(ABDKMath64x64.fromUInt(2)).neg().exp();
+        int128 result = ONE.sub(expTerm.div(sqrtTwoPi).mul(sum));
+        
+        return x >= 0 ? result : ONE.sub(result);
+    }
+    
+    // 动态调整抵押率（基于市场条件）
+    function dynamicCollateralAdjustment(
+        uint256 currentVolatility,
+        uint256 historicalVolatility,
+        uint256 marketDepth,
+        uint256 currentLiquidationRatio
+    ) public pure returns (uint256 newLiquidationRatio) {
+        // 波动率比率
+        uint256 volRatio = currentVolatility * 1e18 / historicalVolatility;
+        
+        // 市场深度因子（流动性越差，需要越高的抵押率）
+        uint256 depthFactor = 1e18 * 1e18 / (marketDepth + 1e18);
+        
+        // 调整因子 = √(波动率比率 * 深度因子)
+        uint256 adjustmentFactor = sqrt(volRatio * depthFactor / 1e18);
+        
+        // 新抵押率 = 当前抵押率 * 调整因子
+        newLiquidationRatio = currentLiquidationRatio * adjustmentFactor / 1e18;
+        
+        // 限制调整幅度（单次最多调整10%）
+        uint256 maxChange = currentLiquidationRatio / 10;
+        if (newLiquidationRatio > currentLiquidationRatio + maxChange) {
+            newLiquidationRatio = currentLiquidationRatio + maxChange;
+        } else if (newLiquidationRatio < currentLiquidationRatio - maxChange) {
+            newLiquidationRatio = currentLiquidationRatio - maxChange;
+        }
+    }
+    
+    function sqrt(uint256 x) private pure returns (uint256) {
+        if (x == 0) return 0;
+        uint256 z = (x + 1) / 2;
+        uint256 y = x;
+        while (z < y) {
+            y = z;
+            z = (x / z + z) / 2;
+        }
+        return y;
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <h4>5.4.3 Black-Scholes模型的局限性与DeFi适配</h4>
+        <div class="info-box">
+            <h5>⚠️ 传统模型假设 vs DeFi现实</h5>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="background: #f3f4f6;">
+                    <th style="border: 1px solid #ddd; padding: 8px;">Black-Scholes假设</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">DeFi市场现实</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">适配方案</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">对数正态分布</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">肥尾分布、黑天鹅事件频发</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">使用跳跃扩散模型</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">恒定波动率</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">波动率微笑、时变波动率</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">隐含波动率曲面</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">无摩擦市场</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">高Gas费、滑点、MEV</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">交易成本调整</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">连续交易</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">区块时间离散性</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">离散时间模型</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">无风险利率</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">DeFi利率波动剧烈</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">动态利率模型</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="code-block">
+            <pre><code class="language-python"># DeFi适配的期权定价模型
+import numpy as np
+from scipy.stats import norm
+import pandas as pd
+
+class DeFiOptionPricing:
+    """考虑DeFi特性的期权定价模型"""
+    
+    def __init__(self, jump_intensity=0.1, jump_mean=-0.05, jump_std=0.1):
+        self.jump_intensity = jump_intensity  # 跳跃强度（Lambda）
+        self.jump_mean = jump_mean          # 平均跳跃幅度
+        self.jump_std = jump_std            # 跳跃标准差
+        
+    def merton_jump_diffusion(self, S, K, T, r, sigma, div_yield=0):
+        """
+        Merton跳跃扩散模型
+        适用于加密资产的肥尾分布
+        """
+        # 调整参数以考虑跳跃
+        lambda_prime = self.jump_intensity * (1 + self.jump_mean)
+        sigma_s = np.sqrt(sigma**2 + self.jump_intensity * self.jump_std**2)
+        
+        # 计算期权价值的级数展开
+        option_value = 0
+        for n in range(50):  # 通常50项足够收敛
+            # 泊松概率
+            prob_n = np.exp(-lambda_prime * T) * (lambda_prime * T)**n / np.math.factorial(n)
+            
+            # 调整后的参数
+            r_n = r - self.jump_intensity * self.jump_mean + n * np.log(1 + self.jump_mean) / T
+            sigma_n = np.sqrt(sigma**2 + n * self.jump_std**2 / T)
+            
+            # Black-Scholes with adjusted parameters
+            bs_value = self.black_scholes_put(S, K, T, r_n, sigma_n, div_yield)
+            option_value += prob_n * bs_value
+            
+        return option_value
+    
+    def implied_volatility_surface(self, market_prices, strikes, maturities, spot):
+        """
+        构建隐含波动率曲面
+        反映市场对不同行权价和到期日的风险定价
+        """
+        iv_surface = pd.DataFrame(index=strikes, columns=maturities)
+        
+        for K in strikes:
+            for T in maturities:
+                # 从市场价格反推隐含波动率
+                market_price = market_prices.get((K, T), None)
+                if market_price:
+                    iv = self.calculate_implied_volatility(
+                        market_price, spot, K, T, 0.05  # 假设5%无风险利率
+                    )
+                    iv_surface.loc[K, T] = iv
+                    
+        return iv_surface
+    
+    def calculate_liquidation_premium(self, collateral_value, debt_value, 
+                                    volatility, time_to_liquidation,
+                                    gas_cost, mev_risk_premium):
+        """
+        计算考虑DeFi特性的清算溢价
+        """
+        # 基础期权价值
+        base_option_value = self.merton_jump_diffusion(
+            S=collateral_value,
+            K=debt_value,
+            T=time_to_liquidation,
+            r=0.05,  # DeFi借贷利率
+            sigma=volatility
+        )
+        
+        # Gas成本调整（占抵押品价值的比例）
+        gas_adjustment = gas_cost / collateral_value
+        
+        # MEV风险调整（清算者可能被抢先交易）
+        mev_adjustment = mev_risk_premium
+        
+        # 流动性折扣（大额清算的市场冲击）
+        liquidity_discount = self.calculate_liquidity_discount(
+            collateral_value, 
+            debt_value
+        )
+        
+        # 总清算溢价
+        total_premium = (base_option_value + gas_adjustment + 
+                        mev_adjustment + liquidity_discount)
+        
+        # 建议的清算比率
+        suggested_liquidation_ratio = 1 + total_premium
+        
+        return {
+            'base_option_value': base_option_value,
+            'gas_adjustment': gas_adjustment,
+            'mev_adjustment': mev_adjustment,
+            'liquidity_discount': liquidity_discount,
+            'total_premium': total_premium,
+            'suggested_liquidation_ratio': suggested_liquidation_ratio
+        }
+    
+    def calculate_liquidity_discount(self, collateral_value, debt_value):
+        """
+        基于Amihud非流动性指标估算市场冲击
+        """
+        # 简化模型：假设市场深度与规模的平方根成反比
+        market_depth_factor = 1e7  # 市场深度参数
+        impact = np.sqrt(collateral_value / market_depth_factor)
+        
+        return min(impact, 0.1)  # 最大10%的流动性折扣
+
+# 使用示例
+pricing_model = DeFiOptionPricing()
+
+# 计算CDP的清算参数
+result = pricing_model.calculate_liquidation_premium(
+    collateral_value=1000000,  # $1M抵押品
+    debt_value=500000,         # $500K债务
+    volatility=0.8,            # 80%年化波动率
+    time_to_liquidation=1/365, # 1天
+    gas_cost=500,              # $500 Gas成本
+    mev_risk_premium=0.02      # 2% MEV风险
+)
+
+print(f"建议清算比率: {result['suggested_liquidation_ratio']:.2%}")
+print(f"其中期权价值贡献: {result['base_option_value']:.2%}")
+print(f"Gas成本贡献: {result['gas_adjustment']:.2%}")
+print(f"MEV风险贡献: {result['mev_adjustment']:.2%}")
+print(f"流动性折扣: {result['liquidity_discount']:.2%}")</code></pre>
+        </div>
+        
+        <h3>5.5 市场压力测试与蒙特卡洛模拟</h3>
+        
+        <h4>5.5.1 压力测试框架</h4>
+        <p>稳定币系统需要能够承受极端市场条件。通过蒙特卡洛模拟，我们可以评估系统在各种情景下的表现。</p>
+        
+        <div class="tip-box">
+            <strong>📊 压力测试维度：</strong>
+            <ul>
+                <li><strong>价格冲击：</strong>抵押品价格瞬间下跌30%、50%、70%</li>
+                <li><strong>流动性枯竭：</strong>DEX流动性降低90%</li>
+                <li><strong>级联清算：</strong>大量CDP同时触发清算</li>
+                <li><strong>预言机攻击：</strong>价格操纵或预言机失效</li>
+                <li><strong>Gas价格激增：</strong>网络拥堵导致清算延迟</li>
+            </ul>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">蒙特卡洛模拟引擎 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">contract MonteCarloSimulation {
+    using ABDKMath64x64 for int128;
+    
+    struct SimulationParameters {
+        uint256 numSimulations;      // 模拟次数
+        uint256 timeHorizon;        // 时间范围（天）
+        uint256 initialPrice;       // 初始价格
+        uint256 annualVolatility;   // 年化波动率
+        uint256 drift;              // 漂移率
+        uint256 jumpProbability;    // 跳跃概率
+        int256 jumpSize;            // 跳跃幅度
+    }
+    
+    struct SimulationResults {
+        uint256 avgFinalPrice;      // 平均最终价格
+        uint256 minPrice;           // 最低价格
+        uint256 maxPrice;           // 最高价格
+        uint256 defaultProbability; // 违约概率
+        uint256 avgLiquidations;    // 平均清算次数
+        uint256 maxDrawdown;        // 最大回撤
+        uint256 var95;             // 95% VaR
+        uint256 var99;             // 99% VaR
+    }
+    
+    // 随机数生成器（简化版，实际应使用Chainlink VRF）
+    uint256 private seed;
+    
+    function runMonteCarloSimulation(
+        SimulationParameters memory params,
+        uint256 liquidationRatio,
+        uint256 totalCDPs
+    ) public returns (SimulationResults memory results) {
+        uint256[] memory finalPrices = new uint256[](params.numSimulations);
+        uint256[] memory liquidationCounts = new uint256[](params.numSimulations);
+        uint256 defaultCount;
+        
+        results.minPrice = type(uint256).max;
+        
+        // 运行多次模拟
+        for (uint256 sim = 0; sim < params.numSimulations; sim++) {
+            (uint256 finalPrice, uint256 liquidations, uint256 minPriceInPath) = 
+                simulatePricePath(params, liquidationRatio);
+            
+            finalPrices[sim] = finalPrice;
+            liquidationCounts[sim] = liquidations;
+            
+            // 更新统计
+            results.avgFinalPrice += finalPrice;
+            results.avgLiquidations += liquidations;
+            
+            if (finalPrice < results.minPrice) {
+                results.minPrice = finalPrice;
+            }
+            if (finalPrice > results.maxPrice) {
+                results.maxPrice = finalPrice;
+            }
+            
+            // 计算最大回撤
+            uint256 drawdown = (params.initialPrice - minPriceInPath) * 1e18 / 
+                              params.initialPrice;
+            if (drawdown > results.maxDrawdown) {
+                results.maxDrawdown = drawdown;
+            }
+            
+            // 检查是否违约（价格跌破某个阈值）
+            if (minPriceInPath < params.initialPrice * 100 / liquidationRatio) {
+                defaultCount++;
+            }
+        }
+        
+        // 计算平均值
+        results.avgFinalPrice /= params.numSimulations;
+        results.avgLiquidations /= params.numSimulations;
+        results.defaultProbability = defaultCount * 1e18 / params.numSimulations;
+        
+        // 计算VaR
+        sortArray(finalPrices);
+        uint256 var95Index = params.numSimulations * 5 / 100;
+        uint256 var99Index = params.numSimulations * 1 / 100;
+        results.var95 = params.initialPrice - finalPrices[var95Index];
+        results.var99 = params.initialPrice - finalPrices[var99Index];
+        
+        return results;
+    }
+    
+    // 模拟单条价格路径
+    function simulatePricePath(
+        SimulationParameters memory params,
+        uint256 liquidationRatio
+    ) private returns (
+        uint256 finalPrice,
+        uint256 liquidationCount,
+        uint256 minPrice
+    ) {
+        uint256 currentPrice = params.initialPrice;
+        minPrice = currentPrice;
+        uint256 dt = 1; // 1天时间步长
+        
+        // 将参数转换为每日值
+        uint256 dailyVolatility = params.annualVolatility / sqrt(365);
+        int256 dailyDrift = int256(params.drift) / 365;
+        
+        for (uint256 day = 0; day < params.timeHorizon; day++) {
+            // 生成随机数
+            int256 randomNormal = generateNormalRandom();
+            uint256 randomUniform = generateUniformRandom();
+            
+            // 几何布朗运动 + 跳跃过程
+            int256 diffusion = int256(dailyVolatility) * randomNormal / 1e9;
+            int256 priceChange = dailyDrift + diffusion;
+            
+            // 检查跳跃
+            if (randomUniform < params.jumpProbability) {
+                priceChange += params.jumpSize;
+            }
+            
+            // 更新价格（确保不会变负）
+            if (priceChange >= 0) {
+                currentPrice = currentPrice * uint256(1e18 + priceChange) / 1e18;
+            } else {
+                uint256 decrease = uint256(-priceChange);
+                if (decrease < 1e18) {
+                    currentPrice = currentPrice * (1e18 - decrease) / 1e18;
+                } else {
+                    currentPrice = 1; // 最小价格
+                }
+            }
+            
+            // 更新最低价
+            if (currentPrice < minPrice) {
+                minPrice = currentPrice;
+            }
+            
+            // 检查清算
+            if (currentPrice < params.initialPrice * 100 / liquidationRatio) {
+                liquidationCount++;
+            }
+        }
+        
+        finalPrice = currentPrice;
+    }
+    
+    // 生成正态分布随机数（Box-Muller变换）
+    function generateNormalRandom() private returns (int256) {
+        uint256 u1 = generateUniformRandom();
+        uint256 u2 = generateUniformRandom();
+        
+        // Box-Muller变换
+        int256 z0 = int256(sqrt(uint256(-2) * ln(u1)) * 
+                    cos(2 * 314159265 * u2 / 1e10));
+        
+        return z0;
+    }
+    
+    // 生成均匀分布随机数
+    function generateUniformRandom() private returns (uint256) {
+        seed = uint256(keccak256(abi.encodePacked(seed, block.timestamp, msg.sender)));
+        return seed % 1e18;
+    }
+    
+    // 自然对数近似
+    function ln(uint256 x) private pure returns (uint256) {
+        require(x > 0, "ln of non-positive number");
+        // 简化的泰勒级数近似
+        // 实际应用中应使用更精确的实现
+        if (x == 1e18) return 0;
+        
+        int256 result = 0;
+        int256 term = int256(x - 1e18) * 1e18 / int256(x + 1e18);
+        int256 termSquared = term * term / 1e18;
+        
+        result = 2 * term;
+        term = term * termSquared / 1e18;
+        result += 2 * term / 3;
+        
+        return uint256(result);
+    }
+    
+    // 余弦近似
+    function cos(uint256 x) private pure returns (int256) {
+        // 简化的泰勒级数
+        int256 x2 = int256(x) * int256(x) / 1e18;
+        int256 result = 1e18 - x2 / 2;
+        return result;
+    }
+    
+    // 数组排序（用于VaR计算）
+    function sortArray(uint256[] memory arr) private pure {
+        uint256 n = arr.length;
+        for (uint256 i = 0; i < n - 1; i++) {
+            for (uint256 j = 0; j < n - i - 1; j++) {
+                if (arr[j] > arr[j + 1]) {
+                    uint256 temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                }
+            }
+        }
+    }
+    
+    function sqrt(uint256 x) private pure returns (uint256) {
+        if (x == 0) return 0;
+        uint256 z = (x + 1) / 2;
+        uint256 y = x;
+        while (z < y) {
+            y = z;
+            z = (x / z + z) / 2;
+        }
+        return y;
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <h4>5.4.2 系统性风险评估</h4>
+        <p>基于模拟结果，我们可以评估系统的整体风险状况：</p>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">风险评估与预警系统 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">contract RiskAssessmentSystem {
+    MonteCarloSimulation public simulator;
+    
+    struct RiskMetrics {
+        uint256 systemCollateralRatio;   // 系统总抵押率
+        uint256 concentrationRisk;       // 集中度风险
+        uint256 liquidityRisk;          // 流动性风险
+        uint256 correlationRisk;        // 相关性风险
+        uint256 overallRiskScore;       // 综合风险评分
+        RiskLevel riskLevel;            // 风险等级
+    }
+    
+    enum RiskLevel { LOW, MEDIUM, HIGH, CRITICAL }
+    
+    // 风险阈值
+    uint256 constant CRITICAL_COLLATERAL_RATIO = 120; // 120%
+    uint256 constant HIGH_CONCENTRATION = 20;         // 20%单一头寸
+    uint256 constant LOW_LIQUIDITY_DEPTH = 1e6 * 1e18; // 100万美元
+    
+    // 计算系统风险指标
+    function assessSystemRisk(
+        address[] memory cdps,
+        address[] memory collateralTypes
+    ) public returns (RiskMetrics memory metrics) {
+        // 1. 计算系统总抵押率
+        uint256 totalCollateralValue;
+        uint256 totalDebtValue;
+        
+        for (uint256 i = 0; i < cdps.length; i++) {
+            (uint256 collateral, uint256 debt) = getCDPValues(cdps[i]);
+            totalCollateralValue += collateral;
+            totalDebtValue += debt;
+        }
+        
+        metrics.systemCollateralRatio = totalCollateralValue * 100 / totalDebtValue;
+        
+        // 2. 计算集中度风险（HHI指数）
+        metrics.concentrationRisk = calculateHerfindahlIndex(cdps);
+        
+        // 3. 评估流动性风险
+        metrics.liquidityRisk = assessLiquidityRisk(collateralTypes);
+        
+        // 4. 计算相关性风险
+        metrics.correlationRisk = calculateCorrelationRisk(collateralTypes);
+        
+        // 5. 运行压力测试
+        SimulationResults memory simResults = runStressTest();
+        
+        // 6. 综合评分（加权平均）
+        metrics.overallRiskScore = calculateOverallRisk(
+            metrics,
+            simResults
+        );
+        
+        // 7. 确定风险等级
+        metrics.riskLevel = determineRiskLevel(metrics.overallRiskScore);
+        
+        // 8. 触发预警
+        if (metrics.riskLevel >= RiskLevel.HIGH) {
+            triggerRiskAlert(metrics);
+        }
+        
+        return metrics;
+    }
+    
+    // 计算赫芬达尔指数（市场集中度）
+    function calculateHerfindahlIndex(
+        address[] memory cdps
+    ) private view returns (uint256) {
+        uint256 totalDebt;
+        uint256[] memory debts = new uint256[](cdps.length);
+        
+        // 获取总债务和各CDP债务
+        for (uint256 i = 0; i < cdps.length; i++) {
+            (, debts[i]) = getCDPValues(cdps[i]);
+            totalDebt += debts[i];
+        }
+        
+        // 计算HHI
+        uint256 hhi;
+        for (uint256 i = 0; i < cdps.length; i++) {
+            uint256 marketShare = debts[i] * 10000 / totalDebt; // 基点
+            hhi += marketShare * marketShare;
+        }
+        
+        return hhi;
+    }
+    
+    // 评估流动性风险
+    function assessLiquidityRisk(
+        address[] memory collateralTypes
+    ) private view returns (uint256) {
+        uint256 totalRisk;
+        
+        for (uint256 i = 0; i < collateralTypes.length; i++) {
+            uint256 depth = getMarketDepth(collateralTypes[i]);
+            
+            if (depth < LOW_LIQUIDITY_DEPTH) {
+                // 流动性不足，风险增加
+                totalRisk += (LOW_LIQUIDITY_DEPTH - depth) * 1e18 / 
+                            LOW_LIQUIDITY_DEPTH;
+            }
+        }
+        
+        return totalRisk / collateralTypes.length;
+    }
+    
+    // 计算相关性风险
+    function calculateCorrelationRisk(
+        address[] memory collateralTypes
+    ) private view returns (uint256) {
+        // 简化版：计算价格相关系数
+        // 实际应用中需要历史数据
+        
+        if (collateralTypes.length < 2) return 0;
+        
+        uint256 avgCorrelation;
+        uint256 pairCount;
+        
+        for (uint256 i = 0; i < collateralTypes.length - 1; i++) {
+            for (uint256 j = i + 1; j < collateralTypes.length; j++) {
+                uint256 correlation = getPriceCorrelation(
+                    collateralTypes[i],
+                    collateralTypes[j]
+                );
+                avgCorrelation += correlation;
+                pairCount++;
+            }
+        }
+        
+        return avgCorrelation / pairCount;
+    }
+    
+    // 运行压力测试场景
+    function runStressTest() private returns (SimulationResults memory) {
+        SimulationParameters memory params = SimulationParameters({
+            numSimulations: 1000,
+            timeHorizon: 30,        // 30天
+            initialPrice: 1e18,     // $1
+            annualVolatility: 5000, // 50%波动率（压力场景）
+            drift: -1000,          // -10%负漂移
+            jumpProbability: 1e16,  // 1%跳跃概率
+            jumpSize: -2e17        // -20%跳跃
+        });
+        
+        return simulator.runMonteCarloSimulation(params, 150, 1000);
+    }
+    
+    // 计算综合风险评分
+    function calculateOverallRisk(
+        RiskMetrics memory metrics,
+        SimulationResults memory simResults
+    ) private pure returns (uint256) {
+        // 权重配置
+        uint256 w1 = 30; // 抵押率权重
+        uint256 w2 = 20; // 集中度权重
+        uint256 w3 = 25; // 流动性权重
+        uint256 w4 = 15; // 相关性权重
+        uint256 w5 = 10; // 压力测试权重
+        
+        // 标准化各项指标（0-100）
+        uint256 collateralScore = metrics.systemCollateralRatio > 200 ? 0 :
+                                 (200 - metrics.systemCollateralRatio) / 2;
+        
+        uint256 concentrationScore = metrics.concentrationRisk / 100;
+        
+        uint256 liquidityScore = metrics.liquidityRisk * 100 / 1e18;
+        
+        uint256 correlationScore = metrics.correlationRisk * 100 / 1e18;
+        
+        uint256 stressScore = simResults.defaultProbability * 100 / 1e18;
+        
+        // 加权平均
+        return (collateralScore * w1 + 
+                concentrationScore * w2 + 
+                liquidityScore * w3 + 
+                correlationScore * w4 + 
+                stressScore * w5) / 100;
+    }
+    
+    // 确定风险等级
+    function determineRiskLevel(uint256 riskScore) 
+        private 
+        pure 
+        returns (RiskLevel) 
+    {
+        if (riskScore < 25) return RiskLevel.LOW;
+        if (riskScore < 50) return RiskLevel.MEDIUM;
+        if (riskScore < 75) return RiskLevel.HIGH;
+        return RiskLevel.CRITICAL;
+    }
+    
+    // 触发风险预警
+    function triggerRiskAlert(RiskMetrics memory metrics) private {
+        emit RiskAlert(
+            metrics.riskLevel,
+            metrics.overallRiskScore,
+            block.timestamp
+        );
+        
+        // 自动调整系统参数
+        if (metrics.riskLevel == RiskLevel.CRITICAL) {
+            // 提高清算线
+            // 增加稳定费
+            // 限制新借款
+        }
+    }
+    
+    // 辅助函数（简化版）
+    function getCDPValues(address cdp) 
+        private 
+        view 
+        returns (uint256 collateral, uint256 debt) 
+    {
+        // 实际实现中从CDP合约读取
+        collateral = 150e18;
+        debt = 100e18;
+    }
+    
+    function getMarketDepth(address collateral) 
+        private 
+        view 
+        returns (uint256) 
+    {
+        // 实际实现中从DEX获取流动性深度
+        return 2e6 * 1e18;
+    }
+    
+    function getPriceCorrelation(address token1, address token2) 
+        private 
+        view 
+        returns (uint256) 
+    {
+        // 实际实现中计算历史价格相关性
+        return 5e17; // 0.5相关系数
+    }
+    
+    event RiskAlert(RiskLevel level, uint256 score, uint256 timestamp);
+}</code></pre>
+            </div>
+        </div>
+        
+        <h3>练习题</h3>
+        
+        <div class="exercise">
+            <h4>练习 5.1：实现自适应PID控制器</h4>
+            <p>设计一个自适应PID控制器，能够根据市场条件（波动率、交易量、价格偏离程度）自动调整PID参数。要求：</p>
+            <ul>
+                <li>实现Ziegler-Nichols参数整定方法</li>
+                <li>加入抗积分饱和机制</li>
+                <li>实现参数平滑过渡（避免突变）</li>
+                <li>记录参数调整历史用于分析</li>
+            </ul>
+            
+            <button onclick="toggleAnswer('answer5-1')">查看参考答案</button>
+            <div id="answer5-1" class="answer">
+                <h4>参考答案：</h4>
+                <pre><code class="language-solidity">contract AdaptivePIDController {
+    struct PIDParams {
+        int256 Kp;
+        int256 Ki;
+        int256 Kd;
+        uint256 timestamp;
+    }
+    
+    PIDParams public currentParams;
+    PIDParams[] public paramsHistory;
+    
+    // Ziegler-Nichols参数
+    int256 public Ku;  // 终极增益
+    uint256 public Tu; // 终极周期
+    
+    // 抗积分饱和
+    int256 public integralMax = 1e18;
+    int256 public integralMin = -1e18;
+    
+    // 参数平滑
+    uint256 public smoothingFactor = 900; // 90%原值 + 10%新值
+    
+    function adaptParameters(
+        uint256 volatility,
+        uint256 volume,
+        uint256 priceDeviation
+    ) external {
+        // 计算系统响应特性
+        uint256 responseSpeed = calculateResponseSpeed(volatility, volume);
+        
+        // Ziegler-Nichols整定
+        if (needsRetuning(priceDeviation, responseSpeed)) {
+            (int256 newKp, int256 newKi, int256 newKd) = 
+                zieglerNicholsTuning(responseSpeed);
+            
+            // 平滑过渡
+            currentParams.Kp = (currentParams.Kp * int256(smoothingFactor) + 
+                               newKp * int256(1000 - smoothingFactor)) / 1000;
+            currentParams.Ki = (currentParams.Ki * int256(smoothingFactor) + 
+                               newKi * int256(1000 - smoothingFactor)) / 1000;
+            currentParams.Kd = (currentParams.Kd * int256(smoothingFactor) + 
+                               newKd * int256(1000 - smoothingFactor)) / 1000;
+            
+            // 记录历史
+            paramsHistory.push(PIDParams({
+                Kp: currentParams.Kp,
+                Ki: currentParams.Ki,
+                Kd: currentParams.Kd,
+                timestamp: block.timestamp
+            }));
+        }
+    }
+    
+    function zieglerNicholsTuning(uint256 responseSpeed) 
+        private 
+        view 
+        returns (int256 Kp, int256 Ki, int256 Kd) 
+    {
+        // PI控制器参数
+        Kp = Ku * 45 / 100;
+        Ki = Kp * 1e18 / (Tu * 83 / 100);
+        Kd = 0;
+        
+        // 根据响应速度微调
+        if (responseSpeed > 1e18) {
+            // 快速响应，增加D项
+            Kd = Kp * Tu * 125 / 1000;
+        }
+    }
+    
+    function computePIDWithAntiWindup(int256 error, uint256 dt) 
+        external 
+        returns (int256 output) 
+    {
+        // P项
+        int256 pTerm = currentParams.Kp * error / 1e18;
+        
+        // I项（带抗饱和）
+        int256 newIntegral = integral + error * int256(dt);
+        
+        // 检查积分限制
+        if (newIntegral > integralMax) {
+            integral = integralMax;
+        } else if (newIntegral < integralMin) {
+            integral = integralMin;
+        } else {
+            integral = newIntegral;
+        }
+        
+        int256 iTerm = currentParams.Ki * integral / 1e18;
+        
+        // D项（带滤波）
+        int256 dTerm = 0;
+        if (dt > 0) {
+            int256 derivativeRaw = (error - lastError) * 1e18 / int256(dt);
+            // 低通滤波
+            derivative = (derivative * 8 + derivativeRaw * 2) / 10;
+            dTerm = currentParams.Kd * derivative / 1e18;
+        }
+        
+        output = pTerm + iTerm + dTerm;
+        
+        // 反算积分项防止windup
+        if (output > MAX_OUTPUT) {
+            integral -= (output - MAX_OUTPUT) * 1e18 / currentParams.Ki;
+            output = MAX_OUTPUT;
+        } else if (output < MIN_OUTPUT) {
+            integral -= (output - MIN_OUTPUT) * 1e18 / currentParams.Ki;
+            output = MIN_OUTPUT;
+        }
+        
+        lastError = error;
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <div class="exercise">
+            <h4>练习 5.2：构建博弈论清算模型</h4>
+            <p>实现一个基于博弈论的清算激励系统，考虑：</p>
+            <ul>
+                <li>多个Keeper之间的竞争博弈</li>
+                <li>CDP持有者的最优响应策略</li>
+                <li>实现声誉系统影响Keeper行为</li>
+                <li>设计防止恶意清算的机制</li>
+            </ul>
+            
+            <button onclick="toggleAnswer('answer5-2')">查看参考答案</button>
+            <div id="answer5-2" class="answer">
+                <h4>参考答案：</h4>
+                <pre><code class="language-solidity">contract GameTheoreticLiquidation {
+    struct KeeperInfo {
+        uint256 reputation;      // 声誉分数
+        uint256 successfulLiquidations;
+        uint256 failedAttempts;
+        uint256 avgResponseTime;
+        uint256 totalProfit;
+    }
+    
+    struct LiquidationGame {
+        address cdp;
+        uint256 startTime;
+        uint256 optimalBid;      // 博弈论计算的最优出价
+        address[] participants;
+        mapping(address => uint256) bids;
+        bool settled;
+    }
+    
+    mapping(address => KeeperInfo) public keepers;
+    mapping(uint256 => LiquidationGame) public games;
+    
+    // 计算纳什均衡出价
+    function calculateNashEquilibrium(
+        uint256 collateralValue,
+        uint256 debtValue,
+        uint256 numKeepers,
+        uint256 gasPrice
+    ) public pure returns (uint256 equilibriumBid) {
+        // 简化的纳什均衡：
+        // 出价 = (抵押品价值 - 债务 - Gas成本) / (参与者数量 + 1)
+        
+        uint256 profit = collateralValue - debtValue;
+        uint256 gasCost = gasPrice * 300000; // 估计Gas消耗
+        
+        if (profit > gasCost) {
+            equilibriumBid = (profit - gasCost) * 1e18 / (numKeepers + 1) / 1e18;
+        } else {
+            equilibriumBid = 0;
+        }
+    }
+    
+    // Keeper提交密封出价（commit-reveal模式）
+    function commitBid(uint256 gameId, bytes32 commitment) external {
+        require(!games[gameId].settled, "Game settled");
+        require(block.timestamp < games[gameId].startTime + 5 minutes, "Commit phase ended");
+        
+        commitments[gameId][msg.sender] = commitment;
+        games[gameId].participants.push(msg.sender);
+    }
+    
+    // 揭示出价
+    function revealBid(
+        uint256 gameId, 
+        uint256 bid, 
+        uint256 nonce
+    ) external {
+        require(block.timestamp >= games[gameId].startTime + 5 minutes, "Still in commit phase");
+        require(block.timestamp < games[gameId].startTime + 10 minutes, "Reveal phase ended");
+        
+        bytes32 commitment = keccak256(abi.encodePacked(bid, nonce, msg.sender));
+        require(commitments[gameId][msg.sender] == commitment, "Invalid reveal");
+        
+        games[gameId].bids[msg.sender] = bid;
+        
+        // 更新Keeper响应时间
+        uint256 responseTime = block.timestamp - games[gameId].startTime;
+        updateKeeperStats(msg.sender, responseTime);
+    }
+    
+    // 结算清算博弈
+    function settleLiquidationGame(uint256 gameId) external {
+        LiquidationGame storage game = games[gameId];
+        require(!game.settled, "Already settled");
+        require(block.timestamp >= game.startTime + 10 minutes, "Reveal phase not ended");
+        
+        address winner;
+        uint256 highestBid;
+        
+        // 找出最高出价者（考虑声誉加成）
+        for (uint256 i = 0; i < game.participants.length; i++) {
+            address keeper = game.participants[i];
+            uint256 bid = game.bids[keeper];
+            
+            // 声誉加成
+            uint256 effectiveBid = bid * (1000 + keepers[keeper].reputation) / 1000;
+            
+            if (effectiveBid > highestBid) {
+                highestBid = effectiveBid;
+                winner = keeper;
+            }
+        }
+        
+        // 执行清算
+        if (winner != address(0)) {
+            executeLiquidation(game.cdp, winner, game.bids[winner]);
+            
+            // 更新统计
+            keepers[winner].successfulLiquidations++;
+            keepers[winner].totalProfit += calculateProfit(gameId, game.bids[winner]);
+            
+            // 更新声誉
+            updateReputation(winner, true);
+            
+            // 惩罚出价过低的Keeper
+            punishLowBidders(gameId, game.optimalBid);
+        }
+        
+        game.settled = true;
+    }
+    
+    // 声誉系统
+    function updateReputation(address keeper, bool success) private {
+        if (success) {
+            keepers[keeper].reputation = min(
+                keepers[keeper].reputation + 10,
+                1000  // 最高1000分
+            );
+        } else {
+            keepers[keeper].reputation = keepers[keeper].reputation > 10 ? 
+                keepers[keeper].reputation - 10 : 0;
+        }
+    }
+    
+    // 防恶意清算机制
+    function challengeLiquidation(uint256 gameId) external {
+        // CDP持有者可以挑战清算
+        LiquidationGame storage game = games[gameId];
+        require(msg.sender == getCDPOwner(game.cdp), "Not CDP owner");
+        require(!game.settled, "Already settled");
+        
+        // 检查是否真的需要清算
+        if (isCDPSafe(game.cdp)) {
+            // 清算无效，惩罚发起者
+            address liquidator = game.participants[0];
+            keepers[liquidator].failedAttempts++;
+            updateReputation(liquidator, false);
+            
+            // 补偿CDP持有者
+            compensateCDPOwner(msg.sender);
+            
+            // 取消清算
+            game.settled = true;
+        }
+    }
+    
+    // CDP持有者最优响应
+    function calculateOptimalResponse(
+        uint256 currentCollateralRatio,
+        uint256 liquidationRatio,
+        uint256 gasPrice
+    ) external view returns (
+        bool shouldTopUp,
+        uint256 topUpAmount,
+        bool shouldRepay,
+        uint256 repayAmount
+    ) {
+        uint256 buffer = (currentCollateralRatio - liquidationRatio) * 1e18 / 
+                        liquidationRatio;
+        
+        if (buffer < 1e17) { // 少于10%缓冲
+            // 计算补充抵押品vs偿还债务的成本
+            uint256 topUpCost = calculateTopUpCost(gasPrice);
+            uint256 repayCost = calculateRepayCost(gasPrice);
+            
+            if (topUpCost < repayCost) {
+                shouldTopUp = true;
+                topUpAmount = calculateRequiredCollateral(
+                    liquidationRatio * 125 / 100  // 目标125%的清算线
+                );
+            } else {
+                shouldRepay = true;
+                repayAmount = calculateRequiredRepayment(
+                    liquidationRatio * 125 / 100
+                );
+            }
+        }
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <div class="exercise">
+            <h4>练习 5.3：期权定价与动态抵押率</h4>
+            <p>基于Black-Scholes模型，实现一个动态抵押率调整系统：</p>
+            <ul>
+                <li>根据隐含波动率实时调整抵押要求</li>
+                <li>实现波动率微笑修正</li>
+                <li>加入流动性风险溢价</li>
+                <li>设计平滑调整机制避免频繁变动</li>
+            </ul>
+            
+            <button onclick="toggleAnswer('answer5-3')">查看参考答案</button>
+            <div id="answer5-3" class="answer">
+                <h4>参考答案：</h4>
+                <pre><code class="language-solidity">contract DynamicCollateralRatio {
+    using ABDKMath64x64 for int128;
+    
+    struct VolatilitySmile {
+        uint256 atmVol;          // 平值波动率
+        int256 skew;            // 偏斜
+        uint256 kurtosis;       // 峰度
+    }
+    
+    struct CollateralAdjustment {
+        uint256 baseRatio;
+        uint256 volAdjustment;
+        uint256 liquidityAdjustment;
+        uint256 finalRatio;
+        uint256 timestamp;
+    }
+    
+    mapping(address => VolatilitySmile) public volSmiles;
+    mapping(address => CollateralAdjustment[]) public adjustmentHistory;
+    
+    uint256 public smoothingWindow = 4 hours;
+    uint256 public maxAdjustmentPerPeriod = 5; // 5%
+    
+    // 计算隐含波动率
+    function calculateImpliedVolatility(
+        address asset,
+        uint256 optionPrice,
+        uint256 strike,
+        uint256 spot,
+        uint256 timeToExpiry
+    ) public pure returns (uint256 impliedVol) {
+        // Newton-Raphson迭代求解隐含波动率
+        uint256 vol = 3000; // 初始猜测30%
+        
+        for (uint256 i = 0; i < 10; i++) {
+            uint256 theoreticalPrice = blackScholesPrice(
+                spot, strike, timeToExpiry, vol, 0
+            );
+            
+            uint256 vega = calculateVega(
+                spot, strike, timeToExpiry, vol
+            );
+            
+            if (theoreticalPrice > optionPrice) {
+                vol = vol - (theoreticalPrice - optionPrice) * 1e18 / vega;
+            } else {
+                vol = vol + (optionPrice - theoreticalPrice) * 1e18 / vega;
+            }
+        }
+        
+        return vol;
+    }
+    
+    // 波动率微笑修正
+    function applyVolatilitySmile(
+        uint256 baseVol,
+        uint256 moneyness,  // spot/strike
+        VolatilitySmile memory smile
+    ) public pure returns (uint256 adjustedVol) {
+        // 二次修正模型
+        int256 lnMoneyness = ln(moneyness);
+        
+        // vol = ATM_vol + skew * ln(K/S) + kurtosis * ln(K/S)^2
+        int256 adjustment = smile.skew * lnMoneyness / 1e18 +
+                           int256(smile.kurtosis) * lnMoneyness * 
+                           lnMoneyness / 1e36;
+        
+        if (adjustment > 0) {
+            adjustedVol = baseVol + uint256(adjustment);
+        } else {
+            adjustedVol = baseVol - uint256(-adjustment);
+        }
+    }
+    
+    // 计算流动性风险溢价
+    function calculateLiquidityPremium(
+        address asset,
+        uint256 positionSize
+    ) public view returns (uint256 premium) {
+        uint256 marketDepth = getMarketDepth(asset);
+        uint256 impactRatio = positionSize * 1e18 / marketDepth;
+        
+        // 非线性影响模型
+        if (impactRatio < 1e16) { // < 1%
+            premium = 0;
+        } else if (impactRatio < 5e16) { // 1-5%
+            premium = impactRatio / 10; // 10%的影响比例
+        } else if (impactRatio < 1e17) { // 5-10%
+            premium = impactRatio / 5;  // 20%的影响比例
+        } else {
+            premium = impactRatio / 2;  // 50%的影响比例
+        }
+    }
+    
+    // 动态调整抵押率
+    function adjustCollateralRatio(
+        address asset,
+        uint256 currentRatio
+    ) external returns (uint256 newRatio) {
+        // 1. 获取最新市场数据
+        uint256 spot = getSpotPrice(asset);
+        uint256 impliedVol = getImpliedVolatility(asset);
+        
+        // 2. 应用波动率微笑
+        VolatilitySmile memory smile = volSmiles[asset];
+        uint256 adjustedVol = applyVolatilitySmile(
+            impliedVol,
+            1e18, // 平值
+            smile
+        );
+        
+        // 3. 基于期权模型计算基础抵押率
+        uint256 baseRatio = calculateOptimalRatio(
+            spot,
+            spot * currentRatio / 100,
+            adjustedVol
+        );
+        
+        // 4. 加入流动性风险调整
+        uint256 avgPositionSize = getAveragePositionSize(asset);
+        uint256 liquidityPremium = calculateLiquidityPremium(
+            asset,
+            avgPositionSize
+        );
+        
+        uint256 liquidityAdjustedRatio = baseRatio * 
+            (1e18 + liquidityPremium) / 1e18;
+        
+        // 5. 平滑调整
+        CollateralAdjustment memory lastAdjustment = 
+            getLastAdjustment(asset);
+        
+        if (block.timestamp < lastAdjustment.timestamp + smoothingWindow) {
+            // 在平滑窗口内，限制调整幅度
+            int256 change = int256(liquidityAdjustedRatio) - 
+                           int256(lastAdjustment.finalRatio);
+            
+            int256 maxChange = int256(lastAdjustment.finalRatio * 
+                                     maxAdjustmentPerPeriod / 100);
+            
+            if (abs(change) > maxChange) {
+                change = change > 0 ? maxChange : -maxChange;
+            }
+            
+            newRatio = uint256(int256(lastAdjustment.finalRatio) + change);
+        } else {
+            newRatio = liquidityAdjustedRatio;
+        }
+        
+        // 6. 记录调整历史
+        adjustmentHistory[asset].push(CollateralAdjustment({
+            baseRatio: baseRatio,
+            volAdjustment: adjustedVol - impliedVol,
+            liquidityAdjustment: liquidityPremium,
+            finalRatio: newRatio,
+            timestamp: block.timestamp
+        }));
+        
+        return newRatio;
+    }
+    
+    // 计算Vega（期权价格对波动率的敏感度）
+    function calculateVega(
+        uint256 spot,
+        uint256 strike,
+        uint256 timeToExpiry,
+        uint256 vol
+    ) private pure returns (uint256) {
+        // 简化的Vega计算
+        uint256 d1 = calculateD1(spot, strike, timeToExpiry, vol, 0);
+        uint256 sqrtT = sqrt(timeToExpiry * 1e18 / 365 days);
+        
+        // Vega = S * N'(d1) * sqrt(T)
+        uint256 nPrimeD1 = normalPDF(d1);
+        return spot * nPrimeD1 * sqrtT / 1e27;
+    }
+    
+    // 正态分布概率密度函数
+    function normalPDF(uint256 x) private pure returns (uint256) {
+        // N'(x) = 1/√(2π) * e^(-x²/2)
+        uint256 exponent = x * x / 2e18;
+        uint256 expTerm = exp(-int256(exponent));
+        return expTerm * 398942280 / 1e9; // 1/√(2π) ≈ 0.398942280
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <div class="exercise">
+            <h4>练习 5.4：综合风险管理系统</h4>
+            <p>设计一个综合的风险管理系统，整合前面所有的数学模型：</p>
+            <ul>
+                <li>实时风险仪表板，显示各项风险指标</li>
+                <li>自动触发风险缓解措施</li>
+                <li>多场景压力测试引擎</li>
+                <li>机器学习风险预测（链下计算，链上验证）</li>
+            </ul>
+            
+            <button onclick="toggleAnswer('answer5-4')">查看参考答案</button>
+            <div id="answer5-4" class="answer">
+                <h4>参考答案：</h4>
+                <pre><code class="language-solidity">contract IntegratedRiskManagement {
+    // 风险仪表板
+    struct RiskDashboard {
+        uint256 overallHealthScore;     // 0-100
+        uint256 systemCollateralRatio;
+        uint256 liquidityDepth;
+        uint256 concentrationIndex;
+        uint256 volatilityIndex;
+        uint256 stressTestScore;
+        PIDStatus pidStatus;
+        OptionMetrics optionMetrics;
+        MLPrediction mlPrediction;
+    }
+    
+    struct PIDStatus {
+        int256 currentError;
+        int256 integralError;
+        int256 output;
+        uint256 lastAdjustment;
+    }
+    
+    struct OptionMetrics {
+        uint256 impliedVol;
+        uint256 optimalCollateralRatio;
+        uint256 expectedLoss;
+    }
+    
+    struct MLPrediction {
+        uint256 riskScore;
+        uint256 confidence;
+        bytes32 modelHash;
+        uint256 timestamp;
+    }
+    
+    // 风险缓解措施
+    enum RiskMitigation {
+        NONE,
+        INCREASE_COLLATERAL_RATIO,
+        PAUSE_NEW_CDPS,
+        INCREASE_STABILITY_FEE,
+        TRIGGER_EMERGENCY_SHUTDOWN
+    }
+    
+    // 获取实时风险仪表板
+    function getRiskDashboard() 
+        external 
+        view 
+        returns (RiskDashboard memory dashboard) 
+    {
+        dashboard.systemCollateralRatio = calculateSystemCR();
+        dashboard.liquidityDepth = assessLiquidity();
+        dashboard.concentrationIndex = calculateConcentration();
+        dashboard.volatilityIndex = getVolatilityIndex();
+        dashboard.stressTestScore = getLatestStressTestScore();
+        
+        dashboard.pidStatus = getPIDStatus();
+        dashboard.optionMetrics = getOptionMetrics();
+        dashboard.mlPrediction = getMLPrediction();
+        
+        // 计算总体健康分数
+        dashboard.overallHealthScore = calculateHealthScore(dashboard);
+    }
+    
+    // 自动风险缓解
+    function triggerRiskMitigation() external {
+        RiskDashboard memory dashboard = getRiskDashboard();
+        
+        RiskMitigation action = determineAction(dashboard);
+        
+        if (action == RiskMitigation.INCREASE_COLLATERAL_RATIO) {
+            adjustCollateralRequirements(5); // 增加5%
+        } else if (action == RiskMitigation.PAUSE_NEW_CDPS) {
+            pauseNewCDPCreation();
+        } else if (action == RiskMitigation.INCREASE_STABILITY_FEE) {
+            increaseStabilityFee(2); // 增加2%
+        } else if (action == RiskMitigation.TRIGGER_EMERGENCY_SHUTDOWN) {
+            triggerEmergencyShutdown();
+        }
+        
+        emit RiskMitigationTriggered(action, dashboard.overallHealthScore);
+    }
+    
+    // 多场景压力测试
+    function runComprehensiveStressTest() external returns (
+        StressTestResults memory results
+    ) {
+        // 场景1：黑天鹅事件
+        results.blackSwanImpact = simulateBlackSwan(
+            50, // 50%价格下跌
+            1 hours // 1小时内
+        );
+        
+        // 场景2：流动性危机
+        results.liquidityCrisisImpact = simulateLiquidityCrisis(
+            90 // 90%流动性枯竭
+        );
+        
+        // 场景3：级联清算
+        results.cascadeLiquidationImpact = simulateCascadeLiquidation(
+            30 // 30%的CDP同时清算
+        );
+        
+        // 场景4：预言机攻击
+        results.oracleAttackImpact = simulateOracleAttack(
+            20 // 20%价格操纵
+        );
+        
+        // 场景5：网络拥堵
+        results.networkCongestionImpact = simulateNetworkCongestion(
+            1000 gwei // 极高Gas价格
+        );
+        
+        // 综合评估
+        results.worstCaseScenario = max(
+            results.blackSwanImpact,
+            results.liquidityCrisisImpact,
+            results.cascadeLiquidationImpact,
+            results.oracleAttackImpact,
+            results.networkCongestionImpact
+        );
+        
+        updateStressTestScore(results.worstCaseScenario);
+    }
+    
+    // ML风险预测验证
+    function verifyMLPrediction(
+        uint256 predictedRisk,
+        uint256 confidence,
+        bytes32 modelHash,
+        bytes memory proof
+    ) external {
+        // 验证链下ML模型的预测
+        require(verifyZKProof(proof, modelHash), "Invalid ML proof");
+        
+        mlPredictions[block.timestamp] = MLPrediction({
+            riskScore: predictedRisk,
+            confidence: confidence,
+            modelHash: modelHash,
+            timestamp: block.timestamp
+        });
+        
+        // 如果ML预测高风险，触发额外验证
+        if (predictedRisk > 80 && confidence > 90) {
+            requireManualReview = true;
+            emit HighRiskMLPrediction(predictedRisk, confidence);
+        }
+    }
+    
+    // 综合健康评分计算
+    function calculateHealthScore(RiskDashboard memory dashboard) 
+        private 
+        pure 
+        returns (uint256) 
+    {
+        uint256 score = 100;
+        
+        // 抵押率评分
+        if (dashboard.systemCollateralRatio < 150) {
+            score -= (150 - dashboard.systemCollateralRatio) / 2;
+        }
+        
+        // 流动性评分
+        if (dashboard.liquidityDepth < 10e6 * 1e18) {
+            score -= 20;
+        }
+        
+        // 集中度评分
+        if (dashboard.concentrationIndex > 1000) { // HHI > 1000
+            score -= 15;
+        }
+        
+        // 波动率评分
+        if (dashboard.volatilityIndex > 50) {
+            score -= (dashboard.volatilityIndex - 50) / 2;
+        }
+        
+        // ML预测调整
+        if (dashboard.mlPrediction.confidence > 80) {
+            score = score * (100 - dashboard.mlPrediction.riskScore) / 100;
+        }
+        
+        return score > 0 ? score : 0;
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <h3>本章小结</h3>
+        <div class="tip">
+            <strong>关键要点：</strong>
+            <ul>
+                <li><strong>控制理论应用：</strong>PID控制器可以有效维持稳定币价格稳定，但需要根据市场条件动态调整参数</li>
+                <li><strong>博弈论视角：</strong>清算机制设计需要平衡多方利益，确保系统激励相容</li>
+                <li><strong>期权定价模型：</strong>Black-Scholes模型提供了科学的抵押率定价方法</li>
+                <li><strong>风险管理：</strong>综合运用多种数学模型，构建全方位的风险管理体系</li>
+                <li><strong>实践价值：</strong>这些理论模型不是纸上谈兵，而是可以直接应用于生产环境的实用工具</li>
+            </ul>
+        </div>
+        
+        <h3>术语速查表</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+            <tr style="background: #f3f4f6;">
+                <th style="border: 1px solid #ddd; padding: 12px;">术语</th>
+                <th style="border: 1px solid #ddd; padding: 12px;">英文</th>
+                <th style="border: 1px solid #ddd; padding: 12px;">含义</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">PID控制器</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Proportional-Integral-Derivative Controller</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">经典的反馈控制算法</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">纳什均衡</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Nash Equilibrium</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">博弈论中的稳定状态</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">隐含波动率</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Implied Volatility</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">从期权价格反推的波动率</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">VaR</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Value at Risk</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">风险价值，潜在损失的统计度量</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">蒙特卡洛模拟</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Monte Carlo Simulation</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">基于随机抽样的数值计算方法</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">积分饱和</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Integral Windup</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">PID控制器中积分项过度累积</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">波动率微笑</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Volatility Smile</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">不同行权价的隐含波动率曲线</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">HHI指数</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Herfindahl-Hirschman Index</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">市场集中度指标</td>
+            </tr>
+        </table>
+    </div>
+    
+    <h3>5.6 2024年最新发展：LST/LRT与RWA</h3>
+    
+    <h4>5.6.1 流动性质押代币(LST)作为抵押品</h4>
+    <p>随着以太坊转向PoS，流动性质押代币（Liquid Staking Tokens）如stETH、rETH成为重要的抵押品类型。这带来了新的风险管理挑战。</p>
+    
+    <div class="info-box">
+        <h5>💡 LST特有风险</h5>
+        <ul>
+            <li><strong>脱锚风险</strong>：LST可能与底层ETH脱锚，特别是在市场压力下</li>
+            <li><strong>Slashing风险</strong>：验证者被罚没可能影响LST价值</li>
+            <li><strong>流动性风险</strong>：赎回延迟可能影响清算效率</li>
+            <li><strong>技术风险</strong>：智能合约和节点运营商风险</li>
+        </ul>
+    </div>
+    
+    <pre><code class="language-solidity">// LST抵押品管理合约
+contract LSTCollateralManager {
+    // LST特定参数
+    struct LSTConfig {
+        uint256 maxDeviationFromETH;      // 最大允许脱锚幅度 (如2%)
+        uint256 liquidationPenalty;       // 清算罚金（考虑赎回延迟）
+        uint256 minLiquidityThreshold;    // 最小流动性要求
+        address oracle;                   // 专用价格预言机
+    }
+    
+    mapping(address => LSTConfig) public lstConfigs;
+    
+    // 评估LST抵押品价值
+    function getLSTValue(
+        address lstToken,
+        uint256 amount
+    ) public view returns (uint256) {
+        LSTConfig memory config = lstConfigs[lstToken];
+        
+        // 获取LST/ETH汇率
+        uint256 lstToEthRate = IOracle(config.oracle).getRate(lstToken);
+        uint256 ethPrice = getETHPrice();
+        
+        // 检查脱锚程度
+        uint256 deviation = lstToEthRate > 1e18 ? 
+            lstToEthRate - 1e18 : 1e18 - lstToEthRate;
+            
+        require(
+            deviation <= config.maxDeviationFromETH,
+            "LST deviation too high"
+        );
+        
+        // 应用折扣因子（考虑流动性和赎回风险）
+        uint256 discountFactor = calculateDiscountFactor(
+            lstToken,
+            amount,
+            config.minLiquidityThreshold
+        );
+        
+        return amount * lstToEthRate * ethPrice * discountFactor / 1e36;
+    }
+    
+    // 计算折扣因子
+    function calculateDiscountFactor(
+        address lstToken,
+        uint256 amount,
+        uint256 minLiquidity
+    ) internal view returns (uint256) {
+        // 检查链上流动性深度
+        uint256 liquidity = getOnchainLiquidity(lstToken);
+        
+        if (liquidity < minLiquidity) {
+            // 流动性不足，应用额外折扣
+            return 9500; // 95%
+        }
+        
+        // 检查可立即兑换的量
+        uint256 instantRedeemable = getInstantRedeemableAmount(lstToken);
+        
+        if (amount > instantRedeemable) {
+            // 需要等待期，应用折扣
+            return 9700; // 97%
+        }
+        
+        return 9900; // 99%基础折扣
+    }
+}</code></pre>
+    
+    <h4>5.6.2 真实世界资产(RWA)集成</h4>
+    <p>RWA（Real World Assets）的引入为稳定币提供了更稳定的收益来源，但也带来了新的复杂性。</p>
+    
+    <pre><code class="language-python"># RWA风险评估框架
+class RWACollateralManager:
+    def __init__(self):
+        self.rwa_types = {
+            'US_TREASURY': {
+                'risk_weight': 0.05,
+                'liquidity_score': 0.95,
+                'legal_complexity': 0.3
+            },
+            'CORPORATE_BOND': {
+                'risk_weight': 0.20,
+                'liquidity_score': 0.70,
+                'legal_complexity': 0.6
+            },
+            'REAL_ESTATE': {
+                'risk_weight': 0.35,
+                'liquidity_score': 0.30,
+                'legal_complexity': 0.9
+            }
+        }
+    
+    def assess_rwa_risk(self, asset_type, amount, credit_rating):
+        """评估RWA风险"""
+        base_risk = self.rwa_types[asset_type]
+        
+        # 信用风险调整
+        credit_multiplier = self.get_credit_multiplier(credit_rating)
+        
+        # 集中度风险
+        concentration_factor = self.calculate_concentration_risk(
+            asset_type, amount
+        )
+        
+        # 综合风险评分
+        risk_score = (
+            base_risk['risk_weight'] * credit_multiplier * 
+            concentration_factor
+        )
+        
+        # 计算所需抵押率
+        required_collateral_ratio = 1.5 + risk_score * 2
+        
+        return {
+            'risk_score': risk_score,
+            'required_ratio': required_collateral_ratio,
+            'liquidity_haircut': 1 - base_risk['liquidity_score'],
+            'legal_reserve': base_risk['legal_complexity'] * 0.1
+        }
+    
+    def monitor_rwa_portfolio(self, portfolio):
+        """监控RWA组合风险"""
+        alerts = []
+        
+        # 检查到期分布
+        maturity_concentration = self.check_maturity_concentration(portfolio)
+        if maturity_concentration > 0.3:
+            alerts.append("High maturity concentration risk")
+        
+        # 检查发行人集中度
+        issuer_concentration = self.check_issuer_concentration(portfolio)
+        if issuer_concentration > 0.15:
+            alerts.append("High issuer concentration")
+        
+        # 检查法律管辖区风险
+        jurisdiction_risk = self.assess_jurisdiction_risk(portfolio)
+        if jurisdiction_risk > 0.7:
+            alerts.append("High jurisdictional risk")
+        
+        return alerts</code></pre>
+    
+    <h3>5.7 预言机安全与治理机制</h3>
+    
+    <h4>5.7.1 多层预言机防御体系</h4>
+    <p>预言机是稳定币系统的关键攻击向量，需要多层防御机制。</p>
+    
+    <pre><code class="language-solidity">// 安全预言机聚合器
+contract SecureOracleAggregator {
+    struct PriceData {
+        uint256 price;
+        uint256 timestamp;
+        uint256 confidence;
+    }
+    
+    struct OracleConfig {
+        address oracle;
+        uint256 weight;
+        uint256 maxDeviation;
+        bool isActive;
+    }
+    
+    mapping(address => OracleConfig[]) public assetOracles;
+    mapping(address => PriceData) public cachedPrices;
+    
+    uint256 public constant PRICE_STALENESS_THRESHOLD = 3600; // 1小时
+    uint256 public constant EMERGENCY_PAUSE_DURATION = 86400;  // 24小时
+    
+    // 获取安全价格（带TWAP和异常检测）
+    function getSecurePrice(
+        address asset
+    ) external returns (uint256 price, uint256 confidence) {
+        OracleConfig[] memory oracles = assetOracles[asset];
+        require(oracles.length >= 3, "Insufficient oracles");
+        
+        uint256[] memory prices = new uint256[](oracles.length);
+        uint256[] memory weights = new uint256[](oracles.length);
+        uint256 validOracles = 0;
+        
+        // 收集所有预言机价格
+        for (uint i = 0; i < oracles.length; i++) {
+            if (!oracles[i].isActive) continue;
+            
+            try IOracle(oracles[i].oracle).getPrice(asset) 
+            returns (uint256 oraclePrice) {
+                // 异常检测：价格偏离检查
+                if (isAnomalousPrice(asset, oraclePrice)) {
+                    emit AnomalousPrice(oracles[i].oracle, oraclePrice);
+                    continue;
+                }
+                
+                prices[validOracles] = oraclePrice;
+                weights[validOracles] = oracles[i].weight;
+                validOracles++;
+            } catch {
+                emit OracleFailure(oracles[i].oracle);
+            }
+        }
+        
+        require(validOracles >= 2, "Insufficient valid prices");
+        
+        // 计算加权中位数
+        price = calculateWeightedMedian(prices, weights, validOracles);
+        
+        // 计算置信度
+        confidence = calculateConfidence(prices, validOracles);
+        
+        // 更新缓存
+        cachedPrices[asset] = PriceData({
+            price: price,
+            timestamp: block.timestamp,
+            confidence: confidence
+        });
+        
+        // 如果置信度低，触发紧急模式
+        if (confidence < 7000) { // 70%
+            triggerEmergencyMode(asset);
+        }
+        
+        return (price, confidence);
+    }
+    
+    // 异常价格检测
+    function isAnomalousPrice(
+        address asset,
+        uint256 newPrice
+    ) internal view returns (bool) {
+        PriceData memory cached = cachedPrices[asset];
+        
+        // 如果没有历史价格，接受
+        if (cached.timestamp == 0) return false;
+        
+        // 检查价格变化幅度
+        uint256 priceChange = newPrice > cached.price ?
+            (newPrice - cached.price) * 10000 / cached.price :
+            (cached.price - newPrice) * 10000 / cached.price;
+        
+        // 根据时间调整阈值
+        uint256 timeDelta = block.timestamp - cached.timestamp;
+        uint256 maxAllowedChange = calculateMaxPriceChange(timeDelta);
+        
+        return priceChange > maxAllowedChange;
+    }
+    
+    // 计算加权中位数
+    function calculateWeightedMedian(
+        uint256[] memory prices,
+        uint256[] memory weights,
+        uint256 count
+    ) internal pure returns (uint256) {
+        // 排序
+        for (uint i = 0; i < count - 1; i++) {
+            for (uint j = i + 1; j < count; j++) {
+                if (prices[i] > prices[j]) {
+                    (prices[i], prices[j]) = (prices[j], prices[i]);
+                    (weights[i], weights[j]) = (weights[j], weights[i]);
+                }
+            }
+        }
+        
+        // 找到加权中位数
+        uint256 totalWeight = 0;
+        for (uint i = 0; i < count; i++) {
+            totalWeight += weights[i];
+        }
+        
+        uint256 targetWeight = totalWeight / 2;
+        uint256 cumulativeWeight = 0;
+        
+        for (uint i = 0; i < count; i++) {
+            cumulativeWeight += weights[i];
+            if (cumulativeWeight >= targetWeight) {
+                return prices[i];
+            }
+        }
+        
+        return prices[count - 1];
+    }
+}</code></pre>
+    
+    <h4>5.7.2 治理与紧急响应机制</h4>
+    <p>有效的治理机制对于稳定币系统的长期可持续性至关重要。</p>
+    
+    <pre><code class="language-solidity">// 治理与紧急响应合约
+contract GovernanceEmergencyResponse {
+    enum ProposalType { PARAMETER, EMERGENCY, UPGRADE }
+    enum EmergencyLevel { LOW, MEDIUM, HIGH, CRITICAL }
+    
+    struct Proposal {
+        ProposalType proposalType;
+        address target;
+        bytes data;
+        uint256 startTime;
+        uint256 endTime;
+        uint256 forVotes;
+        uint256 againstVotes;
+        bool executed;
+        bool cancelled;
+    }
+    
+    struct EmergencyAction {
+        EmergencyLevel level;
+        address[] affectedContracts;
+        bytes[] actions;
+        uint256 executionTime;
+        bool executed;
+    }
+    
+    // 时间锁配置
+    mapping(ProposalType => uint256) public timelocks;
+    mapping(EmergencyLevel => uint256) public emergencyDelays;
+    
+    // 多签安全委员会
+    address[] public securityCouncil;
+    uint256 public councilThreshold;
+    
+    constructor() {
+        // 设置时间锁
+        timelocks[ProposalType.PARAMETER] = 2 days;
+        timelocks[ProposalType.EMERGENCY] = 6 hours;
+        timelocks[ProposalType.UPGRADE] = 7 days;
+        
+        // 设置紧急延迟
+        emergencyDelays[EmergencyLevel.LOW] = 24 hours;
+        emergencyDelays[EmergencyLevel.MEDIUM] = 6 hours;
+        emergencyDelays[EmergencyLevel.HIGH] = 1 hours;
+        emergencyDelays[EmergencyLevel.CRITICAL] = 0; // 立即执行
+    }
+    
+    // 创建提案（带自动分类）
+    function createProposal(
+        address target,
+        bytes calldata data,
+        string calldata description
+    ) external returns (uint256 proposalId) {
+        // 自动分类提案类型
+        ProposalType pType = classifyProposal(target, data);
+        
+        // 检查提案者权限
+        require(
+            hasProposalRight(msg.sender, pType),
+            "Insufficient rights"
+        );
+        
+        // 创建提案
+        uint256 votingPeriod = getVotingPeriod(pType);
+        
+        proposals[proposalId] = Proposal({
+            proposalType: pType,
+            target: target,
+            data: data,
+            startTime: block.timestamp,
+            endTime: block.timestamp + votingPeriod,
+            forVotes: 0,
+            againstVotes: 0,
+            executed: false,
+            cancelled: false
+        });
+        
+        emit ProposalCreated(proposalId, pType, description);
+    }
+    
+    // 紧急暂停机制
+    function emergencyPause(
+        EmergencyLevel level,
+        address[] calldata contracts,
+        string calldata reason
+    ) external onlySecurityCouncil {
+        require(level >= EmergencyLevel.HIGH, "Not emergency");
+        
+        // 记录紧急行动
+        uint256 actionId = nextEmergencyActionId++;
+        emergencyActions[actionId] = EmergencyAction({
+            level: level,
+            affectedContracts: contracts,
+            actions: new bytes[](contracts.length),
+            executionTime: block.timestamp + emergencyDelays[level],
+            executed: false
+        });
+        
+        // 如果是CRITICAL级别，立即执行
+        if (level == EmergencyLevel.CRITICAL) {
+            executeEmergencyPause(actionId);
+        }
+        
+        emit EmergencyActionInitiated(actionId, level, reason);
+    }
+    
+    // 执行紧急暂停
+    function executeEmergencyPause(uint256 actionId) internal {
+        EmergencyAction storage action = emergencyActions[actionId];
+        require(!action.executed, "Already executed");
+        
+        for (uint i = 0; i < action.affectedContracts.length; i++) {
+            // 调用紧急暂停函数
+            (bool success,) = action.affectedContracts[i].call(
+                abi.encodeWithSignature("emergencyPause()")
+            );
+            require(success, "Pause failed");
+        }
+        
+        action.executed = true;
+        emit EmergencyActionExecuted(actionId);
+    }
+    
+    // 恢复机制（需要更高级别的批准）
+    function emergencyResume(
+        address[] calldata contracts,
+        uint256[] calldata councilSignatures
+    ) external {
+        require(
+            councilSignatures.length >= councilThreshold * 2,
+            "Need super majority for resume"
+        );
+        
+        // 验证签名...
+        
+        for (uint i = 0; i < contracts.length; i++) {
+            IEmergencyPausable(contracts[i]).emergencyResume();
+        }
+        
+        emit EmergencyResumed(contracts);
+    }
+}</code></pre>
+    
+    <h3>5.8 高级控制模型</h3>
+    
+    <h4>5.8.1 模型预测控制(MPC)</h4>
+    <p>MPC通过预测未来系统行为来优化控制决策，特别适合处理约束和多目标优化问题。</p>
+    
+    <pre><code class="language-python"># 稳定币MPC控制器
+import numpy as np
+from scipy.optimize import minimize
+import cvxpy as cp
+
+class StablecoinMPC:
+    def __init__(self, prediction_horizon=10, control_horizon=5):
+        self.N = prediction_horizon  # 预测时域
+        self.M = control_horizon     # 控制时域
+        
+        # 系统模型参数
+        self.dt = 1.0  # 时间步长（小时）
+        
+        # 状态：[价格偏差, 供应量, 抵押率]
+        # 控制：[铸造/销毁率, 稳定费调整, 清算阈值调整]
+        
+    def predict_system_dynamics(self, x0, u_sequence):
+        """预测系统未来状态"""
+        x_pred = np.zeros((self.N + 1, 3))
+        x_pred[0] = x0
+        
+        for k in range(self.N):
+            # 获取控制输入
+            u = u_sequence[min(k, self.M - 1)]
+            
+            # 非线性动态模型
+            x_pred[k + 1] = self.system_dynamics(x_pred[k], u)
+        
+        return x_pred
+    
+    def system_dynamics(self, x, u):
+        """系统动态方程"""
+        price_dev, supply, coll_ratio = x
+        mint_rate, fee_adj, threshold_adj = u
+        
+        # 价格动态（受供需和市场情绪影响）
+        market_pressure = self.estimate_market_pressure()
+        price_elasticity = 0.001  # 价格弹性
+        
+        new_price_dev = price_dev + self.dt * (
+            -price_elasticity * mint_rate +  # 供应影响
+            0.05 * market_pressure +          # 市场压力
+            -0.02 * fee_adj                   # 费用调整影响
+        )
+        
+        # 供应量动态
+        new_supply = supply + self.dt * mint_rate
+        
+        # 抵押率动态
+        volatility = self.estimate_volatility()
+        new_coll_ratio = coll_ratio + self.dt * (
+            threshold_adj - 0.1 * volatility * np.random.randn()
+        )
+        
+        return np.array([new_price_dev, new_supply, new_coll_ratio])
+    
+    def compute_optimal_control(self, x0, reference):
+        """计算最优控制序列"""
+        # 定义优化变量
+        u = cp.Variable((self.M, 3))
+        
+        # 预测状态轨迹
+        x = cp.Variable((self.N + 1, 3))
+        x[0] = x0
+        
+        # 构建优化问题
+        cost = 0
+        
+        for k in range(self.N):
+            # 状态误差成本
+            Q = np.diag([100, 1, 10])  # 权重矩阵
+            cost += cp.quad_form(x[k] - reference, Q)
+            
+            # 控制成本
+            if k < self.M:
+                R = np.diag([0.1, 1, 1])
+                cost += cp.quad_form(u[k], R)
+                
+                # 控制变化率惩罚
+                if k > 0:
+                    cost += 10 * cp.norm(u[k] - u[k-1], 2)
+        
+        # 约束条件
+        constraints = []
+        
+        # 系统动态约束（线性化）
+        A, B = self.linearize_dynamics(x0)
+        for k in range(self.N):
+            u_idx = min(k, self.M - 1)
+            constraints.append(
+                x[k + 1] == A @ x[k] + B @ u[u_idx]
+            )
+        
+        # 控制约束
+        constraints.append(u[:, 0] >= -1000)  # 最大销毁率
+        constraints.append(u[:, 0] <= 1000)   # 最大铸造率
+        constraints.append(u[:, 1] >= -0.05)  # 费用调整限制
+        constraints.append(u[:, 1] <= 0.05)
+        constraints.append(u[:, 2] >= -0.1)   # 阈值调整限制
+        constraints.append(u[:, 2] <= 0.1)
+        
+        # 状态约束
+        constraints.append(x[:, 0] >= -0.05)  # 价格偏差限制
+        constraints.append(x[:, 0] <= 0.05)
+        constraints.append(x[:, 2] >= 1.2)    # 最小抵押率
+        
+        # 求解优化问题
+        problem = cp.Problem(cp.Minimize(cost), constraints)
+        problem.solve(solver=cp.OSQP)
+        
+        if problem.status == cp.OPTIMAL:
+            return u.value[0]  # 返回第一个控制动作
+        else:
+            # 返回安全默认控制
+            return np.array([0, 0, 0])
+    
+    def linearize_dynamics(self, x0):
+        """在当前状态点线性化系统"""
+        # 使用数值微分计算雅可比矩阵
+        eps = 1e-6
+        n_x, n_u = 3, 3
+        
+        A = np.zeros((n_x, n_x))
+        B = np.zeros((n_x, n_u))
+        
+        # 计算A矩阵
+        for i in range(n_x):
+            x_plus = x0.copy()
+            x_plus[i] += eps
+            x_minus = x0.copy()
+            x_minus[i] -= eps
+            
+            f_plus = self.system_dynamics(x_plus, np.zeros(n_u))
+            f_minus = self.system_dynamics(x_minus, np.zeros(n_u))
+            
+            A[:, i] = (f_plus - f_minus) / (2 * eps)
+        
+        # 计算B矩阵
+        for i in range(n_u):
+            u_plus = np.zeros(n_u)
+            u_plus[i] = eps
+            u_minus = np.zeros(n_u)
+            u_minus[i] = -eps
+            
+            f_plus = self.system_dynamics(x0, u_plus)
+            f_minus = self.system_dynamics(x0, u_minus)
+            
+            B[:, i] = (f_plus - f_minus) / (2 * eps)
+        
+        return A, B</code></pre>
+    
+    <h4>5.8.2 强化学习控制器</h4>
+    <p>使用深度强化学习自动学习最优控制策略。</p>
+    
+    <pre><code class="language-python"># 基于PPO的稳定币控制器
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.distributions import Normal
+
+class StablecoinPPOAgent:
+    def __init__(self, state_dim=10, action_dim=3, lr=3e-4):
+        self.state_dim = state_dim
+        self.action_dim = action_dim
+        
+        # Actor网络（策略）
+        self.actor = nn.Sequential(
+            nn.Linear(state_dim, 256),
+            nn.ReLU(),
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.Linear(128, action_dim * 2)  # 均值和标准差
+        )
+        
+        # Critic网络（价值函数）
+        self.critic = nn.Sequential(
+            nn.Linear(state_dim, 256),
+            nn.ReLU(),
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.Linear(128, 1)
+        )
+        
+        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=lr)
+        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=lr)
+        
+    def get_action(self, state):
+        """根据当前状态选择动作"""
+        state_tensor = torch.FloatTensor(state).unsqueeze(0)
+        
+        # 获取动作分布参数
+        output = self.actor(state_tensor)
+        mean = output[:, :self.action_dim]
+        log_std = output[:, self.action_dim:]
+        std = torch.exp(log_std)
+        
+        # 采样动作
+        dist = Normal(mean, std)
+        action = dist.sample()
+        log_prob = dist.log_prob(action).sum(-1)
+        
+        # 动作裁剪
+        action = torch.tanh(action)  # [-1, 1]
+        
+        return action.numpy()[0], log_prob
+    
+    def compute_reward(self, state, action, next_state):
+        """计算奖励函数"""
+        price_dev = next_state[0]
+        volatility = next_state[1]
+        liquidity = next_state[2]
+        gas_cost = self.estimate_gas_cost(action)
+        
+        # 多目标奖励设计
+        reward = 0
+        
+        # 价格稳定奖励
+        price_reward = -100 * abs(price_dev)
+        reward += price_reward
+        
+        # 波动率惩罚
+        volatility_penalty = -10 * volatility
+        reward += volatility_penalty
+        
+        # 流动性奖励
+        liquidity_reward = 5 * np.log1p(liquidity)
+        reward += liquidity_reward
+        
+        # Gas成本惩罚
+        gas_penalty = -0.01 * gas_cost
+        reward += gas_penalty
+        
+        # 极端情况额外惩罚
+        if abs(price_dev) > 0.05:  # 5%脱锚
+            reward -= 1000
+        
+        return reward
+    
+    def train(self, trajectories, epochs=10, clip_epsilon=0.2):
+        """PPO训练更新"""
+        states = torch.FloatTensor(trajectories['states'])
+        actions = torch.FloatTensor(trajectories['actions'])
+        rewards = torch.FloatTensor(trajectories['rewards'])
+        old_log_probs = torch.FloatTensor(trajectories['log_probs'])
+        
+        # 计算优势估计
+        values = self.critic(states).squeeze()
+        advantages = self.compute_advantages(rewards, values)
+        
+        for epoch in range(epochs):
+            # 更新Actor
+            output = self.actor(states)
+            mean = output[:, :self.action_dim]
+            log_std = output[:, self.action_dim:]
+            std = torch.exp(log_std)
+            
+            dist = Normal(mean, std)
+            new_log_probs = dist.log_prob(actions).sum(-1)
+            
+            # PPO裁剪
+            ratio = torch.exp(new_log_probs - old_log_probs)
+            clipped_ratio = torch.clamp(ratio, 1 - clip_epsilon, 1 + clip_epsilon)
+            actor_loss = -torch.min(
+                ratio * advantages,
+                clipped_ratio * advantages
+            ).mean()
+            
+            self.actor_optimizer.zero_grad()
+            actor_loss.backward()
+            self.actor_optimizer.step()
+            
+            # 更新Critic
+            new_values = self.critic(states).squeeze()
+            critic_loss = nn.MSELoss()(new_values, rewards)
+            
+            self.critic_optimizer.zero_grad()
+            critic_loss.backward()
+            self.critic_optimizer.step()
+    
+    def compute_advantages(self, rewards, values, gamma=0.99, lam=0.95):
+        """计算广义优势估计(GAE)"""
+        advantages = torch.zeros_like(rewards)
+        last_advantage = 0
+        
+        for t in reversed(range(len(rewards) - 1)):
+            delta = rewards[t] + gamma * values[t + 1] - values[t]
+            advantages[t] = last_advantage = delta + gamma * lam * last_advantage
+        
+        return advantages</code></pre>
+    
+    <h3>5.9 死亡螺旋预防机制</h3>
+    
+    <p>死亡螺旋是算法稳定币最大的系统性风险，需要多重预防机制。</p>
+    
+    <div class="info-box">
+        <h5>🚨 死亡螺旋触发条件</h5>
+        <ul>
+            <li>市场信心丧失导致大规模抛售</li>
+            <li>抵押品价值急剧下跌</li>
+            <li>清算级联效应</li>
+            <li>流动性枯竭</li>
+        </ul>
+    </div>
+    
+    <pre><code class="language-solidity">// 死亡螺旋预防系统
+contract DeathSpiralPrevention {
+    struct SystemHealth {
+        uint256 priceDeviation;
+        uint256 supplyVelocity;
+        uint256 collateralRatio;
+        uint256 liquidityDepth;
+        uint256 marketConfidence;
+    }
+    
+    enum RiskLevel { NORMAL, ELEVATED, HIGH, CRITICAL }
+    
+    // 断路器参数
+    uint256 public constant SUPPLY_VELOCITY_THRESHOLD = 1000; // 10%/小时
+    uint256 public constant PRICE_DEVIATION_THRESHOLD = 500;  // 5%
+    uint256 public constant LIQUIDITY_THRESHOLD = 1e6;        // $1M
+    
+    // 动态参数调整
+    function assessSystemRisk() public view returns (RiskLevel) {
+        SystemHealth memory health = getCurrentHealth();
+        
+        uint256 riskScore = 0;
+        
+        // 价格偏离评分
+        if (health.priceDeviation > PRICE_DEVIATION_THRESHOLD) {
+            riskScore += 30;
+        }
+        
+        // 供应速度评分
+        if (health.supplyVelocity > SUPPLY_VELOCITY_THRESHOLD) {
+            riskScore += 25;
+        }
+        
+        // 抵押率评分
+        if (health.collateralRatio < 150) {
+            riskScore += 25;
+        }
+        
+        // 流动性评分
+        if (health.liquidityDepth < LIQUIDITY_THRESHOLD) {
+            riskScore += 20;
+        }
+        
+        // 确定风险等级
+        if (riskScore >= 70) return RiskLevel.CRITICAL;
+        if (riskScore >= 50) return RiskLevel.HIGH;
+        if (riskScore >= 30) return RiskLevel.ELEVATED;
+        return RiskLevel.NORMAL;
+    }
+    
+    // 自动触发保护机制
+    function activateProtection(RiskLevel risk) external {
+        if (risk == RiskLevel.CRITICAL) {
+            // 1. 暂停所有铸造
+            pauseMinting();
+            
+            // 2. 提高清算激励
+            increaseLiquidationIncentive(150); // 15%
+            
+            // 3. 激活紧急流动性池
+            activateEmergencyLiquidity();
+            
+            // 4. 降低借贷上限
+            reduceBorrowingCaps(50); // 减少50%
+        }
+        else if (risk == RiskLevel.HIGH) {
+            // 渐进式调整
+            adjustStabilityFee(200); // +2%
+            adjustLiquidationRatio(105); // 提高5%
+            enableSupplyThrottling();
+        }
+    }
+    
+    // 紧急流动性注入
+    function activateEmergencyLiquidity() internal {
+        uint256 reserveAmount = emergencyReserve.balance();
+        
+        // 使用储备基金提供流动性
+        if (reserveAmount > 0) {
+            // 在主要DEX添加流动性
+            addLiquidityToAMM(reserveAmount / 2);
+            
+            // 设置价格支撑订单
+            createPriceSupportOrders(reserveAmount / 2);
+        }
+        
+        emit EmergencyLiquidityActivated(reserveAmount);
+    }
+}</code></pre>
+    
+    <h3>第五章小结</h3>
+    
+    <p>本章深入探讨了稳定币系统的数学建模和控制理论应用：</p>
+    
+    <ul>
+        <li><strong>控制理论基础</strong>：从PID控制器到高级MPC和强化学习方法</li>
+        <li><strong>博弈论应用</strong>：清算机制设计和MEV防护</li>
+        <li><strong>金融模型适配</strong>：Black-Scholes在DeFi环境下的调整</li>
+        <li><strong>风险管理</strong>：压力测试和蒙特卡洛模拟</li>
+        <li><strong>2024最新发展</strong>：LST/LRT集成和RWA风险管理</li>
+        <li><strong>安全机制</strong>：预言机防护和治理响应</li>
+        <li><strong>系统稳定性</strong>：死亡螺旋预防和紧急干预</li>
+    </ul>
+    
+    <div class="key-concepts">
+        <h4>🔑 关键要点</h4>
+        <ol>
+            <li>稳定币控制是一个多变量、非线性、有约束的复杂系统</li>
+            <li>需要结合多种控制方法，没有单一最优解</li>
+            <li>预言机安全和治理机制是系统稳定的基础</li>
+            <li>必须为极端市场情况设计充分的预防机制</li>
+            <li>新型抵押品（LST/RWA）带来新的风险维度</li>
+        </ol>
+    
+            
+            <!-- 章节导航 -->
+            <div class="chapter-nav">
+                <a href="chapter4.html">← 第4章</a>
+                <a href="chapter6.html">第6章 →</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-solidity.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

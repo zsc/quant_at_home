@@ -1,0 +1,2637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第四章：抵押型稳定币设计 - 区块链稳定币教程</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-brand">稳定币教程</a>
+            <button class="navbar-toggle" onclick="toggleMobileNav()">☰</button>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a href="intro.html" class="nav-link">引言</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">章节</a>
+                    <div class="dropdown-menu">
+                        <a href="chapter1.html" class="dropdown-item">第1章：区块链基础</a>
+                        <a href="chapter2.html" class="dropdown-item">第2章：稳定币分类</a>
+                        <a href="chapter3.html" class="dropdown-item">第3章：ERC-20标准</a>
+                        <a href="chapter4.html" class="dropdown-item">第4章：抵押型设计</a>
+                        <a href="chapter5.html" class="dropdown-item">第5章：数学模型</a>
+                        <a href="chapter6.html" class="dropdown-item">第6章：AMM集成</a>
+                        <a href="chapter7.html" class="dropdown-item">第7章：借贷协议</a>
+                        <a href="chapter8.html" class="dropdown-item">第8章：收益策略</a>
+                        <a href="chapter9.html" class="dropdown-item">第9章：智能合约安全</a>
+                        <a href="chapter10.html" class="dropdown-item">第10章：经济攻击</a>
+                        <a href="chapter11.html" class="dropdown-item">第11章：未来方向</a>
+                        <a href="chapter12.html" class="dropdown-item">第12章：生产部署</a>
+                        <a href="chapter13.html" class="dropdown-item">第13章：生态集成</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="#resources" class="nav-link">资源</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- 头部 -->
+    <header id="top">
+        <div class="container">
+            <h1>第四章：抵押型稳定币设计</h1>
+        </div>
+    </header>
+    
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="chapter">
+<h2>第四章：抵押型稳定币设计</h2>
+            
+            <div class="intro-box">
+                <strong>本章概览：</strong>
+                <ul>
+                    <li>深入理解金库(Vault)机制和CDP系统</li>
+                    <li>清算引擎设计与Keeper激励机制</li>
+                    <li>预言机集成和价格喂价策略</li>
+                    <li>锚定稳定模块(PSM)与真实世界资产(RWA)</li>
+                    <li>实战：构建类似MakerDAO的超额抵押稳定币系统</li>
+                </ul>
+            </div>
+            
+            <div class="tip-box">
+                <strong>🎯 章节目标：</strong>
+                <p>本章不仅要让您理解“如何实现”抵押型稳定币，更重要的是理解“为何如此设计”以及“有何权衡”。我们将通过量化风险建模、真实案例分析和最新实践，帮助您构建对这一复杂系统的深刻理解。</p>
+            </div>
+
+            <h3>4.1 金库机制与CDP系统</h3>
+            
+            <h4>4.1.1 抵押债仓位(CDP)核心概念</h4>
+            <p>CDP（Collateralized Debt Position，抵押债仓位）是抵押型稳定币的核心机制，允许用户通过锁定抵押品来铸造稳定币。让我们深入了解其工作原理：</p>
+            
+            <div class="tip">
+                💡 关键洞察：CDP本质上是一个智能合约控制的贷款系统，用户的抵押品被锁定在合约中，作为铸造稳定币的担保。
+            </div>
+            
+            <h4>4.1.2 风险参数五元组</h4>
+            <p>抵押型稳定币的安全性依赖于精心设计的风险参数。这些参数不是孤立的，而是相互影响的：</p>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>参数名称</th>
+                    <th>含义</th>
+                    <th>典型值</th>
+                    <th>设定依据</th>
+                </tr>
+                <tr>
+                    <td>债务上限 (Debt Ceiling)</td>
+                    <td>该抵押品类型可铸造的最大稳定币数量</td>
+                    <td>100M - 5B DAI</td>
+                    <td>抵押品流动性、市场规模</td>
+                </tr>
+                <tr>
+                    <td>清算线 (Liquidation Ratio)</td>
+                    <td>触发清算的最低抵押率</td>
+                    <td>130% - 175%</td>
+                    <td>资产波动性、VaR模型</td>
+                </tr>
+                <tr>
+                    <td>稳定费 (Stability Fee)</td>
+                    <td>借款利率，作为货币政策工具</td>
+                    <td>0.5% - 20% APR</td>
+                    <td>市场利率、价格锚定情况</td>
+                </tr>
+                <tr>
+                    <td>清算罚金 (Liquidation Penalty)</td>
+                    <td>清算时的额外费用</td>
+                    <td>5% - 13%</td>
+                    <td>激励Keeper、补偿系统风险</td>
+                </tr>
+                <tr>
+                    <td>目标抵押率 (Target CR)</td>
+                    <td>建议的安全抵押率</td>
+                    <td>150% - 200%</td>
+                    <td>给用户缓冲空间</td>
+                </tr>
+            </table>
+            
+            <div class="tip-box">
+                <strong>📊 量化风险建模：</strong>
+                <p>这些参数的设定不是任意的，而是基于：</p>
+                <ul>
+                    <li><strong>Value-at-Risk (VaR)：</strong>通过历史数据模拟极端市场情况下的损失概率</li>
+                    <li><strong>Monte Carlo模拟：</strong>随机生成价格路径，评估系统在不同场景下的表现</li>
+                    <li><strong>市场深度分析：</strong>考虑大规模清算对市场的冲击</li>
+                </ul>
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">CDP核心数据结构设计 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract CDPEngine {
+    // CDP核心数据结构
+    struct CDP {
+        uint256 collateral;      // 抵押品数量
+        uint256 debt;           // 债务数量（铸造的稳定币）
+        uint256 accumulatedRate; // 累积利率（用于计算利息）
+    }
+    
+    // 抵押品类型信息 - 风险参数五元组
+    struct CollateralType {
+        // 风险参数
+        uint256 debtCeiling;        // 债务上限
+        uint256 liquidationRatio;   // 清算比率（如150%）
+        uint256 stabilityFee;       // 稳定费率（年化）
+        uint256 liquidationPenalty; // 清算罚金（如13%）
+        uint256 targetRatio;        // 目标抵押率（如175%）
+        
+        // 状态变量
+        uint256 totalCollateral;     // 该类型总抵押量
+        uint256 totalDebt;          // 该类型总债务
+        uint256 debtFloor;          // 最小债务量
+        uint256 accumulatedRate;    // 累积利率
+        uint256 lastUpdateTime;     // 上次更新时间
+        
+        // 配置
+        address priceOracle;        // 价格预言机地址
+        address gemAdapter;         // 抵押品适配器
+        bool isActive;              // 是否激活
+    }
+    
+    // 状态变量
+    mapping(bytes32 => CollateralType) public collateralTypes;
+    mapping(bytes32 => mapping(address => CDP)) public cdps;
+    mapping(address => uint256) public systemDebt;  // 系统债务
+    mapping(address => uint256) public systemSurplus; // 系统盈余
+    
+    uint256 public globalDebtCeiling;  // 全局债务上限
+    uint256 public baseRate = 1e27;    // 基础利率（Ray单位）
+    uint256 constant RAY = 1e27;       // Ray精度
+    
+    // 事件
+    event CDPOpened(bytes32 indexed ilk, address indexed user);
+    event CollateralLocked(bytes32 indexed ilk, address indexed user, uint256 amount);
+    event DebtGenerated(bytes32 indexed ilk, address indexed user, uint256 amount);
+    event CDPClosed(bytes32 indexed ilk, address indexed user);
+    
+    // 开启新的CDP
+    function openCDP(bytes32 ilk) external returns (uint256 cdpId) {
+        require(collateralTypes[ilk].debtCeiling > 0, "Collateral type not initialized");
+        
+        // 初始化用户的CDP
+        cdps[ilk][msg.sender] = CDP({
+            collateral: 0,
+            debt: 0,
+            accumulatedRate: collateralTypes[ilk].accumulatedRate
+        });
+        
+        emit CDPOpened(ilk, msg.sender);
+    }
+    
+    // 锁定抵押品
+    function lockCollateral(bytes32 ilk, uint256 amount) external {
+        CDP storage cdp = cdps[ilk][msg.sender];
+        CollateralType storage collType = collateralTypes[ilk];
+        
+        // 从用户转入抵押品（需要先approve）
+        // 这里假设有一个gem adapter处理不同类型的抵押品
+        IGemAdapter(collType.gemAdapter).join(msg.sender, amount);
+        
+        cdp.collateral += amount;
+        collType.totalCollateral += amount;
+        
+        emit CollateralLocked(ilk, msg.sender, amount);
+    }
+    
+    // 计算CDP的抵押率
+    function getCDPStatus(bytes32 ilk, address user) 
+        public 
+        view 
+        returns (
+            uint256 collateralValue,
+            uint256 debtValue,
+            uint256 collateralizationRatio,
+            bool isSafe
+        ) 
+    {
+        CDP memory cdp = cdps[ilk][user];
+        CollateralType memory collType = collateralTypes[ilk];
+        
+        // 获取抵押品价格
+        uint256 price = IPriceOracle(collType.priceOracle).getPrice(ilk);
+        
+        // 计算价值
+        collateralValue = cdp.collateral * price / 1e18;
+        debtValue = cdp.debt * collType.accumulatedRate / RAY;
+        
+        // 计算抵押率
+        if (debtValue > 0) {
+            collateralizationRatio = collateralValue * 100 / debtValue;
+        } else {
+            collateralizationRatio = type(uint256).max;
+        }
+        
+        // 检查是否安全
+        isSafe = collateralizationRatio >= collType.liquidationRatio;
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>4.1.2 利率累积机制</h4>
+            <p>稳定费（Stability Fee）是抵押型稳定币的重要收入来源，通过复利计算实现精确的利息累积：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">利率累积计算实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">library RateMath {
+    uint256 constant RAY = 1e27;
+    uint256 constant YEAR = 365 days;
+    
+    // 计算复利
+    function compound(uint256 principal, uint256 rate, uint256 time) 
+        internal 
+        pure 
+        returns (uint256) 
+    {
+        // 使用泰勒级数近似计算 e^(rate * time)
+        // 对于小的rate * time，这个近似非常准确
+        uint256 ratePerSecond = rate / YEAR;
+        uint256 exp = time * ratePerSecond / RAY;
+        
+        // e^x ≈ 1 + x + x^2/2 + x^3/6 + ...
+        uint256 result = RAY + exp;
+        uint256 term = exp;
+        
+        // 计算前几项以提高精度
+        for (uint256 i = 2; i <= 6; i++) {
+            term = term * exp / (i * RAY);
+            result += term;
+            
+            // 如果项太小，停止计算
+            if (term < 1) break;
+        }
+        
+        return principal * result / RAY;
+    }
+}
+
+contract StabilityFeeCollector {
+    using RateMath for uint256;
+    
+    struct RateUpdate {
+        uint256 rate;           // 当前利率
+        uint256 accumulated;    // 累积因子
+        uint256 lastUpdate;     // 上次更新时间
+    }
+    
+    mapping(bytes32 => RateUpdate) public rates;
+    
+    // 更新累积利率
+    function updateAccumulatedRate(bytes32 ilk) public returns (uint256) {
+        RateUpdate storage r = rates[ilk];
+        
+        if (block.timestamp > r.lastUpdate) {
+            uint256 timeDelta = block.timestamp - r.lastUpdate;
+            
+            // 计算新的累积因子
+            uint256 newAccumulated = r.accumulated.compound(
+                r.rate,
+                timeDelta
+            );
+            
+            r.accumulated = newAccumulated;
+            r.lastUpdate = block.timestamp;
+        }
+        
+        return r.accumulated;
+    }
+    
+    // 计算债务的当前价值（包含利息）
+    function debtWithInterest(
+        bytes32 ilk,
+        uint256 principal
+    ) public view returns (uint256) {
+        RateUpdate memory r = rates[ilk];
+        uint256 timeDelta = block.timestamp - r.lastUpdate;
+        
+        uint256 currentAccumulated = r.accumulated.compound(
+            r.rate,
+            timeDelta
+        );
+        
+        return principal * currentAccumulated / RAY;
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>4.1.3 债务和盈余管理</h4>
+            <p>系统需要精确管理全局债务和盈余，确保整体偿付能力：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">债务会计系统 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">contract DebtAccounting {
+    // 系统会计变量
+    mapping(address => uint256) public dai;      // DAI余额
+    mapping(address => uint256) public sin;      // 坏账（系统债务）
+    uint256 public vice;                         // 全局未拍卖坏账
+    uint256 public surplus;                      // 系统盈余
+    
+    uint256 constant RAD = 1e45;                 // 高精度单位
+    
+    // 铸造稳定币
+    function mint(address user, uint256 amount) internal {
+        dai[user] += amount;
+        
+        // 同时增加等额的系统债务
+        sin[address(this)] += amount;
+    }
+    
+    // 销毁稳定币偿还债务
+    function burn(address user, uint256 amount) internal {
+        require(dai[user] >= amount, "Insufficient balance");
+        
+        dai[user] -= amount;
+        sin[address(this)] -= amount;
+    }
+    
+    // 处理盈余
+    function handleSurplus() external {
+        // 当系统有盈余时，可以：
+        // 1. 销毁MKR代币（通过拍卖）
+        // 2. 增加储备金
+        // 3. 降低稳定费率
+        
+        if (surplus > surplusBuffer) {
+            uint256 auctionAmount = surplus - surplusBuffer;
+            // 启动盈余拍卖...
+        }
+    }
+    
+    // 处理坏账
+    function handleBadDebt() external {
+        // 当系统有坏账时，需要：
+        // 1. 铸造MKR代币（通过拍卖）
+        // 2. 使用储备金
+        // 3. 提高稳定费率
+        
+        if (vice > debtBuffer) {
+            uint256 auctionAmount = vice - debtBuffer;
+            // 启动债务拍卖...
+        }
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h3>4.2 清算引擎与Keeper激励</h3>
+            
+            <h4>4.2.0 清算机制对比分析</h4>
+            <p>在深入实现之前，让我们先从多个维度对比不同的清算机制：</p>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>清算机制</th>
+                    <th>资本效率</th>
+                    <th>Gas成本</th>
+                    <th>市场操纵风险</th>
+                    <th>清算速度</th>
+                    <th>Keeper要求</th>
+                    <th>适用场景</th>
+                </tr>
+                <tr>
+                    <td>荷兰拍卖</td>
+                    <td>中等</td>
+                    <td>高</td>
+                    <td>低</td>
+                    <td>慢</td>
+                    <td>复杂</td>
+                    <td>大额清算</td>
+                </tr>
+                <tr>
+                    <td>英式拍卖 (Liquidation 2.0)</td>
+                    <td>高</td>
+                    <td>中</td>
+                    <td>低</td>
+                    <td>中</td>
+                    <td>简单</td>
+                    <td>MakerDAO现行方案</td>
+                </tr>
+                <tr>
+                    <td>固定价差</td>
+                    <td>低</td>
+                    <td>低</td>
+                    <td>中</td>
+                    <td>快</td>
+                    <td>简单</td>
+                    <td>小额高频</td>
+                </tr>
+                <tr>
+                    <td>AMM清算</td>
+                    <td>最高</td>
+                    <td>中</td>
+                    <td>最低</td>
+                    <td>即时</td>
+                    <td>无</td>
+                    <td>Curve crvUSD</td>
+                </tr>
+            </table>
+            
+            <div class="tip-box">
+                <strong>🎨 MakerDAO Liquidation 2.0：</strong>
+                <p>MakerDAO已经从Liquidation 1.0的荷兰拍卖升级到了2.0的英式拍卖系统：</p>
+                <ul>
+                    <li>固定折扣的英式拍卖，减少市场冲击</li>
+                    <li>即时清算，无需等待拍卖结束</li>
+                    <li>支持部分清算，提高用户体验</li>
+                    <li>更高的资本效率和更低的清算损失</li>
+                </ul>
+            </div>
+            
+            <h4>4.2.1 清算触发条件</h4>
+            <p>当CDP的抵押率低于清算线时，系统需要及时清算以保护整体偿付能力：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">清算引擎核心逻辑 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">contract LiquidationEngine {
+    struct Auction {
+        uint256 collateralAmount;  // 拍卖的抵押品数量
+        uint256 debtAmount;        // 需要偿还的债务
+        address cdpOwner;          // CDP原主人
+        uint256 startTime;         // 拍卖开始时间
+        uint256 startPrice;        // 起始价格
+        uint256 endTime;           // 拍卖结束时间
+        address highBidder;        // 最高出价者
+        uint256 highBid;           // 最高出价
+    }
+    
+    mapping(uint256 => Auction) public auctions;
+    uint256 public nextAuctionId;
+    
+    // 清算参数
+    uint256 public liquidationPenalty = 13e16;  // 13%罚金
+    uint256 public auctionDuration = 6 hours;    // 拍卖持续时间
+    uint256 public bufferPercentage = 3e16;      // 3%缓冲
+    
+    // 触发清算
+    function liquidate(bytes32 ilk, address user) external returns (uint256 auctionId) {
+        // 检查CDP状态
+        (uint256 collateralValue, uint256 debtValue, uint256 ratio, bool isSafe) = 
+            cdpEngine.getCDPStatus(ilk, user);
+        
+        require(!isSafe, "CDP is safe");
+        
+        CDP storage cdp = cdpEngine.cdps(ilk, user);
+        CollateralType memory collType = cdpEngine.collateralTypes(ilk);
+        
+        // 计算清算金额
+        uint256 debtToRecover = cdp.debt * collType.accumulatedRate / RAY;
+        uint256 penaltyAmount = debtToRecover * liquidationPenalty / 1e18;
+        uint256 totalDebtWithPenalty = debtToRecover + penaltyAmount;
+        
+        // 计算需要拍卖的抵押品
+        uint256 collateralPrice = oracle.getPrice(ilk);
+        uint256 collateralToAuction = totalDebtWithPenalty * 1e18 / collateralPrice;
+        
+        // 如果需要的抵押品超过CDP拥有的，拍卖全部
+        if (collateralToAuction > cdp.collateral) {
+            collateralToAuction = cdp.collateral;
+        }
+        
+        // 创建拍卖
+        auctionId = nextAuctionId++;
+        auctions[auctionId] = Auction({
+            collateralAmount: collateralToAuction,
+            debtAmount: debtToRecover,
+            cdpOwner: user,
+            startTime: block.timestamp,
+            startPrice: collateralPrice * (100 + bufferPercentage) / 100,
+            endTime: block.timestamp + auctionDuration,
+            highBidder: address(0),
+            highBid: 0
+        });
+        
+        // 从CDP中移除抵押品
+        cdp.collateral -= collateralToAuction;
+        
+        emit LiquidationStarted(ilk, user, auctionId, collateralToAuction, debtToRecover);
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>4.2.2 拍卖机制设计</h4>
+            <p>MakerDAO使用三种拍卖机制：抵押品拍卖（Collateral Auction）、债务拍卖（Debt Auction）和盈余拍卖（Surplus Auction）：</p>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>拍卖类型</th>
+                    <th>触发条件</th>
+                    <th>拍卖标的</th>
+                    <th>支付方式</th>
+                    <th>目标</th>
+                </tr>
+                <tr>
+                    <td>抵押品拍卖</td>
+                    <td>CDP被清算</td>
+                    <td>抵押品</td>
+                    <td>DAI</td>
+                    <td>回收债务+罚金</td>
+                </tr>
+                <tr>
+                    <td>债务拍卖</td>
+                    <td>系统坏账过多</td>
+                    <td>MKR代币</td>
+                    <td>DAI</td>
+                    <td>填补坏账缺口</td>
+                </tr>
+                <tr>
+                    <td>盈余拍卖</td>
+                    <td>系统盈余过多</td>
+                    <td>DAI</td>
+                    <td>MKR代币</td>
+                    <td>销毁MKR</td>
+                </tr>
+            </table>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">荷兰式拍卖实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">contract DutchAuction {
+    // 荷兰式拍卖：价格随时间线性下降
+    function getCurrentPrice(Auction memory auction) 
+        public 
+        view 
+        returns (uint256) 
+    {
+        if (block.timestamp >= auction.endTime) {
+            // 拍卖结束，返回最低价
+            return auction.startPrice / 2;
+        }
+        
+        uint256 elapsed = block.timestamp - auction.startTime;
+        uint256 duration = auction.endTime - auction.startTime;
+        
+        // 线性下降到50%
+        uint256 priceDrop = auction.startPrice * elapsed / (2 * duration);
+        return auction.startPrice - priceDrop;
+    }
+    
+    // 竞拍
+    function bid(uint256 auctionId, uint256 amount) external {
+        Auction storage auction = auctions[auctionId];
+        require(block.timestamp < auction.endTime, "Auction ended");
+        
+        uint256 currentPrice = getCurrentPrice(auction);
+        uint256 collateralWanted = amount * 1e18 / currentPrice;
+        
+        require(collateralWanted <= auction.collateralAmount, "Not enough collateral");
+        
+        // 转入DAI
+        dai.transferFrom(msg.sender, address(this), amount);
+        
+        // 转出抵押品
+        collateral.transfer(msg.sender, collateralWanted);
+        
+        // 更新拍卖状态
+        auction.collateralAmount -= collateralWanted;
+        
+        // 如果债务已完全偿还，结束拍卖
+        if (amount >= auction.debtAmount) {
+            // 返还剩余抵押品给原主人
+            if (auction.collateralAmount > 0) {
+                collateral.transfer(auction.cdpOwner, auction.collateralAmount);
+            }
+            
+            // 多余的DAI作为系统盈余
+            if (amount > auction.debtAmount) {
+                surplus += amount - auction.debtAmount;
+            }
+            
+            delete auctions[auctionId];
+        } else {
+            auction.debtAmount -= amount;
+        }
+        
+        emit BidPlaced(auctionId, msg.sender, amount, collateralWanted);
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>4.2.3 Keeper激励机制与MEV防护</h4>
+            <p>Keeper是维护系统健康的关键参与者，但也可能成为MEV攻击的来源。我们需要在激励和防护之间找到平衡：</p>
+            
+            <div class="tip-box">
+                <strong>🕸️ MEV在清算中的两种主要形式：</strong>
+                <ul>
+                    <li><strong>抢跑 (Front-running)：</strong>Keeper监控内存池，抢先执行有利可图的清算</li>
+                    <li><strong>三明治攻击 (Sandwiching)：</strong>在预言机更新前后操纵价格触发清算</li>
+                </ul>
+                <p><strong>缓解策略：</strong></p>
+                <ul>
+                    <li>批量拍卖：减少单个交易的MEV机会</li>
+                    <li>Commit-Reveal：隐藏意图直到执行</li>
+                    <li>Flashbots Protect：使用加密内存池</li>
+                </ul>
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">Keeper激励系统 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">contract KeeperIncentives {
+    // Keeper奖励参数
+    uint256 public liquidationReward = 3e16;     // 3%奖励
+    uint256 public priceUpdateReward = 1e15;     // 0.1%奖励
+    uint256 public gasCompensation = 200000;     // Gas补偿
+    
+    mapping(address => uint256) public keeperRewards;
+    mapping(address => uint256) public keeperReputation;
+    
+    // 清算奖励
+    function rewardLiquidation(address keeper, uint256 debtAmount) internal {
+        uint256 reward = debtAmount * liquidationReward / 1e18;
+        keeperRewards[keeper] += reward;
+        keeperReputation[keeper] += 1;
+        
+        emit KeeperRewarded(keeper, "liquidation", reward);
+    }
+    
+    // 价格更新奖励
+    function rewardPriceUpdate(address keeper) internal {
+        uint256 reward = priceUpdateReward;
+        keeperRewards[keeper] += reward;
+        
+        emit KeeperRewarded(keeper, "price_update", reward);
+    }
+    
+    // MEV保护：使用commit-reveal机制
+    mapping(bytes32 => uint256) public commitments;
+    uint256 public revealDelay = 2; // 区块延迟
+    
+    // 批量拍卖机制
+    struct BatchAuction {
+        uint256 startBlock;
+        uint256 endBlock;
+        bytes32[] liquidations;
+        mapping(address => uint256) bids;
+        uint256 totalBids;
+        bool settled;
+    }
+    
+    mapping(uint256 => BatchAuction) public batches;
+    uint256 public currentBatch;
+    
+    // 加密订单流
+    function submitEncryptedBid(
+        uint256 batchId,
+        bytes32 encryptedBid
+    ) external {
+        require(block.number < batches[batchId].endBlock, "Batch ended");
+        // 存储加密竞价
+        encryptedBids[batchId][msg.sender] = encryptedBid;
+    }
+    
+    // 使用VDF延迟揭示
+    function revealWithVDF(
+        uint256 batchId,
+        uint256 bid,
+        uint256 nonce,
+        bytes memory vdfProof
+    ) external {
+        // 验证VDF证明
+        require(verifyVDF(vdfProof, block.number - batches[batchId].endBlock), "Invalid VDF");
+        
+        // 验证加密竞价
+        bytes32 commitment = keccak256(abi.encodePacked(bid, nonce));
+        require(encryptedBids[batchId][msg.sender] == commitment, "Invalid reveal");
+        
+        batches[batchId].bids[msg.sender] = bid;
+        batches[batchId].totalBids += bid;
+    }
+    
+    function commitLiquidation(bytes32 commitment) external {
+        commitments[commitment] = block.number;
+    }
+    
+    function revealLiquidation(
+        bytes32 ilk,
+        address user,
+        uint256 nonce
+    ) external {
+        bytes32 commitment = keccak256(abi.encodePacked(ilk, user, nonce, msg.sender));
+        require(commitments[commitment] > 0, "Invalid commitment");
+        require(block.number >= commitments[commitment] + revealDelay, "Too early");
+        require(block.number <= commitments[commitment] + revealDelay + 10, "Too late");
+        
+        // 执行清算
+        liquidationEngine.liquidate(ilk, user);
+        
+        // 奖励keeper
+        rewardLiquidation(msg.sender, debtAmount);
+        
+        delete commitments[commitment];
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h3>4.3 预言机集成与价格喂价</h3>
+            
+            <h4>4.3.1 预言机架构设计</h4>
+            <p>价格预言机是抵押型稳定币的关键组件，需要确保价格的准确性和抗操纵性：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">预言机系统架构 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">contract PriceOracleSystem {
+    struct PriceFeed {
+        uint256 value;          // 当前价格
+        uint256 timestamp;      // 更新时间
+        bool isActive;          // 是否活跃
+    }
+    
+    struct OracleConfig {
+        address[] oracles;      // 预言机地址列表
+        uint256 quorum;         // 最小数量要求
+        uint256 priceDeviation; // 允许的价格偏差
+        uint256 stalePeriod;    // 价格过期时间
+    }
+    
+    mapping(bytes32 => PriceFeed) public priceFeeds;
+    mapping(bytes32 => OracleConfig) public oracleConfigs;
+    mapping(bytes32 => mapping(address => uint256)) public oracleSubmissions;
+    
+    // 中位数价格计算
+    function updatePrice(bytes32 asset) external {
+        OracleConfig memory config = oracleConfigs[asset];
+        
+        uint256[] memory prices = new uint256[](config.oracles.length);
+        uint256 validSubmissions = 0;
+        
+        // 收集所有有效的价格提交
+        for (uint256 i = 0; i < config.oracles.length; i++) {
+            uint256 submission = oracleSubmissions[asset][config.oracles[i]];
+            
+            // 检查提交是否在有效期内
+            if (submission > 0 && block.timestamp - submission <= config.stalePeriod) {
+                prices[validSubmissions++] = submission;
+            }
+        }
+        
+        require(validSubmissions >= config.quorum, "Insufficient oracle submissions");
+        
+        // 计算中位数
+        uint256 medianPrice = calculateMedian(prices, validSubmissions);
+        
+        // 检查价格偏差
+        PriceFeed storage feed = priceFeeds[asset];
+        if (feed.value > 0) {
+            uint256 deviation = medianPrice > feed.value 
+                ? (medianPrice - feed.value) * 1e18 / feed.value
+                : (feed.value - medianPrice) * 1e18 / feed.value;
+                
+            require(deviation <= config.priceDeviation, "Price deviation too high");
+        }
+        
+        // 更新价格
+        feed.value = medianPrice;
+        feed.timestamp = block.timestamp;
+        feed.isActive = true;
+        
+        emit PriceUpdated(asset, medianPrice, validSubmissions);
+    }
+    
+    // 安全的价格获取
+    function getPrice(bytes32 asset) external view returns (uint256) {
+        PriceFeed memory feed = priceFeeds[asset];
+        require(feed.isActive, "Price feed not active");
+        require(block.timestamp - feed.timestamp <= oracleConfigs[asset].stalePeriod, 
+                "Price is stale");
+        
+        return feed.value;
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>4.3.2 Chainlink集成</h4>
+            <p>集成Chainlink预言机提供可靠的价格数据：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">Chainlink预言机适配器 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+contract ChainlinkPriceAdapter {
+    struct ChainlinkFeed {
+        AggregatorV3Interface priceFeed;
+        uint256 heartbeat;      // 最大更新间隔
+        uint256 decimals;       // 价格精度
+        bool isInverse;         // 是否需要取倒数（如USD/ETH）
+    }
+    
+    mapping(bytes32 => ChainlinkFeed) public chainlinkFeeds;
+    uint256 constant PRICE_DECIMALS = 1e18;
+    
+    // 配置Chainlink数据源
+    function setChainlinkFeed(
+        bytes32 asset,
+        address feedAddress,
+        uint256 heartbeat,
+        bool isInverse
+    ) external onlyOwner {
+        AggregatorV3Interface feed = AggregatorV3Interface(feedAddress);
+        uint256 decimals = feed.decimals();
+        
+        chainlinkFeeds[asset] = ChainlinkFeed({
+            priceFeed: feed,
+            heartbeat: heartbeat,
+            decimals: 10 ** decimals,
+            isInverse: isInverse
+        });
+    }
+    
+    // 获取Chainlink价格
+    function getChainlinkPrice(bytes32 asset) public view returns (uint256) {
+        ChainlinkFeed memory feed = chainlinkFeeds[asset];
+        require(address(feed.priceFeed) != address(0), "Feed not configured");
+        
+        (
+            uint80 roundId,
+            int256 price,
+            uint256 startedAt,
+            uint256 updatedAt,
+            uint80 answeredInRound
+        ) = feed.priceFeed.latestRoundData();
+        
+        // 验证数据有效性
+        require(price > 0, "Invalid price");
+        require(updatedAt > 0, "Round not complete");
+        require(block.timestamp - updatedAt <= feed.heartbeat, "Price stale");
+        
+        // 标准化价格到18位小数
+        uint256 normalizedPrice = uint256(price) * PRICE_DECIMALS / feed.decimals;
+        
+        // 如果需要取倒数（如USD/ETH转换为ETH/USD）
+        if (feed.isInverse) {
+            normalizedPrice = PRICE_DECIMALS * PRICE_DECIMALS / normalizedPrice;
+        }
+        
+        return normalizedPrice;
+    }
+    
+    // 聚合多个价格源
+    function getAggregatedPrice(bytes32 asset) external view returns (uint256) {
+        uint256 chainlinkPrice = getChainlinkPrice(asset);
+        uint256 internalPrice = priceOracle.getPrice(asset);
+        
+        // 简单平均，实际可以使用加权平均或其他算法
+        return (chainlinkPrice + internalPrice) / 2;
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>4.3.3 TWAP价格保护</h4>
+            <p>使用时间加权平均价格（TWAP）防止价格操纵：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">TWAP实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">contract TWAPOracle {
+    struct Observation {
+        uint256 timestamp;
+        uint256 priceCumulative;
+        uint256 price;
+    }
+    
+    struct TWAPData {
+        Observation[] observations;
+        uint256 windowSize;        // TWAP窗口大小（秒）
+        uint256 granularity;       // 观察点数量
+    }
+    
+    mapping(bytes32 => TWAPData) public twapData;
+    
+    // 更新TWAP
+    function updateTWAP(bytes32 asset, uint256 currentPrice) external {
+        TWAPData storage data = twapData[asset];
+        
+        // 计算时间间隔
+        uint256 timeElapsed = block.timestamp - data.observations[data.observations.length - 1].timestamp;
+        require(timeElapsed > 0, "Time not elapsed");
+        
+        // 计算累积价格
+        uint256 priceCumulative = data.observations[data.observations.length - 1].priceCumulative + 
+                                 currentPrice * timeElapsed;
+        
+        // 添加新观察点
+        data.observations.push(Observation({
+            timestamp: block.timestamp,
+            priceCumulative: priceCumulative,
+            price: currentPrice
+        }));
+        
+        // 移除超出窗口的旧观察点
+        while (data.observations.length > 0 && 
+               block.timestamp - data.observations[0].timestamp > data.windowSize) {
+            // 移除第一个元素（最旧的）
+            for (uint i = 0; i < data.observations.length - 1; i++) {
+                data.observations[i] = data.observations[i + 1];
+            }
+            data.observations.pop();
+        }
+    }
+    
+    // 获取TWAP价格
+    function getTWAP(bytes32 asset) external view returns (uint256) {
+        TWAPData storage data = twapData[asset];
+        require(data.observations.length >= 2, "Insufficient observations");
+        
+        uint256 firstIndex = 0;
+        uint256 lastIndex = data.observations.length - 1;
+        
+        // 找到窗口起始点
+        for (uint i = lastIndex; i > 0; i--) {
+            if (block.timestamp - data.observations[i].timestamp >= data.windowSize) {
+                firstIndex = i;
+                break;
+            }
+        }
+        
+        Observation memory first = data.observations[firstIndex];
+        Observation memory last = data.observations[lastIndex];
+        
+        // 计算TWAP
+        uint256 timeDelta = last.timestamp - first.timestamp;
+        uint256 priceDelta = last.priceCumulative - first.priceCumulative;
+        
+        return priceDelta / timeDelta;
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h3>4.4 锚定稳定模块(PSM)与真实世界资产(RWA)</h3>
+            
+            <h4>4.4.1 锚定稳定模块(PSM)</h4>
+            <p>PSM是现代抵押稳定币维持价格稳定的最重要机制之一，允许用户1:1的固定汇率兑换其他受信任的稳定币：</p>
+            
+            <div class="tip-box">
+                <strong>🎯 PSM核心机制：</strong>
+                <ul>
+                    <li><strong>价格套利通道：</strong>当DAI > $1时，用户可以用USDC铸造DAI并卖出套利</li>
+                    <li><strong>即时流动性：</strong>提供大量即时可用的流动性</li>
+                    <li><strong>中心化风险：</strong>依赖于USDC等中心化稳定币</li>
+                </ul>
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">锚定稳定模块实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract PegStabilityModule {
+    // 状态变量
+    IERC20 public immutable dai;
+    IERC20 public immutable usdc;
+    IVat public immutable vat;
+    
+    uint256 public tin;  // 兑入费率 (swap USDC -> DAI)
+    uint256 public tout; // 兑出费率 (swap DAI -> USDC)
+    
+    uint256 public line; // 债务上限
+    uint256 public buf;  // USDC目标余额
+    
+    mapping(address => uint256) public wards;
+    
+    // 常量
+    uint256 constant WAD = 10**18;
+    uint256 constant RAY = 10**27;
+    uint256 constant TOLL_ONE_PCT = RAY / 100;
+    
+    // 事件
+    event BuyGem(address indexed owner, uint256 value, uint256 fee);
+    event SellGem(address indexed owner, uint256 value, uint256 fee);
+    
+    constructor(
+        address dai_,
+        address usdc_,
+        address vat_
+    ) {
+        dai = IERC20(dai_);
+        usdc = IERC20(usdc_);
+        vat = IVat(vat_);
+        
+        // 初始费率设置为0.1%
+        tin = TOLL_ONE_PCT / 10;
+        tout = TOLL_ONE_PCT / 10;
+    }
+    
+    // USDC -> DAI (1:1 - 费率)
+    function buyGem(address usr, uint256 gemAmt) external {
+        require(vat.dai(address(this)) >= gemAmt * RAY, "PSM/insufficient-dai");
+        
+        uint256 fee = gemAmt * tin / RAY;
+        uint256 daiAmt = gemAmt - fee;
+        
+        // 转入USDC
+        usdc.transferFrom(msg.sender, address(this), gemAmt);
+        
+        // 从Vat中释放DAI
+        vat.move(address(this), usr, daiAmt * RAY);
+        vat.move(address(this), address(vow), fee * RAY); // 费用给协议
+        
+        emit BuyGem(usr, gemAmt, fee);
+    }
+    
+    // DAI -> USDC (1:1 - 费率)
+    function sellGem(address usr, uint256 daiAmt) external {
+        uint256 gemAmt = daiAmt * (RAY - tout) / RAY;
+        require(usdc.balanceOf(address(this)) >= gemAmt, "PSM/insufficient-usdc");
+        
+        // 转入DAI到Vat
+        dai.transferFrom(msg.sender, address(this), daiAmt);
+        vat.move(msg.sender, address(this), daiAmt * RAY);
+        
+        // 转出USDC
+        usdc.transfer(usr, gemAmt);
+        
+        uint256 fee = daiAmt - gemAmt;
+        emit SellGem(usr, gemAmt, fee);
+    }
+    
+    // 自动补充USDC储备
+    function fill() external returns (uint256 wad) {
+        uint256 balance = usdc.balanceOf(address(this));
+        
+        if (balance < buf) {
+            wad = buf - balance;
+            require(wad <= line, "PSM/over-line");
+            
+            // 从Vat铸造DAI以购买USDC
+            vat.mint(address(this), wad * RAY);
+            
+            // 通过DEX购买USDC
+            // ...
+        }
+    }
+    
+    // 紧急冻结
+    function cage() external auth {
+        live = 0;
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>4.4.2 真实世界资产(RWA)</h4>
+            <p>RWA是2023-2024年DeFi最重要的趋势，MakerDAO已经将大量国库券、房地产贷款等RWA作为抵押品：</p>
+            
+            <div class="tip-box">
+                <strong>🏦 RWA带来的机遇与挑战：</strong>
+                <ul>
+                    <li><strong>机遇：</strong>更稳定的收益、更大的资产规模、更低的波动性</li>
+                    <li><strong>挑战：</strong>对手方风险、法律风险、托管风险、链上表示复杂性</li>
+                </ul>
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">RWA抵押品适配器 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// RWA代币化合约
+contract RWAToken is ERC721, AccessControl {
+    struct RealWorldAsset {
+        string assetType;      // “T-Bill”, “RealEstate”, etc
+        uint256 maturityDate;  // 到期日
+        uint256 principal;     // 本金
+        uint256 interestRate;  // 利率
+        string legalDocs;      // IPFS hash of legal documents
+        address custodian;     // 托管机构
+        bool isActive;
+    }
+    
+    mapping(uint256 => RealWorldAsset) public assets;
+    mapping(address => bool) public trustedOriginators;
+    
+    // 发行RWA代币
+    function mintRWA(
+        address to,
+        string memory assetType,
+        uint256 maturityDate,
+        uint256 principal,
+        uint256 interestRate,
+        string memory legalDocs
+    ) external onlyRole(ORIGINATOR_ROLE) returns (uint256 tokenId) {
+        tokenId = _nextTokenId++;
+        
+        assets[tokenId] = RealWorldAsset({
+            assetType: assetType,
+            maturityDate: maturityDate,
+            principal: principal,
+            interestRate: interestRate,
+            legalDocs: legalDocs,
+            custodian: msg.sender,
+            isActive: true
+        });
+        
+        _safeMint(to, tokenId);
+        emit RWAMinted(tokenId, assetType, principal);
+    }
+    
+    // 计算当前价值（包括应计利息）
+    function currentValue(uint256 tokenId) public view returns (uint256) {
+        RealWorldAsset memory asset = assets[tokenId];
+        require(asset.isActive, "Asset not active");
+        
+        if (block.timestamp >= asset.maturityDate) {
+            return asset.principal;
+        }
+        
+        // 简单线性计息
+        uint256 timeElapsed = block.timestamp - _mintTimestamp[tokenId];
+        uint256 totalTime = asset.maturityDate - _mintTimestamp[tokenId];
+        uint256 earnedInterest = asset.principal * asset.interestRate * timeElapsed / (totalTime * 10000);
+        
+        return asset.principal + earnedInterest;
+    }
+}
+
+// RWA抵押品适配器
+contract RWACollateralAdapter {
+    IVat public immutable vat;
+    RWAToken public immutable rwaToken;
+    
+    mapping(uint256 => address) public ownership; // tokenId => CDP owner
+    
+    // 将RWA作为抵押品
+    function join(address usr, uint256 tokenId) external {
+        require(rwaToken.ownerOf(tokenId) == msg.sender, "Not token owner");
+        
+        // 转移代币到适配器
+        rwaToken.transferFrom(msg.sender, address(this), tokenId);
+        ownership[tokenId] = usr;
+        
+        // 获取代币价值
+        uint256 value = rwaToken.currentValue(tokenId);
+        
+        // 在Vat中增加抵押品
+        vat.slip("RWA", usr, int256(value));
+    }
+    
+    // 提取RWA
+    function exit(address usr, uint256 tokenId) external {
+        require(ownership[tokenId] == usr, "Not owner");
+        
+        uint256 value = rwaToken.currentValue(tokenId);
+        
+        // 从Vat中减少抵押品
+        vat.slip("RWA", usr, -int256(value));
+        
+        // 返还代币
+        rwaToken.transferFrom(address(this), usr, tokenId);
+        delete ownership[tokenId];
+    }
+    
+    // 定期更新价值
+    function revalue(uint256 tokenId) external {
+        address usr = ownership[tokenId];
+        require(usr != address(0), "Token not deposited");
+        
+        uint256 oldValue = vat.gem("RWA", usr);
+        uint256 newValue = rwaToken.currentValue(tokenId);
+        
+        int256 diff = int256(newValue) - int256(oldValue);
+        if (diff != 0) {
+            vat.slip("RWA", usr, diff);
+            emit Revalued(tokenId, oldValue, newValue);
+        }
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h3>4.5 实践项目：构建超额抵押稳定币系统</h3>
+            
+            <h4>4.4.1 系统架构设计</h4>
+            <p>我们将构建一个完整的超额抵押稳定币系统，包含以下核心组件：</p>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <pre style="margin: 0; font-family: monospace; line-height: 1.5;">
+┌─────────────────────────────────────────────────────────┐
+│                    用户界面                              │
+├─────────────────────────────────────────────────────────┤
+│                  CDP Manager                             │
+│  - 开仓/关仓    - 存入/提取抵押品    - 铸造/偿还DAI      │
+├──────────────┬──────────────┬───────────────────────────┤
+│   金库引擎    │   清算引擎    │      稳定模块            │
+│  (Vat.sol)   │  (Dog.sol)   │    (PSM.sol)            │
+├──────────────┴──────────────┴───────────────────────────┤
+│                  价格预言机系统                           │
+│        Chainlink │ Uniswap V3 │ 内部预言机              │
+├─────────────────────────────────────────────────────────┤
+│                   拍卖系统                               │
+│     抵押品拍卖 │ 债务拍卖 │ 盈余拍卖                    │
+└─────────────────────────────────────────────────────────┘
+                </pre>
+            </div>
+            
+            <h4>4.4.2 完整实现</h4>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">超额抵押稳定币完整实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+// 主金库合约
+contract Vat {
+    // 核心数据结构
+    struct Ilk {  // 抵押品类型
+        uint256 Art;   // 总标准化债务
+        uint256 rate;  // 累积稳定费率
+        uint256 spot;  // 价格安全边际
+        uint256 line;  // 债务上限
+        uint256 dust;  // 最小债务量
+    }
+    
+    struct Urn {  // CDP
+        uint256 ink;   // 锁定的抵押品
+        uint256 art;   // 标准化债务
+    }
+    
+    mapping(bytes32 => Ilk) public ilks;
+    mapping(bytes32 => mapping(address => Urn)) public urns;
+    mapping(address => uint256) public dai;
+    mapping(address => uint256) public sin;
+    
+    uint256 public Line;  // 全局债务上限
+    uint256 public live = 1;  // 系统状态
+    
+    // 常量
+    uint256 constant RAY = 10 ** 27;
+    uint256 constant WAD = 10 ** 18;
+    
+    // 权限管理
+    mapping(address => uint256) public wards;
+    modifier auth() {
+        require(wards[msg.sender] == 1, "Vat/not-authorized");
+        _;
+    }
+    
+    // 初始化抵押品类型
+    function init(bytes32 ilk) external auth {
+        require(ilks[ilk].rate == 0, "Vat/ilk-already-init");
+        ilks[ilk].rate = RAY;
+    }
+    
+    // 修改CDP
+    function frob(
+        bytes32 i,
+        address u,
+        address v,
+        address w,
+        int256 dink,
+        int256 dart
+    ) external {
+        require(live == 1, "Vat/not-live");
+        
+        Urn memory urn = urns[i][u];
+        Ilk memory ilk = ilks[i];
+        
+        urn.ink = _add(urn.ink, dink);
+        urn.art = _add(urn.art, dart);
+        ilk.Art = _add(ilk.Art, dart);
+        
+        int256 dtab = _mul(ilk.rate, dart);
+        uint256 tab = _mul(ilk.rate, urn.art);
+        
+        // 债务上限检查
+        require(ilk.Art * ilk.rate <= ilk.line, "Vat/ilk-line-exceeded");
+        require(Line >= dai[address(this)], "Vat/global-line-exceeded");
+        
+        // 抵押率检查
+        require(either(dart <= 0, tab <= _mul(urn.ink, ilk.spot)), "Vat/not-safe");
+        
+        // 最小债务检查
+        require(either(urn.art == 0, tab >= ilk.dust), "Vat/dust");
+        
+        // 转移抵押品
+        if (dink != 0) {
+            gem[i][v] = _sub(gem[i][v], dink);
+            gem[i][w] = _add(gem[i][w], dink);
+        }
+        
+        // 转移债务
+        if (dtab != 0) {
+            dai[v] = _sub(dai[v], dtab);
+            dai[w] = _add(dai[w], dtab);
+        }
+        
+        urns[i][u] = urn;
+        ilks[i] = ilk;
+    }
+    
+    // 没收CDP（清算时调用）
+    function grab(
+        bytes32 i,
+        address u,
+        address v,
+        address w,
+        int256 dink,
+        int256 dart
+    ) external auth {
+        Urn storage urn = urns[i][u];
+        Ilk storage ilk = ilks[i];
+        
+        urn.ink = _add(urn.ink, dink);
+        urn.art = _add(urn.art, dart);
+        ilk.Art = _add(ilk.Art, dart);
+        
+        int256 dtab = _mul(ilk.rate, dart);
+        
+        gem[i][v] = _sub(gem[i][v], dink);
+        sin[w] = _sub(sin[w], dtab);
+    }
+}
+
+// DAI代币合约
+contract Dai is ERC20 {
+    // 映射Vat授权
+    mapping(address => uint256) public wards;
+    modifier auth() {
+        require(wards[msg.sender] == 1, "Dai/not-authorized");
+        _;
+    }
+    
+    constructor() ERC20("Dai Stablecoin", "DAI") {
+        wards[msg.sender] = 1;
+    }
+    
+    // 从Vat铸造DAI
+    function mint(address usr, uint256 wad) external auth {
+        _mint(usr, wad);
+    }
+    
+    // 销毁DAI返还给Vat
+    function burn(address usr, uint256 wad) external {
+        _burn(usr, wad);
+    }
+}
+
+// CDP管理接口
+contract CDPManager {
+    Vat public vat;
+    mapping(uint256 => address) public cdps;
+    mapping(address => uint256[]) public userCdps;
+    uint256 public nextCdpId = 1;
+    
+    // 开启CDP
+    function openCDP(bytes32 ilk) external returns (uint256 cdpId) {
+        cdpId = nextCdpId++;
+        cdps[cdpId] = msg.sender;
+        userCdps[msg.sender].push(cdpId);
+        
+        emit CDPOpened(cdpId, msg.sender, ilk);
+    }
+    
+    // 存入抵押品并借出DAI
+    function lockAndDraw(
+        uint256 cdpId,
+        uint256 collateralAmount,
+        uint256 daiAmount
+    ) external {
+        require(cdps[cdpId] == msg.sender, "Not CDP owner");
+        
+        // 转入抵押品
+        collateral.transferFrom(msg.sender, address(this), collateralAmount);
+        
+        // 在Vat中记账
+        vat.frob(
+            ilk,
+            msg.sender,
+            address(this),
+            msg.sender,
+            int256(collateralAmount),
+            int256(daiAmount)
+        );
+        
+        // 铸造DAI给用户
+        dai.mint(msg.sender, daiAmount);
+    }
+    
+    // 偿还DAI并取回抵押品
+    function wipeAndFree(
+        uint256 cdpId,
+        uint256 collateralAmount,
+        uint256 daiAmount
+    ) external {
+        require(cdps[cdpId] == msg.sender, "Not CDP owner");
+        
+        // 销毁DAI
+        dai.burn(msg.sender, daiAmount);
+        
+        // 在Vat中记账
+        vat.frob(
+            ilk,
+            msg.sender,
+            msg.sender,
+            address(this),
+            -int256(collateralAmount),
+            -int256(daiAmount)
+        );
+        
+        // 返还抵押品
+        collateral.transfer(msg.sender, collateralAmount);
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>4.4.3 部署和测试脚本</h4>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">部署脚本 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-javascript">const { ethers } = require("hardhat");
+
+async function main() {
+    const [deployer] = await ethers.getSigners();
+    
+    console.log("Deploying contracts with account:", deployer.address);
+    
+    // 1. 部署核心合约
+    const Vat = await ethers.getContractFactory("Vat");
+    const vat = await Vat.deploy();
+    await vat.deployed();
+    console.log("Vat deployed to:", vat.address);
+    
+    // 2. 部署DAI
+    const Dai = await ethers.getContractFactory("Dai");
+    const dai = await Dai.deploy();
+    await dai.deployed();
+    console.log("DAI deployed to:", dai.address);
+    
+    // 3. 部署价格预言机
+    const Oracle = await ethers.getContractFactory("PriceOracle");
+    const oracle = await Oracle.deploy();
+    await oracle.deployed();
+    console.log("Oracle deployed to:", oracle.address);
+    
+    // 4. 部署清算引擎
+    const Dog = await ethers.getContractFactory("LiquidationEngine");
+    const dog = await Dog.deploy(vat.address);
+    await dog.deployed();
+    console.log("Dog deployed to:", dog.address);
+    
+    // 5. 部署CDP管理器
+    const CDPManager = await ethers.getContractFactory("CDPManager");
+    const cdpManager = await CDPManager.deploy(vat.address, dai.address);
+    await cdpManager.deployed();
+    console.log("CDPManager deployed to:", cdpManager.address);
+    
+    // 6. 配置权限
+    await vat.rely(dog.address);
+    await vat.rely(cdpManager.address);
+    await dai.rely(cdpManager.address);
+    
+    // 7. 初始化抵押品类型（ETH）
+    const ethIlk = ethers.utils.formatBytes32String("ETH-A");
+    await vat.init(ethIlk);
+    
+    // 设置抵押品参数
+    await vat.file(ethIlk, "line", ethers.utils.parseEther("1000000")); // 100万债务上限
+    await vat.file(ethIlk, "dust", ethers.utils.parseEther("100"));     // 最小100 DAI
+    await vat.file(ethIlk, "spot", ethers.utils.parseEther("1.5"));     // 150%抵押率
+    
+    // 8. 设置预言机价格
+    await oracle.setPrice(ethIlk, ethers.utils.parseEther("2000")); // ETH = $2000
+    
+    console.log("Deployment complete!");
+    
+    // 保存部署地址
+    const addresses = {
+        vat: vat.address,
+        dai: dai.address,
+        oracle: oracle.address,
+        dog: dog.address,
+        cdpManager: cdpManager.address
+    };
+    
+    const fs = require("fs");
+    fs.writeFileSync(
+        "./deployments/addresses.json",
+        JSON.stringify(addresses, null, 2)
+    );
+}
+
+main()
+    .then(() => process.exit(0))
+    .catch(error => {
+        console.error(error);
+        process.exit(1);
+    });</code></pre>
+                </div>
+            </div>
+            
+            <h3>练习题</h3>
+            
+            <div class="exercise">
+                <h4>练习 4.1：实现动态稳定费</h4>
+                <p>设计并实现一个动态调整稳定费的机制，根据以下因素自动调整：</p>
+                <ul>
+                    <li>DAI的市场价格偏离情况</li>
+                    <li>系统总债务量</li>
+                    <li>抵押品价格波动率</li>
+                </ul>
+                <p>要求：使用PID控制器或其他控制理论方法。</p>
+                
+                <div class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案 ▼</div>
+                <div class="answer" style="display: none;">
+                    <pre><code class="language-solidity">contract DynamicStabilityFee {
+    // PID控制器参数
+    struct PIDController {
+        int256 kp;        // 比例系数
+        int256 ki;        // 积分系数
+        int256 kd;        // 微分系数
+        int256 integral;  // 积分累积
+        int256 lastError; // 上次误差
+    }
+    
+    PIDController public feeController;
+    uint256 public targetPrice = 1e18;  // 目标价格 $1
+    uint256 public baseFee = 2e16;     // 基础费率 2%
+    
+    // 历史数据
+    uint256[] public priceHistory;
+    uint256[] public debtHistory;
+    uint256 public constant HISTORY_SIZE = 24; // 24小时
+    
+    // 更新稳定费
+    function updateStabilityFee() external {
+        // 获取当前DAI价格
+        uint256 currentPrice = oracle.getDaiPrice();
+        
+        // 计算价格误差
+        int256 error = int256(targetPrice) - int256(currentPrice);
+        
+        // PID计算
+        int256 proportional = feeController.kp * error / 1e18;
+        
+        feeController.integral += error;
+        int256 integral = feeController.ki * feeController.integral / 1e18;
+        
+        int256 derivative = feeController.kd * (error - feeController.lastError) / 1e18;
+        
+        // 计算调整量
+        int256 adjustment = proportional + integral + derivative;
+        
+        // 考虑其他因素
+        uint256 volatilityMultiplier = calculateVolatility();
+        uint256 debtMultiplier = calculateDebtPressure();
+        
+        // 计算新费率
+        uint256 newFee = baseFee;
+        if (adjustment > 0) {
+            newFee += uint256(adjustment) * volatilityMultiplier / 1e18;
+        } else {
+            uint256 decrease = uint256(-adjustment) * volatilityMultiplier / 1e18;
+            newFee = newFee > decrease ? newFee - decrease : baseFee / 2;
+        }
+        
+        // 应用债务压力调整
+        newFee = newFee * debtMultiplier / 1e18;
+        
+        // 限制费率范围
+        if (newFee < 1e15) newFee = 1e15;       // 最低0.1%
+        if (newFee > 20e16) newFee = 20e16;     // 最高20%
+        
+        // 更新费率
+        updateIlkStabilityFee(newFee);
+        
+        feeController.lastError = error;
+    }
+    
+    // 计算价格波动率
+    function calculateVolatility() internal view returns (uint256) {
+        if (priceHistory.length < 2) return 1e18;
+        
+        uint256 sum = 0;
+        uint256 sumSquared = 0;
+        
+        for (uint i = 0; i < priceHistory.length; i++) {
+            sum += priceHistory[i];
+            sumSquared += priceHistory[i] ** 2;
+        }
+        
+        uint256 mean = sum / priceHistory.length;
+        uint256 variance = sumSquared / priceHistory.length - mean ** 2;
+        uint256 stdDev = sqrt(variance);
+        
+        // 波动率越高，调整幅度越小
+        return 1e18 * 1e18 / (1e18 + stdDev);
+    }
+    
+    // 计算债务压力
+    function calculateDebtPressure() internal view returns (uint256) {
+        uint256 currentDebt = vat.debt();
+        uint256 debtCeiling = vat.Line();
+        
+        uint256 utilization = currentDebt * 1e18 / debtCeiling;
+        
+        // 利用率越高，费率越高
+        if (utilization > 80e16) {  // > 80%
+            return 15e17;  // 1.5x
+        } else if (utilization > 60e16) {  // > 60%
+            return 12e17;  // 1.2x
+        } else {
+            return 1e18;   // 1x
+        }
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <div class="exercise">
+                <h4>练习 4.2：实现闪电清算</h4>
+                <p>设计一个闪电清算（Flash Liquidation）机制，允许清算者在单笔交易中：</p>
+                <ul>
+                    <li>借入DAI进行清算</li>
+                    <li>获得折价抵押品</li>
+                    <li>在DEX上卖出抵押品</li>
+                    <li>偿还借入的DAI并获利</li>
+                </ul>
+                
+                <div class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案 ▼</div>
+                <div class="answer" style="display: none;">
+                    <pre><code class="language-solidity">contract FlashLiquidator {
+    IVat public vat;
+    IDog public dog;
+    IERC20 public dai;
+    IUniswapV2Router public router;
+    
+    // 闪电清算
+    function flashLiquidate(
+        bytes32 ilk,
+        address urn,
+        address[] calldata swapPath
+    ) external {
+        // 1. 检查CDP是否可清算
+        (uint256 ink, uint256 art) = vat.urns(ilk, urn);
+        (, uint256 rate, uint256 spot,,) = vat.ilks(ilk);
+        
+        require(ink * spot < art * rate, "CDP is safe");
+        
+        // 2. 计算需要的DAI
+        uint256 dartNeeded = art;
+        uint256 daiNeeded = dartNeeded * rate / RAY;
+        
+        // 3. 闪电贷DAI
+        dai.flashLoan(address(this), daiNeeded, "");
+    }
+    
+    // 闪电贷回调
+    function onFlashLoan(
+        address initiator,
+        address token,
+        uint256 amount,
+        uint256 fee,
+        bytes calldata data
+    ) external returns (bytes32) {
+        require(msg.sender == address(dai), "Unknown lender");
+        require(initiator == address(this), "Unknown initiator");
+        
+        (bytes32 ilk, address urn, address[] memory swapPath) = 
+            abi.decode(data, (bytes32, address, address[]));
+        
+        // 4. 执行清算
+        uint256 collateralReceived = dog.bark(ilk, urn);
+        
+        // 5. 在DEX卖出抵押品
+        IERC20(swapPath[0]).approve(address(router), collateralReceived);
+        
+        uint256[] memory amounts = router.swapExactTokensForTokens(
+            collateralReceived,
+            amount + fee,  // 至少要换回贷款+手续费
+            swapPath,
+            address(this),
+            block.timestamp
+        );
+        
+        uint256 daiReceived = amounts[amounts.length - 1];
+        require(daiReceived >= amount + fee, "Insufficient profit");
+        
+        // 6. 偿还闪电贷
+        dai.approve(msg.sender, amount + fee);
+        
+        // 7. 转移利润
+        uint256 profit = daiReceived - amount - fee;
+        dai.transfer(tx.origin, profit);
+        
+        return keccak256("ERC3156FlashBorrower.onFlashLoan");
+    }
+    
+    // 计算清算利润
+    function calculateProfit(
+        bytes32 ilk,
+        address urn,
+        address[] calldata swapPath
+    ) external view returns (uint256) {
+        (uint256 ink, uint256 art) = vat.urns(ilk, urn);
+        (, uint256 rate,,,) = vat.ilks(ilk);
+        
+        uint256 daiNeeded = art * rate / RAY;
+        uint256 collateralReceived = ink;  // 简化，实际有罚金
+        
+        // 获取DEX报价
+        uint256[] memory amounts = router.getAmountsOut(
+            collateralReceived,
+            swapPath
+        );
+        uint256 daiFromSwap = amounts[amounts.length - 1];
+        
+        // 扣除闪电贷费用（假设0.09%）
+        uint256 flashFee = daiNeeded * 9 / 10000;
+        
+        if (daiFromSwap > daiNeeded + flashFee) {
+            return daiFromSwap - daiNeeded - flashFee;
+        }
+        return 0;
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <div class="exercise">
+                <h4>练习 4.3：实现多抵押品组合</h4>
+                <p>扩展CDP系统支持多种抵押品组合在同一个CDP中，要求：</p>
+                <ul>
+                    <li>支持不同权重的抵押品</li>
+                    <li>实现组合抵押率计算</li>
+                    <li>支持部分清算不同抵押品</li>
+                    <li>考虑抵押品之间的相关性</li>
+                </ul>
+                
+                <div class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案 ▼</div>
+                <div class="answer" style="display: none;">
+                    <pre><code class="language-solidity">contract MultiCollateralCDP {
+    struct CollateralPosition {
+        uint256 amount;
+        uint256 weight;      // 权重（基点）
+        uint256 lastPrice;   // 上次价格
+    }
+    
+    struct MultiCDP {
+        mapping(bytes32 => CollateralPosition) collaterals;
+        uint256 totalDebt;
+        uint256 lastUpdateTime;
+        bytes32[] collateralTypes;
+    }
+    
+    mapping(address => mapping(uint256 => MultiCDP)) public cdps;
+    mapping(bytes32 => mapping(bytes32 => uint256)) public correlations; // 相关性矩阵
+    
+    // 添加抵押品到CDP
+    function addCollateral(
+        uint256 cdpId,
+        bytes32 ilk,
+        uint256 amount
+    ) external {
+        MultiCDP storage cdp = cdps[msg.sender][cdpId];
+        
+        // 转入抵押品
+        IERC20(collateralTokens[ilk]).transferFrom(
+            msg.sender,
+            address(this),
+            amount
+        );
+        
+        // 更新仓位
+        if (cdp.collaterals[ilk].amount == 0) {
+            cdp.collateralTypes.push(ilk);
+        }
+        
+        cdp.collaterals[ilk].amount += amount;
+        cdp.collaterals[ilk].lastPrice = getPrice(ilk);
+        
+        // 重新计算权重
+        _updateWeights(cdpId);
+    }
+    
+    // 计算组合抵押率（考虑相关性）
+    function getPortfolioCollateralization(uint256 cdpId) 
+        external 
+        view 
+        returns (uint256 ratio, uint256 var) 
+    {
+        MultiCDP storage cdp = cdps[msg.sender][cdpId];
+        
+        uint256 totalValue = 0;
+        uint256 portfolioVariance = 0;
+        
+        // 计算总价值和方差
+        for (uint i = 0; i < cdp.collateralTypes.length; i++) {
+            bytes32 ilk1 = cdp.collateralTypes[i];
+            CollateralPosition memory pos1 = cdp.collaterals[ilk1];
+            uint256 value1 = pos1.amount * getPrice(ilk1) / 1e18;
+            totalValue += value1;
+            
+            // 计算方差贡献
+            uint256 vol1 = getVolatility(ilk1);
+            portfolioVariance += (pos1.weight ** 2) * (vol1 ** 2) / 1e36;
+            
+            // 计算协方差贡献
+            for (uint j = i + 1; j < cdp.collateralTypes.length; j++) {
+                bytes32 ilk2 = cdp.collateralTypes[j];
+                CollateralPosition memory pos2 = cdp.collaterals[ilk2];
+                uint256 vol2 = getVolatility(ilk2);
+                uint256 corr = correlations[ilk1][ilk2];
+                
+                portfolioVariance += 2 * pos1.weight * pos2.weight * 
+                                   vol1 * vol2 * corr / 1e54;
+            }
+        }
+        
+        // 计算VaR调整后的抵押率
+        uint256 portfolioVol = sqrt(portfolioVariance);
+        uint256 varAdjustedValue = totalValue * (1e18 - 2 * portfolioVol) / 1e18;
+        
+        if (cdp.totalDebt > 0) {
+            ratio = varAdjustedValue * 100 / cdp.totalDebt;
+        } else {
+            ratio = type(uint256).max;
+        }
+        
+        var = portfolioVol;
+    }
+    
+    // 部分清算
+    function partialLiquidate(
+        address owner,
+        uint256 cdpId,
+        bytes32 ilkToLiquidate,
+        uint256 debtToRepay
+    ) external {
+        MultiCDP storage cdp = cdps[owner][cdpId];
+        
+        // 检查是否可清算
+        (uint256 ratio,) = getPortfolioCollateralization(cdpId);
+        require(ratio < liquidationRatio, "CDP is safe");
+        
+        // 计算要清算的抵押品数量
+        uint256 price = getPrice(ilkToLiquidate);
+        uint256 collateralNeeded = debtToRepay * 1e18 * 
+                                  (100 + liquidationPenalty) / (price * 100);
+        
+        require(cdp.collaterals[ilkToLiquidate].amount >= collateralNeeded,
+                "Insufficient collateral");
+        
+        // 执行清算
+        dai.transferFrom(msg.sender, address(this), debtToRepay);
+        cdp.totalDebt -= debtToRepay;
+        
+        cdp.collaterals[ilkToLiquidate].amount -= collateralNeeded;
+        IERC20(collateralTokens[ilkToLiquidate]).transfer(
+            msg.sender,
+            collateralNeeded
+        );
+        
+        // 如果抵押品清空，从列表中移除
+        if (cdp.collaterals[ilkToLiquidate].amount == 0) {
+            _removeCollateralType(cdp, ilkToLiquidate);
+        }
+        
+        // 重新计算权重
+        _updateWeights(cdpId);
+    }
+    
+    // 更新权重
+    function _updateWeights(uint256 cdpId) internal {
+        MultiCDP storage cdp = cdps[msg.sender][cdpId];
+        uint256 totalValue = 0;
+        
+        // 计算总价值
+        for (uint i = 0; i < cdp.collateralTypes.length; i++) {
+            bytes32 ilk = cdp.collateralTypes[i];
+            uint256 value = cdp.collaterals[ilk].amount * getPrice(ilk) / 1e18;
+            totalValue += value;
+        }
+        
+        // 更新权重
+        for (uint i = 0; i < cdp.collateralTypes.length; i++) {
+            bytes32 ilk = cdp.collateralTypes[i];
+            uint256 value = cdp.collaterals[ilk].amount * getPrice(ilk) / 1e18;
+            cdp.collaterals[ilk].weight = value * 10000 / totalValue;
+        }
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h3>4.6 案例研究：2020年3月黑色星期四</h3>
+            
+            <div class="tip-box">
+                <strong>📉 事件回顾：</strong>
+                <p>2020年3月12-13日，加密市场经历了历史上最剧烈的价格暴跌：</p>
+                <ul>
+                    <li>ETH价格在24小时内从$194跌至$87，跌幅超过50%</li>
+                    <li>Gas价格飙升至正常水平的100倍以上</li>
+                    <li>MakerDAO系统出现$0竞价清算，造成$5.67M损失</li>
+                    <li>DAI一度脱锚至$1.12</li>
+                </ul>
+            </div>
+            
+            <h4>4.6.1 问题分析</h4>
+            <table class="comparison-table">
+                <tr>
+                    <th>问题类型</th>
+                    <th>具体表现</th>
+                    <th>根本原因</th>
+                    <th>改进措施</th>
+                </tr>
+                <tr>
+                    <td>预言机延迟</td>
+                    <td>价格更新严重滞后</td>
+                    <td>Gas价格过高，预言机无法更新</td>
+                    <td>引入OSM 1小时延迟</td>
+                </tr>
+                <tr>
+                    <td>Keeper失效</td>
+                    <td>$0竞价成功</td>
+                    <td>Keeper机器人配置不当</td>
+                    <td>Liquidation 2.0</td>
+                </tr>
+                <tr>
+                    <td>拍卖机制缺陷</td>
+                    <td>大量抵押品被低价拍卖</td>
+                    <td>拍卖时间过长，市场变化太快</td>
+                    <td>固定折扣即时清算</td>
+                </tr>
+                <tr>
+                    <td>系统坏账</td>
+                    <td>$5.67M坏账</td>
+                    <td>清算收入不足以覆盖债务</td>
+                    <td>债务拍卖+紧急关停</td>
+                </tr>
+            </table>
+            
+            <h4>4.6.2 教训与改进</h4>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">改进后的清算系统 (Liquidation 2.0) <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// Liquidation 2.0 核心改进
+contract LiquidationEngine2 {
+    // 主要改进点：
+    // 1. 固定折扣价格而非拍卖
+    // 2. 即时清算，无需等待
+    // 3. 部分清算支持
+    // 4. 更好的Keeper激励
+    
+    struct LiquidationConfig {
+        uint256 discount;        // 清算折扣 (e.g., 5%)
+        uint256 maxAuction;      // 单次最大清算量
+        uint256 tip;             // Keeper小费
+        uint256 chip;            // 每单位抵押品奖励
+        uint256 hole;            // 总清算限额
+    }
+    
+    // 即时清算函数
+    function bark(
+        bytes32 ilk,
+        address urn,
+        address kpr  // keeper地址
+    ) external returns (uint256 id) {
+        // 检查CDP是否可清算
+        require(unsafe(ilk, urn), "CDP is safe");
+        
+        // 计算清算参数
+        (uint256 ink, uint256 art) = vat.urns(ilk, urn);
+        uint256 dart = min(art, config.maxAuction);
+        uint256 dink = ink * dart / art;
+        
+        // 创建清算拍卖
+        id = auctions.length++;
+        auctions[id] = Auction({
+            urn: urn,
+            ink: dink,
+            art: dart,
+            usr: address(0),
+            tic: 0,
+            top: 0
+        });
+        
+        // 即时奖励keeper
+        uint256 reward = config.tip + (dink * config.chip);
+        vat.mint(kpr, reward);
+        
+        emit Bark(ilk, urn, ink, art, dart, config.clip, id);
+    }
+    
+    // 拍卖参与 (固定折扣)
+    function take(
+        uint256 id,
+        uint256 amt,  // 想要的抵押品数量
+        uint256 max,  // 愿意支付的最大DAI
+        address who,  // 接收地址
+        bytes calldata data
+    ) external {
+        Auction storage auction = auctions[id];
+        
+        // 计算价格 (市场价 * (1 - 折扣))
+        uint256 price = oracle.price(ilk) * (100 - config.discount) / 100;
+        
+        // 计算实际数量
+        uint256 slice = min(auction.ink, amt);
+        uint256 owe = slice * price;
+        
+        require(owe <= max, "Price too high");
+        require(owe <= auction.art, "Insufficient debt");
+        
+        // 执行清算
+        auction.ink -= slice;
+        auction.art -= owe;
+        
+        // 转移资产
+        vat.flux(ilk, address(this), who, slice);
+        vat.move(msg.sender, vow, owe);
+        
+        // 如果完全清算，返还剩余抵押品
+        if (auction.art == 0 && auction.ink > 0) {
+            vat.flux(ilk, address(this), auction.usr, auction.ink);
+            auction.ink = 0;
+        }
+        
+        emit Take(id, slice, owe, price);
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <div class="practice-section">
+                <h3>📝 第四章练习题</h3>
+                
+                <div class="exercise">
+                    <h4>练习 4.1：实现局部清算机制</h4>
+                    <p>设计并实现一个支持局部清算的CDP系统，允许用户通过部分偿还债务来避免全部清算。</p>
+                    <p>要求：</p>
+                    <ul>
+                        <li>支持按比例清算部分抵押品</li>
+                        <li>保留最低健康因子以上的部分</li>
+                        <li>实现公平的奖励机制</li>
+                        <li>防止恶意小额清算攻击</li>
+                    </ul>
+                    <div class="answer">
+                        <h4>参考答案：</h4>
+                        <pre><code class="language-solidity">contract PartialLiquidation {
+    uint256 constant MIN_PARTIAL_LIQUIDATION = 1000 * 1e18; // 最小清算金额
+    uint256 constant TARGET_HEALTH_FACTOR = 150; // 目标健康因子150%
+    
+    struct PartialLiquidationParams {
+        uint256 maxLiquidationRatio; // 最大清算比例 (50%)
+        uint256 minHealthFactor;     // 最低保留健康因子
+        uint256 liquidatorBonus;     // 清算奖励 (5%)
+        uint256 protocolFee;         // 协议费用 (1%)
+    }
+    
+    function partialLiquidate(
+        address user,
+        bytes32 ilk,
+        uint256 debtToRepay
+    ) external {
+        CDP storage cdp = cdps[ilk][user];
+        require(getHealthFactor(ilk, user) < 100, "CDP is healthy");
+        
+        // 计算最大可清算金额
+        uint256 maxLiquidation = cdp.debt * params.maxLiquidationRatio / 100;
+        uint256 actualLiquidation = min(debtToRepay, maxLiquidation);
+        
+        // 确保满足最小清算金额
+        require(actualLiquidation >= MIN_PARTIAL_LIQUIDATION, "Too small");
+        
+        // 计算需要的抵押品
+        uint256 collateralPrice = getPrice(ilk);
+        uint256 collateralNeeded = actualLiquidation * 1e18 / collateralPrice;
+        uint256 liquidatorBonus = collateralNeeded * params.liquidatorBonus / 100;
+        uint256 protocolFee = collateralNeeded * params.protocolFee / 100;
+        
+        uint256 totalCollateral = collateralNeeded + liquidatorBonus + protocolFee;
+        require(cdp.collateral >= totalCollateral, "Insufficient collateral");
+        
+        // 检查剩余健康因子
+        uint256 remainingCollateral = cdp.collateral - totalCollateral;
+        uint256 remainingDebt = cdp.debt - actualLiquidation;
+        uint256 remainingHealthFactor = (remainingCollateral * collateralPrice * 100) / (remainingDebt * 1e18);
+        
+        require(remainingHealthFactor >= params.minHealthFactor, "Would leave CDP too unhealthy");
+        
+        // 执行清算
+        dai.transferFrom(msg.sender, address(this), actualLiquidation);
+        cdp.debt -= actualLiquidation;
+        
+        cdp.collateral -= totalCollateral;
+        collateralToken.transfer(msg.sender, collateralNeeded + liquidatorBonus);
+        collateralToken.transfer(treasury, protocolFee);
+        
+        emit PartialLiquidation(user, ilk, actualLiquidation, totalCollateral);
+    }
+    
+    // 自动计算最佳清算量
+    function calculateOptimalLiquidation(
+        address user,
+        bytes32 ilk
+    ) public view returns (uint256 optimalAmount) {
+        CDP memory cdp = cdps[ilk][user];
+        uint256 currentHealthFactor = getHealthFactor(ilk, user);
+        
+        if (currentHealthFactor >= 100) return 0;
+        
+        // 计算达到目标健康因子所需的清算量
+        uint256 collateralPrice = getPrice(ilk);
+        uint256 collateralValue = cdp.collateral * collateralPrice / 1e18;
+        
+        // 目标: (collateralValue - liquidationValue) / (debt - liquidationAmount) = 1.5
+        // 求解 liquidationAmount
+        uint256 targetDebt = collateralValue * 100 / TARGET_HEALTH_FACTOR;
+        optimalAmount = cdp.debt - targetDebt;
+        
+        // 应用限制
+        optimalAmount = min(optimalAmount, cdp.debt * params.maxLiquidationRatio / 100);
+        optimalAmount = max(optimalAmount, MIN_PARTIAL_LIQUIDATION);
+    }
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="exercise">
+                    <h4>练习 4.2：设计抗MEV的清算系统</h4>
+                    <p>设计一个能够抵抗MEV攻击的清算系统，保护被清算用户和诚实Keeper的利益。</p>
+                    <p>要求：</p>
+                    <ul>
+                        <li>防止抢跑和三明治攻击</li>
+                        <li>保护隐私和公平性</li>
+                        <li>保持系统效率</li>
+                        <li>实现去中心化</li>
+                    </ul>
+                    <div class="answer">
+                        <h4>参考答案：</h4>
+                        <pre><code class="language-solidity">contract MEVResistantLiquidation {
+    using ECDSA for bytes32;
+    
+    // 时间加权竞拍
+    struct TimeLockAuction {
+        uint256 startTime;
+        uint256 commitDeadline;
+        uint256 revealDeadline;
+        mapping(address => bytes32) commitments;
+        mapping(address => Bid) bids;
+        uint256 highestBid;
+        address winner;
+    }
+    
+    struct Bid {
+        uint256 amount;
+        uint256 nonce;
+        bool revealed;
+    }
+    
+    // VDF (可验证延迟函数) 参数
+    uint256 constant VDF_DIFFICULTY = 1000000;
+    
+    // 批量清算池
+    struct LiquidationBatch {
+        uint256 startBlock;
+        uint256 endBlock;
+        address[] liquidatableUsers;
+        mapping(address => uint256) liquidatorScores;
+        bool settled;
+    }
+    
+    // 提交加密竞价
+    function commitBid(
+        uint256 auctionId,
+        bytes32 commitment
+    ) external {
+        TimeLockAuction storage auction = auctions[auctionId];
+        require(block.timestamp < auction.commitDeadline, "Commit phase ended");
+        
+        auction.commitments[msg.sender] = commitment;
+        emit BidCommitted(auctionId, msg.sender);
+    }
+    
+    // 揭示竞价 (使用VDF延迟)
+    function revealBid(
+        uint256 auctionId,
+        uint256 bidAmount,
+        uint256 nonce,
+        uint256 vdfOutput,
+        bytes memory vdfProof
+    ) external {
+        TimeLockAuction storage auction = auctions[auctionId];
+        require(block.timestamp >= auction.commitDeadline, "Still in commit phase");
+        require(block.timestamp < auction.revealDeadline, "Reveal phase ended");
+        
+        // 验证commitment
+        bytes32 commitment = keccak256(abi.encodePacked(bidAmount, nonce, msg.sender));
+        require(auction.commitments[msg.sender] == commitment, "Invalid reveal");
+        
+        // 验证VDF
+        require(verifyVDF(commitment, vdfOutput, vdfProof, VDF_DIFFICULTY), "Invalid VDF");
+        
+        // 记录竞价
+        auction.bids[msg.sender] = Bid({
+            amount: bidAmount,
+            nonce: nonce,
+            revealed: true
+        });
+        
+        if (bidAmount > auction.highestBid) {
+            auction.highestBid = bidAmount;
+            auction.winner = msg.sender;
+        }
+    }
+    
+    // 批量清算处理
+    function processBatchLiquidation(
+        uint256 batchId
+    ) external {
+        LiquidationBatch storage batch = batches[batchId];
+        require(block.number >= batch.endBlock, "Batch not ended");
+        require(!batch.settled, "Already settled");
+        
+        // 使用加权随机选择
+        uint256 seed = uint256(keccak256(abi.encode(block.timestamp, block.difficulty)));
+        
+        // 按照评分加权分配清算机会
+        for (uint i = 0; i < batch.liquidatableUsers.length; i++) {
+            address user = batch.liquidatableUsers[i];
+            address selectedLiquidator = selectWeightedRandom(batch, seed + i);
+            
+            // 执行清算
+            performLiquidation(user, selectedLiquidator);
+        }
+        
+        batch.settled = true;
+    }
+    
+    // 私密清算池
+    function submitPrivateLiquidation(
+        bytes calldata encryptedData,
+        bytes calldata zkProof
+    ) external {
+        // 验证零知识证明
+        require(verifyZKProof(zkProof), "Invalid proof");
+        
+        // 存储加密数据，等待批量处理
+        privateLiquidations.push(encryptedData);
+        
+        // 当达到阈值时触发批处理
+        if (privateLiquidations.length >= BATCH_SIZE) {
+            processPrivateBatch();
+        }
+    }
+    
+    // 声誉系统
+    mapping(address => uint256) public keeperReputation;
+    
+    function updateReputation(address keeper, bool success) internal {
+        if (success) {
+            keeperReputation[keeper] += 10;
+        } else {
+            keeperReputation[keeper] = keeperReputation[keeper] * 90 / 100; // -10%
+        }
+    }
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="exercise">
+                    <h4>练习 4.3：实现动态稳定费率</h4>
+                    <p>设计一个基于PID控制器的动态稳定费率系统，根据稳定币的市场价格自动调整利率。</p>
+                    <p>要求：</p>
+                    <ul>
+                        <li>实现PID控制器逻辑</li>
+                        <li>考虑市场供需关系</li>
+                        <li>设置合理的参数范围</li>
+                        <li>平滑调整避免震荡</li>
+                    </ul>
+                    <div class="answer">
+                        <h4>参考答案：</h4>
+                        <pre><code class="language-solidity">contract DynamicStabilityFee {
+    // PID控制器参数
+    struct PIDController {
+        int256 kp;        // 比例系数
+        int256 ki;        // 积分系数
+        int256 kd;        // 微分系数
+        int256 integral;  // 积分累积
+        int256 lastError; // 上次误差
+    }
+    
+    // 系统参数
+    uint256 constant TARGET_PRICE = 1e18;  // $1
+    uint256 constant UPDATE_INTERVAL = 1 hours;
+    uint256 constant MAX_FEE = 20e16;     // 20% APR
+    uint256 constant MIN_FEE = 0;          // 0% APR
+    uint256 constant SMOOTHING_FACTOR = 10; // 平滑因子
+    
+    PIDController public controller = PIDController({
+        kp: 1e15,  // 0.001
+        ki: 1e14,  // 0.0001
+        kd: 1e13,  // 0.00001
+        integral: 0,
+        lastError: 0
+    });
+    
+    uint256 public currentFee;
+    uint256 public lastUpdateTime;
+    
+    // 价格历史记录
+    uint256[] public priceHistory;
+    uint256 constant HISTORY_SIZE = 24; // 24小时
+    
+    // 更新稳定费率
+    function updateStabilityFee() external {
+        require(block.timestamp >= lastUpdateTime + UPDATE_INTERVAL, "Too soon");
+        
+        // 获取当前市场价格
+        uint256 currentPrice = getMarketPrice();
+        
+        // 记录价格历史
+        priceHistory.push(currentPrice);
+        if (priceHistory.length > HISTORY_SIZE) {
+            for (uint i = 0; i < priceHistory.length - 1; i++) {
+                priceHistory[i] = priceHistory[i + 1];
+            }
+            priceHistory.pop();
+        }
+        
+        // 计算PID输出
+        int256 newFee = calculatePID(currentPrice);
+        
+        // 应用平滑
+        uint256 smoothedFee = applySmooting(uint256(newFee));
+        
+        // 应用限制
+        currentFee = bound(smoothedFee, MIN_FEE, MAX_FEE);
+        
+        // 更新所有CDP的累积利率
+        updateAccumulatedRates();
+        
+        lastUpdateTime = block.timestamp;
+        emit FeeUpdated(currentFee, currentPrice);
+    }
+    
+    // PID计算
+    function calculatePID(uint256 currentPrice) internal returns (int256) {
+        // 计算误差 (price - target)
+        int256 error = int256(currentPrice) - int256(TARGET_PRICE);
+        
+        // P项
+        int256 p = controller.kp * error / 1e18;
+        
+        // I项
+        controller.integral += error;
+        // 防止积分饱和
+        controller.integral = bound(controller.integral, -1e20, 1e20);
+        int256 i = controller.ki * controller.integral / 1e18;
+        
+        // D项
+        int256 d = controller.kd * (error - controller.lastError) / 1e18;
+        controller.lastError = error;
+        
+        // PID总输出
+        return p + i + d;
+    }
+    
+    // 平滑处理
+    function applySmooting(uint256 newFee) internal view returns (uint256) {
+        // 使用指数移动平均
+        uint256 smoothed = (currentFee * (SMOOTHING_FACTOR - 1) + newFee) / SMOOTHING_FACTOR;
+        
+        // 限制单次调整幅度
+        uint256 maxChange = currentFee / 10; // 最多10%变化
+        if (smoothed > currentFee + maxChange) {
+            return currentFee + maxChange;
+        } else if (smoothed < currentFee - maxChange) {
+            return currentFee - maxChange;
+        }
+        
+        return smoothed;
+    }
+    
+    // 考虑供需关系
+    function getMarketPrice() internal view returns (uint256) {
+        // 综合多个数据源
+        uint256 dexPrice = getDEXPrice();
+        uint256 cexPrice = getCEXPrice();
+        uint256 twapPrice = getTWAPPrice();
+        
+        // 加权平均
+        return (dexPrice * 5 + cexPrice * 3 + twapPrice * 2) / 10;
+    }
+    
+    // 获取历史波动性
+    function getVolatility() public view returns (uint256) {
+        if (priceHistory.length < 2) return 0;
+        
+        uint256 sum = 0;
+        uint256 mean = 0;
+        
+        // 计算均值
+        for (uint i = 0; i < priceHistory.length; i++) {
+            mean += priceHistory[i];
+        }
+        mean /= priceHistory.length;
+        
+        // 计算标准差
+        for (uint i = 0; i < priceHistory.length; i++) {
+            uint256 diff = priceHistory[i] > mean ? 
+                priceHistory[i] - mean : mean - priceHistory[i];
+            sum += diff * diff;
+        }
+        
+        return sqrt(sum / priceHistory.length);
+    }
+    
+    // 动态调整PID参数
+    function adaptPIDParameters() external {
+        uint256 volatility = getVolatility();
+        
+        // 高波动时减小响应
+        if (volatility > 5e16) { // 5%
+            controller.kp = controller.kp * 8 / 10;
+            controller.ki = controller.ki * 8 / 10;
+        } else if (volatility < 1e16) { // 1%
+            controller.kp = controller.kp * 12 / 10;
+            controller.ki = controller.ki * 12 / 10;
+        }
+    }
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="exercise">
+                    <h4>练习 4.4：构建完整的稳定币系统</h4>
+                    <p>综合本章所学，设计并实现一个完整的超额抵押稳定币系统，包括PSM、RWA支持和现代化清算机制。</p>
+                    <p>要求：</p>
+                    <ul>
+                        <li>多抵押品支持（包括RWA）</li>
+                        <li>PSM保持价格稳定</li>
+                        <li>Liquidation 2.0风格清算</li>
+                        <li>完善的治理机制</li>
+                        <li>紧急关停功能</li>
+                    </ul>
+                    <div class="answer">
+                        <h4>参考答案：</h4>
+                        <p>由于完整系统过于复杂，这里提供核心架构和关键组件：</p>
+                        <pre><code class="language-solidity">// 系统核心架构
+contract StablecoinCore {
+    // 核心模块
+    IVat public vat;                // 金库引擎
+    IDog public dog;                // 清算引擎
+    IVow public vow;                // 系统财务
+    IPot public pot;                // 存款利率模块
+    IEnd public end;                // 紧急关停
+    
+    // 辅助模块
+    IPSM public psm;                // 锚定稳定模块
+    IRWAAdapter public rwaAdapter;  // RWA适配器
+    IPriceFeed public priceFeed;    // 价格预言机
+    IGovernance public governance;  // 治理模块
+    
+    // 初始化系统
+    function initialize() external {
+        // 部署核心合约
+        vat = new Vat();
+        dog = new Dog(address(vat));
+        vow = new Vow(address(vat));
+        pot = new Pot(address(vat));
+        end = new End(address(vat));
+        
+        // 配置抵押品类型
+        setupCollateralTypes();
+        
+        // 设置治理
+        setupGovernance();
+    }
+    
+    // 配置抵押品
+    function setupCollateralTypes() internal {
+        // ETH
+        vat.init("ETH-A");
+        vat.file("ETH-A", "line", 500_000_000 * RAD); // 500M debt ceiling
+        vat.file("ETH-A", "mat", 150 * RAY / 100);   // 150% liquidation ratio
+        
+        // WBTC
+        vat.init("WBTC-A");
+        vat.file("WBTC-A", "line", 100_000_000 * RAD);
+        vat.file("WBTC-A", "mat", 175 * RAY / 100);
+        
+        // RWA - US Treasury Bills
+        vat.init("RWA001-A");
+        vat.file("RWA001-A", "line", 1_000_000_000 * RAD); // 1B
+        vat.file("RWA001-A", "mat", 105 * RAY / 100);      // 105% (low risk)
+        
+        // USDC (for PSM)
+        vat.init("PSM-USDC-A");
+        vat.file("PSM-USDC-A", "line", 10_000_000_000 * RAD); // 10B
+        vat.file("PSM-USDC-A", "mat", RAY); // 100% (no liquidation)
+    }
+}</code></pre>
+                        <p>关键组件设计要点：</p>
+                        <ul>
+                            <li><strong>Vat：</strong>核心金库，管理所有CDP和债务</li>
+                            <li><strong>Dog：</strong>Liquidation 2.0引擎，处理清算</li>
+                            <li><strong>PSM：</strong>1:1兑换USDC，保持价格稳定</li>
+                            <li><strong>RWA：</strong>通过信托和法律结构引入真实资产</li>
+                            <li><strong>Governance：</strong>时间锁+多签，确保安全</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>本章小结</h3>
+            <div class="summary-box">
+                <h4>核心要点回顾：</h4>
+                <ul>
+                    <li><strong>风险参数五元组：</strong>债务上限、清算线、稳定费、清算罚金、目标抵押率的协同设计</li>
+                    <li><strong>清算机制演进：</strong>从荷兰拍卖到Liquidation 2.0的固定折扣即时清算</li>
+                    <li><strong>MEV防护：</strong>通过commit-reveal、批量拍卖、加密订单流等机制保护参与者</li>
+                    <li><strong>PSM机制：</strong>提供强大的价格套利通道，但引入中心化风险</li>
+                    <li><strong>RWA集成：</strong>带来稳定收益的同时引入新型风险</li>
+                    <li><strong>黑色星期四教训：</strong>系统设计必须考虑极端市场情况</li>
+                </ul>
+                
+                <h4>下一步学习：</h4>
+                <p>在掌握了抵押型稳定币的设计后，下一章我们将深入探讨数学模型和控制理论在稳定币中的应用，包括PID控制器、博弈论分析和风险模型。</p>
+            </div>
+            
+            <h3>术语速查表</h3>
+            <table class="glossary-table">
+                <tr>
+                    <th>术语</th>
+                    <th>英文</th>
+                    <th>解释</th>
+                </tr>
+                <tr>
+                    <td>抵押债仓位</td>
+                    <td>CDP</td>
+                    <td>用户锁定抵押品铸造稳定币的智能合约账户</td>
+                </tr>
+                <tr>
+                    <td>清算线</td>
+                    <td>Liquidation Ratio</td>
+                    <td>触发清算的最低抵押率阈值</td>
+                </tr>
+                <tr>
+                    <td>稳定费</td>
+                    <td>Stability Fee</td>
+                    <td>CDP持有者需支付的利息</td>
+                </tr>
+                <tr>
+                    <td>喂价</td>
+                    <td>Price Feed</td>
+                    <td>预言机提供的价格数据</td>
+                </tr>
+                <tr>
+                    <td>荷兰式拍卖</td>
+                    <td>Dutch Auction</td>
+                    <td>价格随时间递减的拍卖方式</td>
+                </tr>
+            </table>
+        
+            
+            <!-- 章节导航 -->
+            <div class="chapter-nav">
+                <a href="chapter3.html">← 第3章</a>
+                <a href="chapter5.html">第5章 →</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-solidity.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,2775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第六章：AMM集成 - 区块链稳定币教程</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-brand">稳定币教程</a>
+            <button class="navbar-toggle" onclick="toggleMobileNav()">☰</button>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a href="intro.html" class="nav-link">引言</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">章节</a>
+                    <div class="dropdown-menu">
+                        <a href="chapter1.html" class="dropdown-item">第1章：区块链基础</a>
+                        <a href="chapter2.html" class="dropdown-item">第2章：稳定币分类</a>
+                        <a href="chapter3.html" class="dropdown-item">第3章：ERC-20标准</a>
+                        <a href="chapter4.html" class="dropdown-item">第4章：抵押型设计</a>
+                        <a href="chapter5.html" class="dropdown-item">第5章：数学模型</a>
+                        <a href="chapter6.html" class="dropdown-item">第6章：AMM集成</a>
+                        <a href="chapter7.html" class="dropdown-item">第7章：借贷协议</a>
+                        <a href="chapter8.html" class="dropdown-item">第8章：收益策略</a>
+                        <a href="chapter9.html" class="dropdown-item">第9章：智能合约安全</a>
+                        <a href="chapter10.html" class="dropdown-item">第10章：经济攻击</a>
+                        <a href="chapter11.html" class="dropdown-item">第11章：未来方向</a>
+                        <a href="chapter12.html" class="dropdown-item">第12章：生产部署</a>
+                        <a href="chapter13.html" class="dropdown-item">第13章：生态集成</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="#resources" class="nav-link">资源</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- 头部 -->
+    <header id="top">
+        <div class="container">
+            <h1>第六章：AMM集成</h1>
+        </div>
+    </header>
+    
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="chapter">
+<h2>第六章：AMM集成与流动性管理</h2>
+        
+        <div class="intro-box">
+            <strong>本章概览：</strong>
+            <ul>
+                <li>自动做市商（AMM）基础原理与数学模型</li>
+                <li>Uniswap V2/V3在稳定币交易中的应用</li>
+                <li>Curve StableSwap算法深度解析</li>
+                <li>集中流动性与稳定币对优化</li>
+                <li>实战：构建专门的稳定币AMM</li>
+            </ul>
+        </div>
+        
+        <div class="tip-box">
+            <strong>🎯 章节目标：</strong>
+            <p>本章将深入探讨稳定币如何与各种AMM协议集成，理解不同AMM模型对稳定币交易的影响，并学习如何设计和优化稳定币专用的流动性池。对于资深开发者，我们将重点关注数学原理、Gas优化和MEV防护。</p>
+        </div>
+
+        <h3>6.1 AMM基础原理与稳定币特性</h3>
+        
+        <h4>6.1.1 从恒定乘积到恒定和：理论张力的建立</h4>
+        <p>要理解稳定币AMM的设计哲学，我们需要从两个极端模型开始：</p>
+        
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+            <h5>1. 恒定乘积模型（Constant Product）</h5>
+            <p style="text-align: center; font-size: 1.2em;">x · y = k</p>
+            <ul>
+                <li><strong>优点：</strong>永远有流动性，价格可以从0到∞</li>
+                <li><strong>缺点：</strong>即使是稳定币之间的小额交易也有显著滑点</li>
+                <li><strong>资本效率：</strong>极低 - 99%的流动性备用在0.9以下或1.1以上的价格区间</li>
+            </ul>
+            
+            <h5>2. 恒定和模型（Constant Sum）</h5>
+            <p style="text-align: center; font-size: 1.2em;">x + y = k</p>
+            <ul>
+                <li><strong>优点：</strong>零滑点，完美的1:1兑换</li>
+                <li><strong>缺点：</strong>会完全耗尽其中一种资产，无法应对价格偏离</li>
+                <li><strong>致命缺陷：</strong>一旦出现微小的价格差异，套利者会瞬间清空"好"资产</li>
+            </ul>
+        </div>
+        
+        <div class="info-box">
+            <h5>🎯 核心设计挑战</h5>
+            <p><strong>稳定币AMM的本质是在两个极端之间寻找平衡：</strong></p>
+            <ul>
+                <li>我们想要恒定和模型的<strong>低滑点</strong>（在锚定价格附近）</li>
+                <li>我们需要恒定乘积模型的<strong>无限流动性</strong>（防止池子被抽干）</li>
+            </ul>
+            <p>这个理论张力推动了从Uniswap V3到Curve StableSwap的所有创新。</p>
+        </div>
+        
+        <h4>6.1.2 稳定币AMM的特殊需求</h4>
+        <div class="tip">
+            💡 <strong>稳定币交易的三大核心需求：</strong>
+            <ol>
+                <li><strong>极低滑点区间：</strong>在0.999-1.001范围内，滑点应接近零</li>
+                <li><strong>高资本效率：</strong>80%+的流动性应集中在±1%的价格范围内</li>
+                <li><strong>脱锚韧性：</strong>当稳定币脱锚时，协议应平滑过渡而非突然崩溃</li>
+            </ol>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">量化分析：不同AMM模型的效率对比 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-python"># 稳定币AMM效率对比分析
+import numpy as np
+import matplotlib.pyplot as plt
+
+class AMMComparison:
+    def __init__(self):
+        self.k = 1000000  # 初始流动性
+        
+    def constant_product_price(self, x):
+        """恒定乘积: x*y = k"""
+        return self.k / x
+    
+    def constant_sum_price(self, x):
+        """恒定和: x+y = k (价格始终为1)"""
+        return 1.0 if x < self.k else float('inf')
+    
+    def stableswap_price(self, x, A=100):
+        """简化的StableSwap价格函数"""
+        # 这是一个近似，实际计算更复杂
+        n = 2  # 两种资产
+        y = self.k - x  # 近似
+        
+        # 在平衡点附近表现像恒定和
+        # 在极端情况下表现像恒定乘积
+        balance_point = self.k / n
+        deviation = abs(x - balance_point) / balance_point
+        
+        # 混合权重
+        sum_weight = A / (A + deviation * 100)
+        product_weight = 1 - sum_weight
+        
+        # 混合价格
+        sum_price = 1.0
+        product_price = self.constant_product_price(x)
+        
+        return sum_weight * sum_price + product_weight * product_price
+    
+    def calculate_slippage(self, model, trade_size, initial_x=500000):
+        """计算不同交易规模的滑点"""
+        if model == 'product':
+            y_before = self.constant_product_price(initial_x)
+            y_after = self.constant_product_price(initial_x + trade_size)
+            # 实际获得的y
+            y_received = initial_x * y_before - (initial_x + trade_size) * y_after
+        elif model == 'sum':
+            y_received = trade_size  # 1:1兑换
+        else:  # stableswap
+            # 简化计算
+            price_impact = self.stableswap_price(initial_x + trade_size) - 1
+            y_received = trade_size * (1 - abs(price_impact))
+            
+        ideal_output = trade_size  # 理想的1:1兑换
+        slippage = (ideal_output - y_received) / ideal_output * 100
+        
+        return max(0, slippage)
+    
+    def visualize_comparison(self):
+        """可视化不同模型的表现"""
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+        
+        # 1. 价格曲线对比
+        x_range = np.linspace(100000, 900000, 1000)
+        
+        # 恒定乘积价格
+        cp_prices = [self.constant_product_price(x) for x in x_range]
+        # StableSwap价格 (不同A值)
+        ss_prices_low = [self.stableswap_price(x, A=10) for x in x_range]
+        ss_prices_med = [self.stableswap_price(x, A=100) for x in x_range]
+        ss_prices_high = [self.stableswap_price(x, A=1000) for x in x_range]
+        
+        ax1.plot(x_range/500000, cp_prices, label='Constant Product', linewidth=2)
+        ax1.plot(x_range/500000, ss_prices_low, label='StableSwap (A=10)', linewidth=2)
+        ax1.plot(x_range/500000, ss_prices_med, label='StableSwap (A=100)', linewidth=2)
+        ax1.plot(x_range/500000, ss_prices_high, label='StableSwap (A=1000)', linewidth=2)
+        ax1.axhline(y=1, color='black', linestyle='--', alpha=0.5, label='Constant Sum')
+        
+        ax1.set_xlabel('Pool Balance (x/balance_point)')
+        ax1.set_ylabel('Price (y/x)')
+        ax1.set_title('Price Curves Comparison')
+        ax1.legend()
+        ax1.grid(True, alpha=0.3)
+        ax1.set_ylim(0, 3)
+        
+        # 2. 滑点分析
+        trade_sizes = np.logspace(2, 5, 50)  # 100到100,000
+        
+        cp_slippages = [self.calculate_slippage('product', size) for size in trade_sizes]
+        ss_slippages = [self.calculate_slippage('stableswap', size) for size in trade_sizes]
+        
+        ax2.loglog(trade_sizes, cp_slippages, label='Constant Product', linewidth=2)
+        ax2.loglog(trade_sizes, ss_slippages, label='StableSwap (A=100)', linewidth=2)
+        
+        ax2.set_xlabel('Trade Size')
+        ax2.set_ylabel('Slippage (%)')
+        ax2.set_title('Slippage vs Trade Size')
+        ax2.legend()
+        ax2.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        return fig
+
+# 运行分析
+analyzer = AMMComparison()
+analyzer.visualize_comparison()
+
+# 计算具体数值
+print("$10,000 交易的滑点对比:")
+print(f"Constant Product: {analyzer.calculate_slippage('product', 10000):.3f}%")
+print(f"StableSwap: {analyzer.calculate_slippage('stableswap', 10000):.3f}%")
+print(f"Constant Sum: {analyzer.calculate_slippage('sum', 10000):.3f}%")</code></pre>
+            </div>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">基础AMM接口定义 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+interface IAMM {
+    // 获取报价
+    function getAmountOut(
+        uint256 amountIn,
+        uint256 reserveIn,
+        uint256 reserveOut
+    ) external pure returns (uint256 amountOut);
+    
+    // 交换代币
+    function swap(
+        uint256 amount0Out,
+        uint256 amount1Out,
+        address to,
+        bytes calldata data
+    ) external;
+    
+    // 添加流动性
+    function mint(address to) external returns (uint256 liquidity);
+    
+    // 移除流动性
+    function burn(address to) external returns (uint256 amount0, uint256 amount1);
+    
+    // 获取储备量
+    function getReserves() external view returns (
+        uint112 reserve0,
+        uint112 reserve1,
+        uint32 blockTimestampLast
+    );
+}
+
+// 稳定币AMM特有接口
+interface IStableSwap {
+    // 获取虚拟价格（衡量LP代币价值）
+    function get_virtual_price() external view returns (uint256);
+    
+    // 计算一个代币换另一个代币
+    function get_dy(
+        int128 i,
+        int128 j,
+        uint256 dx
+    ) external view returns (uint256);
+    
+    // 动态费用
+    function dynamic_fee(
+        int128 i,
+        int128 j
+    ) external view returns (uint256);
+}</code></pre>
+            </div>
+        </div>
+
+        <h3>6.2 Uniswap V2/V3集成策略</h3>
+        
+        <h4>6.2.1 Uniswap V2稳定币池分析</h4>
+        <p>虽然Uniswap V2不是为稳定币优化的，但由于其简单性和广泛采用，许多稳定币对仍在V2上交易。让我们量化其低效性：</p>
+        
+        <div class="info-box">
+            <h5>📊 V2资本效率的量化分析</h5>
+            <p>以USDC/DAI池为例（假设均衡状态各有$50M）：</p>
+            <ul>
+                <li>价格在0.99-1.01之间的流动性：仅占总流动性的<strong>2%</strong></li>
+                <li>价格在0.95-1.05之间的流动性：约占<strong>10%</strong></li>
+                <li>剩余90%的流动性备用在几乎不可能触及的价格区间</li>
+            </ul>
+            <p><strong>结果：</strong>$100M的TVL中，只有$2M在日常交易中被有效利用</p>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">Uniswap V2稳定币对实现 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">contract UniswapV2StablecoinPair {
+    using SafeMath for uint256;
+    
+    uint256 private constant MINIMUM_LIQUIDITY = 10**3;
+    uint256 private constant FEE_DENOMINATOR = 10000;
+    uint256 private constant FEE_NUMERATOR = 30; // 0.3%费用
+    
+    uint112 private reserve0;
+    uint112 private reserve1;
+    uint32 private blockTimestampLast;
+    
+    uint256 public price0CumulativeLast;
+    uint256 public price1CumulativeLast;
+    uint256 public kLast;
+    
+    // 获取报价（考虑费用）
+    function getAmountOut(
+        uint256 amountIn,
+        uint256 reserveIn,
+        uint256 reserveOut
+    ) public pure returns (uint256 amountOut) {
+        require(amountIn > 0, "INSUFFICIENT_INPUT_AMOUNT");
+        require(reserveIn > 0 && reserveOut > 0, "INSUFFICIENT_LIQUIDITY");
+        
+        uint256 amountInWithFee = amountIn.mul(FEE_DENOMINATOR - FEE_NUMERATOR);
+        uint256 numerator = amountInWithFee.mul(reserveOut);
+        uint256 denominator = reserveIn.mul(FEE_DENOMINATOR).add(amountInWithFee);
+        amountOut = numerator / denominator;
+    }
+    
+    // 价格影响计算（对稳定币尤其重要）
+    function calculatePriceImpact(
+        uint256 amountIn,
+        uint256 reserveIn,
+        uint256 reserveOut
+    ) public pure returns (uint256 priceImpact) {
+        uint256 amountOut = getAmountOut(amountIn, reserveIn, reserveOut);
+        
+        // 理想情况下1:1兑换
+        uint256 idealOut = amountIn;
+        
+        // 计算价格影响（基点）
+        if (idealOut > amountOut) {
+            priceImpact = (idealOut - amountOut).mul(10000) / idealOut;
+        }
+    }
+    
+    // 优化的交换函数（带滑点保护）
+    function swapWithSlippageProtection(
+        uint256 amount0Out,
+        uint256 amount1Out,
+        address to,
+        uint256 maxSlippage // 基点
+    ) external {
+        require(amount0Out > 0 || amount1Out > 0, "INSUFFICIENT_OUTPUT_AMOUNT");
+        (uint112 _reserve0, uint112 _reserve1,) = getReserves();
+        require(amount0Out < _reserve0 && amount1Out < _reserve1, "INSUFFICIENT_LIQUIDITY");
+        
+        uint256 balance0;
+        uint256 balance1;
+        {
+            address _token0 = token0;
+            address _token1 = token1;
+            require(to != _token0 && to != _token1, "INVALID_TO");
+            
+            if (amount0Out > 0) IERC20(_token0).transfer(to, amount0Out);
+            if (amount1Out > 0) IERC20(_token1).transfer(to, amount1Out);
+            
+            balance0 = IERC20(_token0).balanceOf(address(this));
+            balance1 = IERC20(_token1).balanceOf(address(this));
+        }
+        
+        uint256 amount0In = balance0 > _reserve0 - amount0Out ? 
+            balance0 - (_reserve0 - amount0Out) : 0;
+        uint256 amount1In = balance1 > _reserve1 - amount1Out ? 
+            balance1 - (_reserve1 - amount1Out) : 0;
+        require(amount0In > 0 || amount1In > 0, "INSUFFICIENT_INPUT_AMOUNT");
+        
+        // 滑点检查
+        uint256 priceImpact = calculatePriceImpact(
+            amount0In > 0 ? amount0In : amount1In,
+            amount0In > 0 ? _reserve0 : _reserve1,
+            amount0In > 0 ? _reserve1 : _reserve0
+        );
+        require(priceImpact <= maxSlippage, "SLIPPAGE_TOO_HIGH");
+        
+        // K值检查
+        {
+            uint256 balance0Adjusted = balance0.mul(FEE_DENOMINATOR).sub(
+                amount0In.mul(FEE_NUMERATOR)
+            );
+            uint256 balance1Adjusted = balance1.mul(FEE_DENOMINATOR).sub(
+                amount1In.mul(FEE_NUMERATOR)
+            );
+            require(
+                balance0Adjusted.mul(balance1Adjusted) >= 
+                uint256(_reserve0).mul(_reserve1).mul(FEE_DENOMINATOR**2),
+                "K"
+            );
+        }
+        
+        _update(balance0, balance1, _reserve0, _reserve1);
+        emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <h4>6.2.2 Uniswap V3集中流动性优化</h4>
+        <p>Uniswap V3的集中流动性是一把双刃剑 - 它极大提升了资本效率，但也引入了新的风险维度：</p>
+        
+        <div class="tip-box">
+            <strong>📊 集中流动性的收益与风险：</strong>
+            <table style="width: 100%; margin-top: 1rem;">
+                <tr style="background: #f0f4f8;">
+                    <th style="padding: 0.5rem; border: 1px solid #ddd;">维度</th>
+                    <th style="padding: 0.5rem; border: 1px solid #ddd;">优势</th>
+                    <th style="padding: 0.5rem; border: 1px solid #ddd;">风险</th>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">资本效率</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">提升10-100倍</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">需要主动管理</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">无常损失</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">范围内收益更高</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">脱锚时IL放大5-10倍</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">费用收益</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">集中获取90%+费用</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">价格离开范围收益为0</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Gas成本</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">单次操作高效</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">频繁再平衡成本高</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="info-box">
+            <h5>⚠️ 稳定币脱锚时的V3风险分析</h5>
+            <p>假设USDC/DAI池，LP在[0.999, 1.001]范围提供流动性：</p>
+            <ul>
+                <li>正常情况：捕获95%+的交易费用，IL接近0</li>
+                <li>DAI脱锚至0.998：整个仓位100%转换为DAI（贬值资产）</li>
+                <li>损失计算：相比持有50/50，损失放大至原来的<strong>50倍</strong></li>
+                <li>恢复困难：即使价格恢复，也需要主动再平衡才能恢复原始比例</li>
+            </ul>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">Uniswap V3稳定币流动性管理 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">contract UniswapV3StablecoinManager {
+    using TickMath for int24;
+    using FullMath for uint256;
+    
+    INonfungiblePositionManager public immutable positionManager;
+    IUniswapV3Pool public immutable pool;
+    
+    struct StablecoinPosition {
+        uint256 tokenId;
+        int24 tickLower;
+        int24 tickUpper;
+        uint128 liquidity;
+        uint256 token0Deposited;
+        uint256 token1Deposited;
+    }
+    
+    // 计算稳定币对的最优价格范围
+    function calculateOptimalRange(
+        uint256 currentPrice,
+        uint256 rangeWidthBips // 基点，如100 = 1%
+    ) public pure returns (int24 tickLower, int24 tickUpper) {
+        require(rangeWidthBips > 0 && rangeWidthBips < 10000, "Invalid range width");
+        
+        // 计算价格边界
+        uint256 priceLower = currentPrice * (10000 - rangeWidthBips / 2) / 10000;
+        uint256 priceUpper = currentPrice * (10000 + rangeWidthBips / 2) / 10000;
+        
+        // 转换为tick
+        tickLower = TickMath.getTickAtSqrtRatio(
+            uint160(sqrt(priceLower << 96))
+        );
+        tickUpper = TickMath.getTickAtSqrtRatio(
+            uint160(sqrt(priceUpper << 96))
+        );
+        
+        // 确保tick符合间距要求
+        int24 tickSpacing = pool.tickSpacing();
+        tickLower = (tickLower / tickSpacing) * tickSpacing;
+        tickUpper = ((tickUpper / tickSpacing) + 1) * tickSpacing;
+    }
+    
+    // 创建集中流动性头寸
+    function createConcentratedPosition(
+        uint256 amount0Desired,
+        uint256 amount1Desired,
+        uint256 rangeWidthBips,
+        uint256 deadline
+    ) external returns (
+        uint256 tokenId,
+        uint128 liquidity,
+        uint256 amount0,
+        uint256 amount1
+    ) {
+        // 获取当前价格
+        (uint160 sqrtPriceX96,,,,,,) = pool.slot0();
+        uint256 currentPrice = uint256(sqrtPriceX96) ** 2 >> 192;
+        
+        // 计算最优范围
+        (int24 tickLower, int24 tickUpper) = calculateOptimalRange(
+            currentPrice,
+            rangeWidthBips
+        );
+        
+        // 批准代币
+        IERC20(pool.token0()).approve(address(positionManager), amount0Desired);
+        IERC20(pool.token1()).approve(address(positionManager), amount1Desired);
+        
+        // 创建头寸
+        INonfungiblePositionManager.MintParams memory params = 
+            INonfungiblePositionManager.MintParams({
+                token0: pool.token0(),
+                token1: pool.token1(),
+                fee: pool.fee(),
+                tickLower: tickLower,
+                tickUpper: tickUpper,
+                amount0Desired: amount0Desired,
+                amount1Desired: amount1Desired,
+                amount0Min: amount0Desired * 995 / 1000, // 0.5%滑点
+                amount1Min: amount1Desired * 995 / 1000,
+                recipient: msg.sender,
+                deadline: deadline
+            });
+        
+        (tokenId, liquidity, amount0, amount1) = positionManager.mint(params);
+        
+        emit PositionCreated(tokenId, tickLower, tickUpper, liquidity);
+    }
+    
+    // 自动再平衡策略
+    function rebalancePosition(
+        uint256 tokenId,
+        uint256 targetRangeWidthBips
+    ) external {
+        // 获取当前头寸信息
+        (,, address token0, address token1, uint24 fee, int24 tickLower, 
+         int24 tickUpper, uint128 liquidity,,,,) = positionManager.positions(tokenId);
+        
+        require(liquidity > 0, "Position has no liquidity");
+        
+        // 检查是否需要再平衡
+        (uint160 sqrtPriceX96, int24 currentTick,,,,,) = pool.slot0();
+        
+        if (currentTick < tickLower || currentTick > tickUpper) {
+            // 收集所有费用和流动性
+            INonfungiblePositionManager.CollectParams memory collectParams = 
+                INonfungiblePositionManager.CollectParams({
+                    tokenId: tokenId,
+                    recipient: address(this),
+                    amount0Max: type(uint128).max,
+                    amount1Max: type(uint128).max
+                });
+            
+            (uint256 amount0Collected, uint256 amount1Collected) = 
+                positionManager.collect(collectParams);
+            
+            // 移除旧流动性
+            INonfungiblePositionManager.DecreaseLiquidityParams memory decreaseParams = 
+                INonfungiblePositionManager.DecreaseLiquidityParams({
+                    tokenId: tokenId,
+                    liquidity: liquidity,
+                    amount0Min: 0,
+                    amount1Min: 0,
+                    deadline: block.timestamp
+                });
+            
+            positionManager.decreaseLiquidity(decreaseParams);
+            
+            // 创建新头寸
+            createConcentratedPosition(
+                amount0Collected,
+                amount1Collected,
+                targetRangeWidthBips,
+                block.timestamp
+            );
+            
+            // 销毁旧NFT
+            positionManager.burn(tokenId);
+        }
+    }
+    
+    // 计算无常损失（对稳定币很重要）
+    function calculateImpermanentLoss(
+        uint256 price0Start,
+        uint256 price0End,
+        uint256 amount0Start,
+        uint256 amount1Start
+    ) public pure returns (uint256 lossPercentage) {
+        // IL = 2 * sqrt(price_ratio) / (1 + price_ratio) - 1
+        uint256 priceRatio = price0End * 1e18 / price0Start;
+        uint256 sqrtPriceRatio = sqrt(priceRatio * 1e18);
+        
+        uint256 poolValue = 2 * sqrtPriceRatio / (1e18 + priceRatio);
+        
+        if (poolValue < 1e18) {
+            lossPercentage = (1e18 - poolValue) * 10000 / 1e18; // 基点
+        }
+    }
+    
+    function sqrt(uint256 x) private pure returns (uint256 y) {
+        uint256 z = (x + 1) / 2;
+        y = x;
+        while (z < y) {
+            y = z;
+            z = (x / z + z) / 2;
+        }
+    }
+}</code></pre>
+            </div>
+        </div>
+
+        <h3>6.3 Curve StableSwap深度解析</h3>
+        
+        <h4>6.3.1 StableSwap不变量的数学推导</h4>
+        <p>Curve的天才之处在于创造了一个在恒定和与恒定积之间优雅过渡的混合不变量：</p>
+        
+        <div style="background: #e0e7ff; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+            <h5>从第一性原理推导StableSwap公式</h5>
+            <p><strong>1. 起点：两个极端的混合</strong></p>
+            <p>恒定和：Σx<sub>i</sub> = D（零滑点但会耗尽）</p>
+            <p>恒定积：Π(x<sub>i</sub>/n) = (D/n)<sup>n</sup>（无限流动性但高滑点）</p>
+            
+            <p><strong>2. 混合不变量：</strong></p>
+            <p style="text-align: center; font-size: 1.2em; margin: 1rem 0;">
+                χ·Σx<sub>i</sub> + Π(x<sub>i</sub>) = χ·D + (D/n)<sup>n</sup>
+            </p>
+            <p>其中χ是混合参数，控制两种模型的权重</p>
+            
+            <p><strong>3. 引入放大系数A：</strong></p>
+            <p>令χ = An<sup>n</sup>，得到最终的StableSwap不变量：</p>
+            <p style="text-align: center; font-size: 1.2em; background: #fff; padding: 1rem; border-radius: 4px;">
+                An<sup>n</sup>Σx<sub>i</sub> + D = ADn<sup>n</sup> + D<sup>n+1</sup>/(n<sup>n</sup>Πx<sub>i</sub>)
+            </p>
+        </div>
+        
+        <div class="tip">
+            💡 <strong>放大系数A的直观理解：</strong>
+            <ul>
+                <li>A → 0：公式退化为恒定乘积（类似Uniswap）</li>
+                <li>A → ∞：公式趋近恒定和（完美的稳定币交换）</li>
+                <li>A = 100：实践中的平衡点，在±2%范围内提供极低滑点</li>
+            </ul>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">StableSwap曲线可视化与参数影响分析 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-python"># Curve StableSwap可视化分析
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import newton
+
+class StableSwapVisualization:
+    def __init__(self, n_coins=2):
+        self.n = n_coins
+        self.precision = 10**18
+        
+    def get_D(self, xp, amp):
+        """计算D值 - StableSwap的核心"""
+        S = sum(xp)
+        if S == 0:
+            return 0
+            
+        D = S
+        Ann = amp * self.n
+        
+        for _ in range(255):
+            D_P = D
+            for x in xp:
+                D_P = D_P * D // (x * self.n)
+            Dprev = D
+            D = (Ann * S // amp + D_P * self.n) * D // ((Ann - amp) * D // amp + (self.n + 1) * D_P)
+            
+            if abs(D - Dprev) <= 1:
+                break
+                
+        return D
+    
+    def get_y(self, i, j, x, xp, amp):
+        """给定x计算y - 交易的核心计算"""
+        D = self.get_D(xp, amp)
+        
+        S_ = sum(xp) - xp[i] - xp[j] + x
+        c = D
+        Ann = amp * self.n
+        
+        for k in range(self.n):
+            if k != i and k != j:
+                c = c * D // (xp[k] * self.n)
+        c = c * D * amp // (Ann * self.n)
+        
+        b = S_ + D * amp // Ann
+        y_prev = 0
+        y = D
+        
+        for _ in range(255):
+            y_prev = y
+            y = (y * y + c) // (2 * y + b - D)
+            if abs(y - y_prev) <= 1:
+                break
+                
+        return y
+    
+    def visualize_curves(self):
+        """可视化不同A值下的价格曲线"""
+        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+        
+        # 初始池子：平衡状态
+        initial_balance = 1000000
+        
+        # 1. 价格曲线对比
+        ax = axes[0, 0]
+        x_range = np.linspace(0.1 * initial_balance, 1.9 * initial_balance, 1000)
+        
+        for A in [0.1, 1, 10, 100, 1000]:
+            prices = []
+            for x in x_range:
+                xp = [int(x), initial_balance]
+                y = self.get_y(0, 1, int(x), xp, int(A * 100))
+                # 计算边际价格 dy/dx
+                price = (initial_balance - y) / (x - initial_balance) if x != initial_balance else 1
+                prices.append(price)
+            
+            ax.plot(x_range / initial_balance, prices, label=f'A={A}', linewidth=2)
+        
+        ax.axhline(y=1, color='black', linestyle='--', alpha=0.3)
+        ax.set_xlabel('相对储备量 (x/x₀)')
+        ax.set_ylabel('价格 (dy/dx)')
+        ax.set_title('不同A值下的价格曲线')
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        ax.set_ylim(0, 2)
+        
+        # 2. 资本效率分析
+        ax = axes[0, 1]
+        A_values = [1, 10, 50, 100, 500, 1000]
+        effective_liquidity = []
+        
+        for A in A_values:
+            # 计算±1%价格范围内的有效流动性比例
+            total_liquidity = 2 * initial_balance
+            x_1pct = initial_balance * 0.99
+            x_2pct = initial_balance * 1.01
+            
+            # 在这个范围内可交易的量
+            tradeable = (x_2pct - x_1pct) / total_liquidity * 100
+            effective_liquidity.append(tradeable)
+        
+        ax.bar(range(len(A_values)), effective_liquidity, color='skyblue', edgecolor='navy')
+        ax.set_xticks(range(len(A_values)))
+        ax.set_xticklabels([f'A={A}' for A in A_values])
+        ax.set_ylabel('有效流动性比例 (%)')
+        ax.set_title('±1%价格范围内的资本效率')
+        ax.grid(True, alpha=0.3, axis='y')
+        
+        # 3. 滑点分析
+        ax = axes[1, 0]
+        trade_sizes = np.logspace(2, 6, 50)  # $100 到 $1M
+        
+        for A in [10, 100, 1000]:
+            slippages = []
+            for size in trade_sizes:
+                # 计算交易产生的滑点
+                xp = [initial_balance, initial_balance]
+                y_out = initial_balance - self.get_y(0, 1, initial_balance + int(size), xp, int(A * 100))
+                slippage = (size - y_out) / size * 10000  # 基点
+                slippages.append(slippage)
+            
+            ax.loglog(trade_sizes, slippages, label=f'A={A}', linewidth=2)
+        
+        ax.set_xlabel('交易规模 ($)')
+        ax.set_ylabel('滑点 (基点)')
+        ax.set_title('交易规模 vs 滑点')
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        
+        # 4. A参数的风险收益权衡
+        ax = axes[1, 1]
+        A_range = np.logspace(0, 3, 100)
+        
+        # 计算不同指标
+        capital_efficiency = []
+        depeg_risk = []
+        
+        for A in A_range:
+            # 资本效率：1%范围内的深度
+            eff = min(100, A / 10)  # 简化模型
+            capital_efficiency.append(eff)
+            
+            # 脱锚风险：池子耗尽速度
+            risk = 100 / (1 + A / 100)  # 简化模型
+            depeg_risk.append(risk)
+        
+        ax2 = ax.twinx()
+        
+        line1 = ax.plot(A_range, capital_efficiency, 'b-', label='资本效率', linewidth=2)
+        line2 = ax2.plot(A_range, depeg_risk, 'r-', label='脱锚风险', linewidth=2)
+        
+        ax.set_xlabel('放大系数 A')
+        ax.set_ylabel('资本效率 (%)', color='b')
+        ax2.set_ylabel('脱锚风险指数', color='r')
+        ax.set_xscale('log')
+        ax.set_title('A参数的风险收益权衡')
+        
+        lines = line1 + line2
+        labels = [l.get_label() for l in lines]
+        ax.legend(lines, labels, loc='center right')
+        
+        ax.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        return fig
+    
+    def simulate_depeg_scenario(self, A=100, depeg_percent=5):
+        """模拟脱锚场景下的池子行为"""
+        initial = 1000000
+        results = {
+            'price': [],
+            'pool_ratio': [],
+            'trade_size': []
+        }
+        
+        # 模拟逐步脱锚
+        current_x = initial
+        current_y = initial
+        
+        for step in range(100):
+            # 套利者卖出贬值资产
+            trade_size = initial * 0.01  # 每次1%
+            
+            xp = [current_x, current_y]
+            new_y = self.get_y(0, 1, current_x + trade_size, xp, int(A * 100))
+            
+            received = current_y - new_y
+            current_x += trade_size
+            current_y = new_y
+            
+            # 计算价格
+            price = received / trade_size
+            pool_ratio = current_x / (current_x + current_y)
+            
+            results['price'].append(price)
+            results['pool_ratio'].append(pool_ratio)
+            results['trade_size'].append(step * trade_size)
+            
+            if price < (1 - depeg_percent/100):
+                break
+                
+        return results
+
+# 运行可视化
+visualizer = StableSwapVisualization()
+visualizer.visualize_curves()
+
+# 模拟脱锚场景
+depeg_results = visualizer.simulate_depeg_scenario(A=100, depeg_percent=5)
+print(f"5%脱锚时，池子中稳定资产比例：{(1-depeg_results['pool_ratio'][-1])*100:.1f}%")</code></pre>
+            </div>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">Curve StableSwap核心实现 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">contract StableSwap {
+    uint256 private constant A_PRECISION = 100;
+    uint256 private constant PRECISION = 1e18;
+    uint256 private constant FEE_DENOMINATOR = 1e10;
+    
+    uint256 public immutable N_COINS;
+    uint256 public A;  // 放大系数
+    uint256 public fee = 4000000; // 0.04%
+    uint256 public admin_fee = 5000000000; // 50%的费用归协议
+    
+    uint256[] public balances;
+    uint256 public totalSupply;
+    
+    // 计算D值（牛顿法）
+    function get_D(uint256[] memory xp, uint256 amp) private pure returns (uint256) {
+        uint256 S = 0;
+        uint256 Dprev = 0;
+        
+        for (uint256 i = 0; i < xp.length; i++) {
+            S += xp[i];
+        }
+        if (S == 0) return 0;
+        
+        uint256 D = S;
+        uint256 Ann = amp * xp.length;
+        
+        for (uint256 i = 0; i < 255; i++) {
+            uint256 D_P = D;
+            for (uint256 j = 0; j < xp.length; j++) {
+                D_P = D_P * D / (xp[j] * xp.length);
+            }
+            Dprev = D;
+            D = (Ann * S / A_PRECISION + D_P * xp.length) * D / 
+                ((Ann - A_PRECISION) * D / A_PRECISION + (xp.length + 1) * D_P);
+            
+            if (D > Dprev) {
+                if (D - Dprev <= 1) break;
+            } else {
+                if (Dprev - D <= 1) break;
+            }
+        }
+        return D;
+    }
+    
+    // 计算交换后的余额（牛顿法）
+    function get_y(
+        uint256 i,
+        uint256 j,
+        uint256 x,
+        uint256[] memory xp_
+    ) private view returns (uint256) {
+        require(i != j, "Same coin");
+        require(j < N_COINS, "j too large");
+        require(i < N_COINS, "i too large");
+        
+        uint256 amp = A;
+        uint256 D = get_D(xp_, amp);
+        
+        uint256 S_ = 0;
+        uint256 _x = 0;
+        uint256 y_prev = 0;
+        uint256 c = D;
+        uint256 Ann = amp * N_COINS;
+        
+        for (uint256 k = 0; k < N_COINS; k++) {
+            if (k == i) {
+                _x = x;
+            } else if (k != j) {
+                _x = xp_[k];
+            } else {
+                continue;
+            }
+            S_ += _x;
+            c = c * D / (_x * N_COINS);
+        }
+        
+        c = c * D * A_PRECISION / (Ann * N_COINS);
+        uint256 b = S_ + D * A_PRECISION / Ann;
+        uint256 y = D;
+        
+        for (uint256 k = 0; k < 255; k++) {
+            y_prev = y;
+            y = (y * y + c) / (2 * y + b - D);
+            if (y > y_prev) {
+                if (y - y_prev <= 1) break;
+            } else {
+                if (y_prev - y <= 1) break;
+            }
+        }
+        return y;
+    }
+    
+    // 计算输出金额（含动态费用）
+    function get_dy(
+        uint256 i,
+        uint256 j,
+        uint256 dx
+    ) external view returns (uint256) {
+        uint256[] memory xp = _xp();
+        
+        uint256 x = xp[i] + dx;
+        uint256 y = get_y(i, j, x, xp);
+        uint256 dy = xp[j] - y - 1;
+        
+        // 动态费用计算
+        uint256 _fee = fee * N_COINS / (4 * (N_COINS - 1));
+        
+        // 根据池子平衡度调整费用
+        uint256 balanced_fee = _calculate_balanced_fee(xp, i, j);
+        _fee = _fee * balanced_fee / FEE_DENOMINATOR;
+        
+        return dy - dy * _fee / FEE_DENOMINATOR;
+    }
+    
+    // 动态费用：池子越不平衡，费用越高
+    function _calculate_balanced_fee(
+        uint256[] memory xp,
+        uint256 i,
+        uint256 j
+    ) private pure returns (uint256) {
+        uint256 sum = 0;
+        for (uint256 k = 0; k < xp.length; k++) {
+            sum += xp[k];
+        }
+        
+        uint256 avg = sum / xp.length;
+        uint256 imbalance = 0;
+        
+        // 计算不平衡度
+        for (uint256 k = 0; k < xp.length; k++) {
+            uint256 diff = xp[k] > avg ? xp[k] - avg : avg - xp[k];
+            imbalance += diff * PRECISION / avg;
+        }
+        
+        // 费用倍数：1x到4x
+        return FEE_DENOMINATOR + imbalance * 3;
+    }
+    
+    // 执行交换
+    function exchange(
+        uint256 i,
+        uint256 j,
+        uint256 dx,
+        uint256 min_dy,
+        address receiver
+    ) external returns (uint256) {
+        require(i != j, "Same coin");
+        require(dx > 0, "dx = 0");
+        
+        uint256[] memory old_balances = balances;
+        uint256[] memory xp = _xp_mem(old_balances);
+        
+        // 转入代币
+        IERC20(coins[i]).transferFrom(msg.sender, address(this), dx);
+        
+        uint256 x = xp[i] + dx;
+        uint256 y = get_y(i, j, x, xp);
+        
+        uint256 dy = xp[j] - y - 1; // -1以防舍入错误
+        uint256 dy_fee = dy * fee / FEE_DENOMINATOR;
+        
+        // 动态费用
+        uint256 balanced_fee = _calculate_balanced_fee(xp, i, j);
+        dy_fee = dy_fee * balanced_fee / FEE_DENOMINATOR;
+        
+        dy = dy - dy_fee;
+        require(dy >= min_dy, "Slippage");
+        
+        // 更新余额
+        balances[i] = old_balances[i] + dx;
+        balances[j] = old_balances[j] - dy;
+        
+        // 转出代币
+        IERC20(coins[j]).transfer(receiver, dy);
+        
+        emit TokenExchange(msg.sender, i, dx, j, dy);
+        
+        return dy;
+    }
+    
+    // 添加流动性（优化版）
+    function add_liquidity(
+        uint256[] memory amounts,
+        uint256 min_mint_amount
+    ) external returns (uint256) {
+        require(amounts.length == N_COINS, "Invalid amounts");
+        
+        uint256[] memory fees = new uint256[](N_COINS);
+        uint256 _fee = fee * N_COINS / (4 * (N_COINS - 1));
+        uint256 amp = A;
+        
+        uint256 token_supply = totalSupply;
+        uint256[] memory old_balances = balances;
+        uint256 D0 = 0;
+        
+        if (token_supply > 0) {
+            D0 = get_D(_xp_mem(old_balances), amp);
+        }
+        
+        uint256[] memory new_balances = new uint256[](N_COINS);
+        
+        for (uint256 i = 0; i < N_COINS; i++) {
+            if (token_supply == 0) {
+                require(amounts[i] > 0, "Initial deposit requires all coins");
+            }
+            
+            // 转入代币
+            if (amounts[i] > 0) {
+                IERC20(coins[i]).transferFrom(msg.sender, address(this), amounts[i]);
+            }
+            
+            new_balances[i] = old_balances[i] + amounts[i];
+        }
+        
+        uint256 D1 = get_D(_xp_mem(new_balances), amp);
+        require(D1 > D0, "D1 <= D0");
+        
+        uint256 mint_amount = 0;
+        
+        if (token_supply == 0) {
+            mint_amount = D1;
+        } else {
+            // 计算理想余额
+            uint256[] memory ideal_balance = new uint256[](N_COINS);
+            uint256 difference = 0;
+            
+            for (uint256 i = 0; i < N_COINS; i++) {
+                ideal_balance[i] = D1 * old_balances[i] / D0;
+                uint256 diff = ideal_balance[i] > new_balances[i] ? 
+                    ideal_balance[i] - new_balances[i] : 
+                    new_balances[i] - ideal_balance[i];
+                difference += diff;
+            }
+            
+            // 根据不平衡程度收费
+            if (difference > 0) {
+                _fee = _fee * N_COINS * difference / D1;
+            }
+            
+            mint_amount = token_supply * (D1 - D0) / D0;
+            
+            // 扣除费用
+            mint_amount = mint_amount - mint_amount * _fee / FEE_DENOMINATOR;
+        }
+        
+        require(mint_amount >= min_mint_amount, "Slippage");
+        
+        // 更新状态
+        for (uint256 i = 0; i < N_COINS; i++) {
+            balances[i] = new_balances[i];
+        }
+        
+        totalSupply += mint_amount;
+        _mint(msg.sender, mint_amount);
+        
+        emit AddLiquidity(msg.sender, amounts, fees, D1, token_supply + mint_amount);
+        
+        return mint_amount;
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <h4>6.3.2 Curve V2：动态调整的自适应AMM</h4>
+        <p>Curve V2（也称为Tricrypto）是DeFi中最先进的AMM设计之一，它引入了自适应机制来处理波动资产：</p>
+        
+        <div class="info-box">
+            <h5>🚀 Curve V2的革命性创新</h5>
+            <ul>
+                <li><strong>内部预言机：</strong>使用EMA（指数移动平均）追踪"真实"市场价格</li>
+                <li><strong>动态放大系数：</strong>根据市场条件自动调整A值</li>
+                <li><strong>动态费用：</strong>池子失衡时提高费用，平衡时降低费用</li>
+                <li><strong>K值重定价：</strong>通过调整K值激励套利者恢复平衡</li>
+            </ul>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">Curve V2自适应机制实现 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">contract CurveV2Pool {
+    // V2核心参数
+    uint256 public A;           // 基础放大系数
+    uint256 public gamma;       // 风险参数（控制曲率）
+    uint256 public mid_fee;     // 基础费用
+    uint256 public out_fee;     // 最大费用
+    uint256 public fee_gamma;   // 费用调整速度
+    
+    // 内部预言机状态
+    uint256 public price_oracle;    // EMA价格
+    uint256 public price_scale;     // 当前池内价格
+    uint256 public last_prices_timestamp;
+    
+    // 动态A和gamma
+    uint256 public future_A;
+    uint256 public future_gamma;
+    uint256 public future_time;
+    
+    // 计算动态费用
+    function dynamic_fee() public view returns (uint256) {
+        // 获取当前价格偏离度
+        uint256 xp0 = balances[0] * PRECISION / price_scale;
+        uint256 xp1 = balances[1] * PRECISION;
+        
+        // 理想平衡点
+        uint256 ideal_balance = (xp0 + xp1) / 2;
+        
+        // 计算不平衡度
+        uint256 imbalance = xp0 > xp1 ? 
+            (xp0 - ideal_balance) * PRECISION / ideal_balance :
+            (ideal_balance - xp1) * PRECISION / ideal_balance;
+            
+        // 动态费用 = mid_fee + (out_fee - mid_fee) * imbalance^fee_gamma
+        uint256 fee = mid_fee;
+        if (imbalance > 0) {
+            // 使用近似的幂函数计算
+            uint256 fee_multiplier = pow_approx(imbalance, fee_gamma);
+            fee = mid_fee + (out_fee - mid_fee) * fee_multiplier / PRECISION;
+        }
+        
+        return fee;
+    }
+    
+    // 更新内部预言机
+    function tweak_price(
+        uint256 A_gamma,
+        uint256 new_price_scale,
+        uint256 K0_prev
+    ) internal {
+        // 时间衰减因子
+        uint256 time_since = block.timestamp - last_prices_timestamp;
+        uint256 alpha = exp_decay(time_since);
+        
+        // 更新EMA价格
+        price_oracle = (price_oracle * alpha + new_price_scale * (PRECISION - alpha)) / PRECISION;
+        
+        // 当价格偏离过大时，调整K值
+        uint256 price_deviation = new_price_scale > price_oracle ?
+            (new_price_scale - price_oracle) * PRECISION / price_oracle :
+            (price_oracle - new_price_scale) * PRECISION / price_oracle;
+            
+        if (price_deviation > allowed_extra_profit) {
+            // 重新定价K值，激励套利
+            K0 = K0 * (PRECISION + adjustment_step) / PRECISION;
+        }
+        
+        price_scale = new_price_scale;
+        last_prices_timestamp = block.timestamp;
+        
+        emit PriceOracleUpdated(price_oracle, price_scale);
+    }
+    
+    // 自适应参数调整
+    function update_parameters(
+        uint256 _future_A,
+        uint256 _future_gamma,
+        uint256 _future_time
+    ) external onlyOwner {
+        require(_future_time > block.timestamp + MIN_RAMP_TIME, "Too soon");
+        
+        // 限制参数变化幅度
+        require(_future_A > A / 10 && _future_A < A * 10, "A change too large");
+        require(_future_gamma > gamma / 10 && _future_gamma < gamma * 10, "gamma change too large");
+        
+        future_A = _future_A;
+        future_gamma = _future_gamma;
+        future_time = _future_time;
+        
+        emit ParametersUpdateScheduled(_future_A, _future_gamma, _future_time);
+    }
+    
+    // 获取当前有效参数（线性插值）
+    function get_A_gamma() public view returns (uint256 A_effective, uint256 gamma_effective) {
+        uint256 t = block.timestamp;
+        
+        if (t < future_time) {
+            // 线性过渡
+            uint256 elapsed = t - initial_time;
+            uint256 total_time = future_time - initial_time;
+            
+            A_effective = initial_A + (future_A - initial_A) * elapsed / total_time;
+            gamma_effective = initial_gamma + (future_gamma - initial_gamma) * elapsed / total_time;
+        } else {
+            A_effective = future_A;
+            gamma_effective = future_gamma;
+        }
+    }
+    
+    // 防止价格操纵的延迟机制
+    function claim_admin_fees() external {
+        require(block.timestamp > last_claim_time + MIN_CLAIM_INTERVAL, "Too frequent");
+        
+        // 只有当价格稳定时才能提取费用
+        uint256 price_threshold = PRECISION * 2 / 100; // 2%
+        require(
+            abs_diff(price_scale, price_oracle) < price_threshold,
+            "Price not stable"
+        );
+        
+        // 计算并转移管理费
+        uint256 admin_share = calculate_admin_fees();
+        _transfer_fees(admin_share);
+        
+        last_claim_time = block.timestamp;
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">V2参数优化的AI/ML方法 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-python"># 使用强化学习优化Curve V2参数
+import numpy as np
+import torch
+import torch.nn as nn
+from collections import deque
+
+class CurveV2Optimizer:
+    """基于深度强化学习的Curve V2参数优化器"""
+    
+    def __init__(self):
+        self.state_dim = 10  # 市场状态维度
+        self.action_dim = 4   # A, gamma, mid_fee, out_fee
+        
+        # 策略网络
+        self.policy_net = nn.Sequential(
+            nn.Linear(self.state_dim, 256),
+            nn.ReLU(),
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.Linear(128, self.action_dim),
+            nn.Sigmoid()  # 输出0-1范围
+        )
+        
+        # 经验回放
+        self.memory = deque(maxlen=10000)
+        
+    def get_market_state(self, pool_data):
+        """提取市场状态特征"""
+        state = []
+        
+        # 1. 价格偏离度
+        price_deviation = abs(pool_data['price_scale'] - pool_data['price_oracle']) / pool_data['price_oracle']
+        state.append(price_deviation)
+        
+        # 2. 池子不平衡度
+        total = sum(pool_data['balances'])
+        imbalance = max(pool_data['balances']) / total - 0.5
+        state.append(imbalance)
+        
+        # 3. 历史波动率（24h）
+        volatility = np.std(pool_data['price_history'][-96:]) / np.mean(pool_data['price_history'][-96:])
+        state.append(volatility)
+        
+        # 4. 交易量趋势
+        volume_ma_short = np.mean(pool_data['volume_history'][-24:])
+        volume_ma_long = np.mean(pool_data['volume_history'][-168:])
+        volume_trend = volume_ma_short / (volume_ma_long + 1e-8) - 1
+        state.append(volume_trend)
+        
+        # 5. 费用收益率
+        fee_apr = pool_data['fees_24h'] * 365 / pool_data['tvl']
+        state.append(fee_apr)
+        
+        # 6. 无常损失估计
+        il_estimate = self.estimate_impermanent_loss(pool_data)
+        state.append(il_estimate)
+        
+        # 7-10. 其他市场指标
+        state.extend([
+            pool_data['gas_price_gwei'] / 100,  # 标准化gas价格
+            pool_data['market_fear_greed'] / 100,  # 市场情绪
+            pool_data['competing_pools_tvl'] / pool_data['tvl'],  # 竞争态势
+            pool_data['arbitrage_volume'] / pool_data['total_volume']  # 套利占比
+        ])
+        
+        return np.array(state, dtype=np.float32)
+    
+    def predict_optimal_params(self, market_state):
+        """预测最优参数"""
+        with torch.no_grad():
+            state_tensor = torch.FloatTensor(market_state).unsqueeze(0)
+            raw_output = self.policy_net(state_tensor)
+            
+            # 将网络输出映射到实际参数范围
+            params = {
+                'A': int(10 + raw_output[0, 0].item() * 990),  # 10-1000
+                'gamma': int(1e14 + raw_output[0, 1].item() * 9e14),  # 0.0001-0.001
+                'mid_fee': int(1e6 + raw_output[0, 2].item() * 4e6),  # 0.01%-0.05%
+                'out_fee': int(1e7 + raw_output[0, 3].item() * 9e7)   # 0.1%-1%
+            }
+            
+        return params
+    
+    def simulate_parameter_impact(self, pool_state, new_params, horizon=24):
+        """模拟参数变更的影响"""
+        results = {
+            'revenue': [],
+            'il': [],
+            'volume': [],
+            'price_stability': []
+        }
+        
+        # 蒙特卡洛模拟
+        for _ in range(100):
+            sim_pool = self.create_pool_copy(pool_state)
+            sim_pool.update_parameters(new_params)
+            
+            for hour in range(horizon):
+                # 模拟市场活动
+                trades = self.generate_random_trades()
+                
+                for trade in trades:
+                    revenue = sim_pool.execute_trade(trade)
+                    results['revenue'].append(revenue)
+                
+                # 记录指标
+                results['il'].append(sim_pool.calculate_il())
+                results['volume'].append(sim_pool.get_volume())
+                results['price_stability'].append(sim_pool.get_price_stability())
+        
+        # 计算预期收益
+        expected_performance = {
+            'revenue': np.mean(results['revenue']),
+            'il': np.mean(results['il']),
+            'volume': np.mean(results['volume']),
+            'sharpe_ratio': self.calculate_sharpe_ratio(results)
+        }
+        
+        return expected_performance
+    
+    def auto_tune_parameters(self, pool_address):
+        """自动调参主循环"""
+        pool = CurveV2Pool(pool_address)
+        
+        while True:
+            # 获取当前市场状态
+            pool_data = pool.get_current_data()
+            market_state = self.get_market_state(pool_data)
+            
+            # 预测最优参数
+            optimal_params = self.predict_optimal_params(market_state)
+            
+            # 模拟影响
+            impact = self.simulate_parameter_impact(pool_data, optimal_params)
+            
+            # 决策：是否更新参数
+            if impact['sharpe_ratio'] > pool_data['current_sharpe'] * 1.1:
+                # 预期性能提升10%以上，执行更新
+                print(f"Updating parameters: {optimal_params}")
+                pool.schedule_parameter_update(optimal_params)
+                
+                # 记录结果用于学习
+                self.memory.append({
+                    'state': market_state,
+                    'action': optimal_params,
+                    'reward': None  # 将在未来填充实际结果
+                })
+            
+            # 等待下一个周期
+            time.sleep(3600)  # 每小时检查一次
+
+# 使用示例
+optimizer = CurveV2Optimizer()
+optimizer.auto_tune_parameters("0x...")  # Curve V2池地址</code></pre>
+            </div>
+        </div>
+
+        <h3>6.4 高级AMM优化策略</h3>
+        
+        <h4>6.4.1 混合AMM设计</h4>
+        <p>结合不同AMM模型的优点，为稳定币创造更高效的交易环境：</p>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">混合AMM实现 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">contract HybridStableSwap {
+    // 结合Curve和Uniswap V3的优点
+    
+    uint256 private constant CURVE_THRESHOLD = 100; // 基点，1%
+    uint256 private constant A = 100; // Curve放大系数
+    
+    IUniswapV3Pool public immutable uniV3Pool;
+    IStableSwap public immutable curvePool;
+    
+    struct RouteParams {
+        bool useCurve;
+        uint256 expectedOut;
+        uint256 priceImpact;
+        uint256 gasEstimate;
+    }
+    
+    // 智能路由：选择最优AMM
+    function findBestRoute(
+        address tokenIn,
+        address tokenOut,
+        uint256 amountIn
+    ) public view returns (RouteParams memory best) {
+        // 获取Curve报价
+        uint256 curveOut = _getCurveQuote(tokenIn, tokenOut, amountIn);
+        uint256 curvePriceImpact = _calculatePriceImpact(amountIn, curveOut);
+        
+        // 获取UniV3报价
+        uint256 uniV3Out = _getUniV3Quote(tokenIn, tokenOut, amountIn);
+        uint256 uniV3PriceImpact = _calculatePriceImpact(amountIn, uniV3Out);
+        
+        // 考虑Gas成本
+        uint256 curveGas = 150000; // 估计值
+        uint256 uniV3Gas = 180000; // 估计值
+        
+        // 决策逻辑
+        if (curvePriceImpact < CURVE_THRESHOLD && curveOut > uniV3Out) {
+            best = RouteParams({
+                useCurve: true,
+                expectedOut: curveOut,
+                priceImpact: curvePriceImpact,
+                gasEstimate: curveGas
+            });
+        } else {
+            best = RouteParams({
+                useCurve: false,
+                expectedOut: uniV3Out,
+                priceImpact: uniV3PriceImpact,
+                gasEstimate: uniV3Gas
+            });
+        }
+    }
+    
+    // 执行最优路由交换
+    function smartSwap(
+        address tokenIn,
+        address tokenOut,
+        uint256 amountIn,
+        uint256 minAmountOut,
+        address recipient
+    ) external returns (uint256 amountOut) {
+        RouteParams memory route = findBestRoute(tokenIn, tokenOut, amountIn);
+        require(route.expectedOut >= minAmountOut, "Insufficient output");
+        
+        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
+        
+        if (route.useCurve) {
+            IERC20(tokenIn).approve(address(curvePool), amountIn);
+            amountOut = curvePool.exchange(
+                _getTokenIndex(tokenIn),
+                _getTokenIndex(tokenOut),
+                amountIn,
+                minAmountOut,
+                recipient
+            );
+        } else {
+            amountOut = _swapOnUniV3(tokenIn, tokenOut, amountIn, minAmountOut, recipient);
+        }
+        
+        emit SmartSwapExecuted(
+            tokenIn,
+            tokenOut,
+            amountIn,
+            amountOut,
+            route.useCurve,
+            route.priceImpact
+        );
+    }
+    
+    // 动态流动性分配
+    function rebalanceLiquidity() external {
+        // 获取两个池的TVL和交易量
+        uint256 curveTVL = _getCurveTVL();
+        uint256 uniV3TVL = _getUniV3TVL();
+        uint256 curveVolume24h = _getCurveVolume24h();
+        uint256 uniV3Volume24h = _getUniV3Volume24h();
+        
+        // 计算效率指标
+        uint256 curveEfficiency = curveVolume24h * 1e18 / curveTVL;
+        uint256 uniV3Efficiency = uniV3Volume24h * 1e18 / uniV3TVL;
+        
+        // 根据效率调整流动性分配
+        if (curveEfficiency > uniV3Efficiency * 120 / 100) {
+            // Curve效率高20%以上，增加Curve流动性
+            _shiftLiquidityToCurve();
+        } else if (uniV3Efficiency > curveEfficiency * 120 / 100) {
+            // UniV3效率高20%以上，增加UniV3流动性
+            _shiftLiquidityToUniV3();
+        }
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <h4>6.4.2 MEV防护机制</h4>
+        <p>稳定币AMM特别容易受到MEV攻击，需要专门的防护机制：</p>
+        
+        <div class="tip-box">
+            <strong>🛡️ MEV攻击类型：</strong>
+            <ul>
+                <li><strong>三明治攻击：</strong>在大额交易前后插入交易获利</li>
+                <li><strong>套利攻击：</strong>利用不同池之间的价格差</li>
+                <li><strong>JIT流动性：</strong>在交易前添加流动性，交易后立即移除</li>
+            </ul>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">MEV防护AMM <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">contract MEVProtectedAMM {
+    using SafeMath for uint256;
+    
+    uint256 private constant TWAP_WINDOW = 600; // 10分钟
+    uint256 private constant MAX_PRICE_IMPACT = 50; // 0.5%
+    uint256 private constant COMMIT_DELAY = 2; // 2个区块延迟
+    
+    struct PriceObservation {
+        uint256 timestamp;
+        uint256 price0Cumulative;
+        uint256 price1Cumulative;
+    }
+    
+    struct CommitData {
+        address user;
+        bytes32 commitment;
+        uint256 blockNumber;
+        bool revealed;
+    }
+    
+    PriceObservation[] public observations;
+    mapping(bytes32 => CommitData) public commitments;
+    
+    // TWAP价格计算
+    function getTWAPPrice() public view returns (uint256) {
+        require(observations.length >= 2, "Insufficient observations");
+        
+        uint256 length = observations.length;
+        PriceObservation memory oldest = observations[length - 2];
+        PriceObservation memory newest = observations[length - 1];
+        
+        uint256 timeElapsed = newest.timestamp - oldest.timestamp;
+        require(timeElapsed >= TWAP_WINDOW, "TWAP window too small");
+        
+        uint256 price0Average = (newest.price0Cumulative - oldest.price0Cumulative) / timeElapsed;
+        uint256 price1Average = (newest.price1Cumulative - oldest.price1Cumulative) / timeElapsed;
+        
+        return price0Average * 1e18 / price1Average;
+    }
+    
+    // Commit-Reveal机制防止抢跑
+    function commitSwap(
+        bytes32 commitment
+    ) external {
+        bytes32 commitId = keccak256(abi.encodePacked(msg.sender, commitment));
+        
+        commitments[commitId] = CommitData({
+            user: msg.sender,
+            commitment: commitment,
+            blockNumber: block.number,
+            revealed: false
+        });
+        
+        emit SwapCommitted(msg.sender, commitId, block.number);
+    }
+    
+    function revealSwap(
+        address tokenIn,
+        address tokenOut,
+        uint256 amountIn,
+        uint256 minAmountOut,
+        uint256 nonce
+    ) external returns (uint256 amountOut) {
+        // 验证commitment
+        bytes32 commitment = keccak256(abi.encodePacked(
+            tokenIn,
+            tokenOut,
+            amountIn,
+            minAmountOut,
+            nonce
+        ));
+        
+        bytes32 commitId = keccak256(abi.encodePacked(msg.sender, commitment));
+        CommitData storage commit = commitments[commitId];
+        
+        require(commit.user == msg.sender, "Invalid commitment");
+        require(!commit.revealed, "Already revealed");
+        require(block.number >= commit.blockNumber + COMMIT_DELAY, "Too early");
+        require(block.number <= commit.blockNumber + COMMIT_DELAY + 10, "Too late");
+        
+        commit.revealed = true;
+        
+        // 价格检查
+        uint256 twapPrice = getTWAPPrice();
+        uint256 spotPrice = getSpotPrice();
+        uint256 priceDeviation = spotPrice > twapPrice ? 
+            (spotPrice - twapPrice) * 10000 / twapPrice :
+            (twapPrice - spotPrice) * 10000 / twapPrice;
+        
+        require(priceDeviation <= MAX_PRICE_IMPACT, "Price manipulation detected");
+        
+        // 执行交换
+        amountOut = _executeSwap(tokenIn, tokenOut, amountIn, minAmountOut);
+        
+        emit SwapExecuted(msg.sender, tokenIn, tokenOut, amountIn, amountOut);
+    }
+    
+    // 批量交易以分摊Gas成本
+    function batchSwap(
+        SwapData[] calldata swaps
+    ) external {
+        uint256 totalGasSaved = 0;
+        
+        for (uint256 i = 0; i < swaps.length; i++) {
+            SwapData memory swap = swaps[i];
+            
+            // 检查是否可以合并相同路径的交易
+            uint256 combinedAmountIn = swap.amountIn;
+            uint256 j = i + 1;
+            
+            while (j < swaps.length && 
+                   swaps[j].tokenIn == swap.tokenIn && 
+                   swaps[j].tokenOut == swap.tokenOut) {
+                combinedAmountIn += swaps[j].amountIn;
+                j++;
+            }
+            
+            // 执行合并后的交换
+            if (j > i + 1) {
+                uint256 amountOut = _executeSwap(
+                    swap.tokenIn,
+                    swap.tokenOut,
+                    combinedAmountIn,
+                    0
+                );
+                
+                // 按比例分配输出
+                for (uint256 k = i; k < j; k++) {
+                    uint256 userAmountOut = amountOut * swaps[k].amountIn / combinedAmountIn;
+                    IERC20(swap.tokenOut).transfer(swaps[k].recipient, userAmountOut);
+                }
+                
+                totalGasSaved += (j - i - 1) * 100000; // 估计节省的Gas
+                i = j - 1; // 跳过已处理的交易
+            } else {
+                _executeSwap(
+                    swap.tokenIn,
+                    swap.tokenOut,
+                    swap.amountIn,
+                    swap.minAmountOut
+                );
+            }
+        }
+        
+        emit BatchSwapExecuted(swaps.length, totalGasSaved);
+    }
+    
+    // 延迟价格更新防止操纵
+    function updatePriceOracle() external {
+        uint256 timeElapsed = block.timestamp - observations[observations.length - 1].timestamp;
+        require(timeElapsed >= 60, "Update too frequent"); // 最少1分钟间隔
+        
+        (uint112 reserve0, uint112 reserve1,) = getReserves();
+        
+        uint256 price0Cumulative = observations[observations.length - 1].price0Cumulative + 
+            reserve1 * timeElapsed / reserve0;
+        uint256 price1Cumulative = observations[observations.length - 1].price1Cumulative + 
+            reserve0 * timeElapsed / reserve1;
+        
+        observations.push(PriceObservation({
+            timestamp: block.timestamp,
+            price0Cumulative: price0Cumulative,
+            price1Cumulative: price1Cumulative
+        }));
+        
+        // 限制数组大小
+        if (observations.length > 24) {
+            for (uint256 i = 0; i < observations.length - 24; i++) {
+                observations[i] = observations[i + 1];
+            }
+            observations.pop();
+        }
+    }
+}</code></pre>
+            </div>
+        </div>
+
+        <h3>6.5 2024年最新发展趋势</h3>
+        
+        <h4>6.5.1 Uniswap V4 Hooks：可组合的AMM新范式</h4>
+        <div class="info-box">
+            <h5>🔗 Hooks带来的革命性变化</h5>
+            <ul>
+                <li><strong>自定义逻辑：</strong>在交易生命周期的任何点插入自定义代码</li>
+                <li><strong>动态费用：</strong>基于任意逻辑实时调整费用</li>
+                <li><strong>MEV内部化：</strong>将MEV收益返还给LP而非套利者</li>
+                <li><strong>条件订单：</strong>实现限价单、止损单等复杂订单类型</li>
+            </ul>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">Uniswap V4 稳定币专用Hook示例 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">contract StablecoinOptimizedHook is BaseHook {
+    using FixedPoint96 for uint256;
+    
+    // Hook配置
+    struct HookConfig {
+        uint24 baseFee;           // 基础费用
+        uint24 maxFee;            // 最大费用
+        uint256 targetRatio;      // 目标平衡比例
+        uint256 priceThreshold;   // 价格偏离阈值
+        bool enableMEVProtection; // MEV保护开关
+    }
+    
+    mapping(PoolId => HookConfig) public poolConfigs;
+    mapping(PoolId => uint256) public lastTradeTimestamp;
+    
+    function beforeSwap(
+        address sender,
+        PoolKey calldata key,
+        IPoolManager.SwapParams calldata params
+    ) external override returns (bytes4) {
+        // 1. 动态费用调整
+        uint24 dynamicFee = calculateDynamicFee(key.toId(), params);
+        
+        // 2. MEV保护：检测潜在的三明治攻击
+        if (poolConfigs[key.toId()].enableMEVProtection) {
+            require(
+                block.timestamp > lastTradeTimestamp[key.toId()] + 1,
+                "Too frequent trading"
+            );
+        }
+        
+        // 3. 大额交易警告
+        if (params.amountSpecified > getPoolLiquidity(key.toId()) / 100) {
+            emit LargeTradeWarning(sender, params.amountSpecified);
+        }
+        
+        // 更新费用
+        poolManager.updateDynamicFee(key, dynamicFee);
+        
+        return BaseHook.beforeSwap.selector;
+    }
+    
+    function afterSwap(
+        address sender,
+        PoolKey calldata key,
+        IPoolManager.SwapParams calldata params,
+        BalanceDelta delta
+    ) external override returns (bytes4) {
+        // 1. 更新价格预言机
+        updateInternalOracle(key.toId(), delta);
+        
+        // 2. 检查是否需要触发再平衡
+        if (shouldRebalance(key.toId())) {
+            triggerRebalance(key.toId());
+        }
+        
+        // 3. 分配MEV收益给LP
+        uint256 mevRevenue = calculateMEVRevenue(params, delta);
+        if (mevRevenue > 0) {
+            distributeMEVToLPs(key.toId(), mevRevenue);
+        }
+        
+        lastTradeTimestamp[key.toId()] = block.timestamp;
+        
+        return BaseHook.afterSwap.selector;
+    }
+    
+    function calculateDynamicFee(
+        PoolId poolId,
+        IPoolManager.SwapParams calldata params
+    ) internal view returns (uint24) {
+        HookConfig memory config = poolConfigs[poolId];
+        
+        // 获取池子状态
+        (uint256 balance0, uint256 balance1) = getPoolBalances(poolId);
+        uint256 totalBalance = balance0 + balance1;
+        
+        // 计算不平衡度
+        uint256 imbalance = balance0 > balance1 ?
+            (balance0 - balance1) * 1e6 / totalBalance :
+            (balance1 - balance0) * 1e6 / totalBalance;
+            
+        // 根据交易方向调整费用
+        bool isBalancing = (params.zeroForOne && balance0 > balance1) ||
+                          (!params.zeroForOne && balance1 > balance0);
+                          
+        if (isBalancing) {
+            // 有助于平衡的交易，降低费用
+            return config.baseFee / 2;
+        } else {
+            // 加剧不平衡的交易，提高费用
+            uint24 fee = config.baseFee + uint24(imbalance * (config.maxFee - config.baseFee) / 1e6);
+            return fee > config.maxFee ? config.maxFee : fee;
+        }
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <h4>6.5.2 AI驱动的流动性管理</h4>
+        <p>2024年见证了AI在DeFi中的实际应用，特别是在流动性管理和参数优化方面：</p>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">基于Transformer的流动性预测模型 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-python"># 使用Transformer预测最优流动性分配
+import torch
+import torch.nn as nn
+import numpy as np
+from transformers import TimeSeriesTransformerModel
+
+class LiquidityOptimizer:
+    def __init__(self):
+        # 预训练的市场预测模型
+        self.market_predictor = TimeSeriesTransformerModel.from_pretrained(
+            "defi-market-predictor-v2"
+        )
+        
+        # 流动性分配网络
+        self.allocation_net = nn.Sequential(
+            nn.Linear(256, 512),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Linear(256, 10),  # 最多10个池子
+            nn.Softmax(dim=-1)
+        )
+        
+    def predict_market_conditions(self, historical_data):
+        """预测未来24小时的市场条件"""
+        # 准备输入数据
+        features = self.extract_features(historical_data)
+        
+        # Transformer预测
+        with torch.no_grad():
+            predictions = self.market_predictor(
+                input_ids=features['price_series'],
+                attention_mask=features['mask']
+            )
+        
+        # 解析预测结果
+        market_forecast = {
+            'volatility': predictions.volatility_forecast,
+            'volume': predictions.volume_forecast,
+            'correlation_matrix': predictions.correlation_forecast,
+            'black_swan_probability': predictions.tail_risk_estimate
+        }
+        
+        return market_forecast
+    
+    def optimize_liquidity_allocation(self, 
+                                    available_capital,
+                                    pool_candidates,
+                                    risk_tolerance):
+        """优化跨多个池子的流动性分配"""
+        
+        # 1. 获取市场预测
+        market_forecast = self.predict_market_conditions(self.get_market_data())
+        
+        # 2. 评估每个池子
+        pool_scores = []
+        for pool in pool_candidates:
+            score = self.evaluate_pool(pool, market_forecast)
+            pool_scores.append(score)
+        
+        # 3. 运行优化
+        allocation = self.solve_markowitz_optimization(
+            expected_returns=pool_scores['returns'],
+            covariance_matrix=pool_scores['risks'],
+            risk_tolerance=risk_tolerance
+        )
+        
+        # 4. 考虑实际约束
+        allocation = self.apply_practical_constraints(
+            allocation,
+            min_position_size=1000,  # $1000最小仓位
+            max_concentration=0.3,    # 单池最大30%
+            gas_budget=available_capital * 0.01  # 1% gas预算
+        )
+        
+        return allocation
+    
+    def real_time_rebalancing(self, current_positions):
+        """实时再平衡决策"""
+        rebalance_actions = []
+        
+        for position in current_positions:
+            # 计算当前表现
+            performance = self.calculate_position_performance(position)
+            
+            # 预测未来表现
+            future_performance = self.predict_position_performance(
+                position,
+                horizon=24  # 24小时
+            )
+            
+            # 再平衡决策
+            if self.should_rebalance(performance, future_performance):
+                action = self.generate_rebalance_action(position)
+                rebalance_actions.append(action)
+        
+        # 批量优化以节省gas
+        optimized_actions = self.batch_optimize_actions(rebalance_actions)
+        
+        return optimized_actions
+
+# 实际应用
+optimizer = LiquidityOptimizer()
+allocation = optimizer.optimize_liquidity_allocation(
+    available_capital=1000000,  # $1M
+    pool_candidates=['USDC/DAI', 'USDC/USDT', 'DAI/FRAX'],
+    risk_tolerance=0.05  # 5%最大回撤
+)</code></pre>
+            </div>
+        </div>
+        
+        <h4>6.5.3 跨链流动性聚合与原生稳定币</h4>
+        <div class="tip-box">
+            <strong>🌉 2024年跨链发展</strong>
+            <ul>
+                <li><strong>LayerZero OFT：</strong>原生跨链稳定币，无需桥接</li>
+                <li><strong>Chainlink CCIP：</strong>安全的跨链流动性转移</li>
+                <li><strong>统一流动性层：</strong>多链共享流动性池</li>
+                <li><strong>Intent-based架构：</strong>用户表达意图，协议自动寻找最优路径</li>
+            </ul>
+        </div>
+        
+        <h4>6.5.4 流动性激励与veTokenomics</h4>
+        <p>理解现代AMM不能忽视其经济激励层，特别是Curve开创的ve模型：</p>
+        
+        <div class="info-box">
+            <h5>💰 veTokenomics核心机制</h5>
+            <ul>
+                <li><strong>投票托管（Vote Escrow）：</strong>锁定治理代币获得投票权</li>
+                <li><strong>收益加速：</strong>veCRV持有者可将LP收益提升至2.5倍</li>
+                <li><strong>贿赂市场：</strong>协议通过贿赂veCRV持有者引导流动性</li>
+                <li><strong>Gauge权重：</strong>投票决定各池子的CRV释放量</li>
+            </ul>
+        </div>
+
+        <h3>练习题</h3>
+        
+        <div class="exercise">
+            <h4>练习 6.1：实现动态费用AMM</h4>
+            <p>设计一个AMM，根据以下因素动态调整交易费用：</p>
+            <ul>
+                <li>池子的不平衡程度</li>
+                <li>交易规模相对于池子大小</li>
+                <li>市场波动率</li>
+                <li>历史交易频率</li>
+            </ul>
+            <p>要求费用在0.01%到1%之间动态调整。</p>
+            
+            <button onclick="toggleAnswer('answer6-1')">查看参考答案</button>
+            <div id="answer6-1" class="answer">
+                <h4>参考答案：</h4>
+                <pre><code class="language-solidity">contract DynamicFeeAMM {
+    uint256 private constant MIN_FEE = 1; // 0.01%
+    uint256 private constant MAX_FEE = 100; // 1%
+    uint256 private constant FEE_DENOMINATOR = 10000;
+    
+    uint256 public volatilityWindow = 1 hours;
+    uint256 public volumeDecayFactor = 9900; // 99%衰减
+    
+    struct FeeParameters {
+        uint256 imbalanceFee;
+        uint256 sizeFee;
+        uint256 volatilityFee;
+        uint256 frequencyFee;
+    }
+    
+    function calculateDynamicFee(
+        uint256 amountIn,
+        uint256 reserveIn,
+        uint256 reserveOut
+    ) public view returns (uint256 fee) {
+        FeeParameters memory params;
+        
+        // 1. 不平衡费用
+        uint256 totalReserves = reserveIn + reserveOut;
+        uint256 imbalanceRatio = reserveIn > reserveOut ?
+            (reserveIn - reserveOut) * FEE_DENOMINATOR / totalReserves :
+            (reserveOut - reserveIn) * FEE_DENOMINATOR / totalReserves;
+        params.imbalanceFee = imbalanceRatio * MAX_FEE / FEE_DENOMINATOR;
+        
+        // 2. 交易规模费用
+        uint256 sizeRatio = amountIn * FEE_DENOMINATOR / reserveIn;
+        params.sizeFee = sizeRatio * MAX_FEE / (FEE_DENOMINATOR * 10); // 10%的reserve收最高费
+        
+        // 3. 波动率费用
+        uint256 volatility = getHistoricalVolatility();
+        params.volatilityFee = volatility > 100 ? // 1%日波动率
+            (volatility - 100) * MAX_FEE / 1000 : 0;
+        
+        // 4. 交易频率费用
+        uint256 recentVolume = getRecentVolume();
+        uint256 volumeRatio = recentVolume * FEE_DENOMINATOR / totalReserves;
+        params.frequencyFee = volumeRatio > FEE_DENOMINATOR ?
+            MAX_FEE / 2 : volumeRatio * MAX_FEE / (FEE_DENOMINATOR * 2);
+        
+        // 综合计算（加权平均）
+        fee = (params.imbalanceFee * 30 + 
+               params.sizeFee * 30 + 
+               params.volatilityFee * 20 + 
+               params.frequencyFee * 20) / 100;
+        
+        // 限制在最小最大范围内
+        if (fee < MIN_FEE) fee = MIN_FEE;
+        if (fee > MAX_FEE) fee = MAX_FEE;
+    }
+    
+    function getHistoricalVolatility() private view returns (uint256) {
+        // 计算过去1小时的价格标准差
+        uint256 priceSum = 0;
+        uint256 priceSquareSum = 0;
+        uint256 count = 0;
+        
+        for (uint256 i = priceHistory.length - 1; i > 0; i--) {
+            if (block.timestamp - priceHistory[i].timestamp > volatilityWindow) break;
+            
+            priceSum += priceHistory[i].price;
+            priceSquareSum += priceHistory[i].price ** 2;
+            count++;
+        }
+        
+        if (count < 2) return 0;
+        
+        uint256 mean = priceSum / count;
+        uint256 variance = priceSquareSum / count - mean ** 2;
+        
+        return sqrt(variance) * 10000 / mean; // 基点表示
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <div class="exercise">
+            <h4>练习 6.2：优化稳定币对的流动性管理</h4>
+            <p>创建一个自动流动性管理器，实现：</p>
+            <ul>
+                <li>自动识别最优价格范围</li>
+                <li>根据费用收益和无常损失动态调整</li>
+                <li>多池聚合以最大化收益</li>
+                <li>风险管理和止损机制</li>
+            </ul>
+            
+            <button onclick="toggleAnswer('answer6-2')">查看参考答案</button>
+            <div id="answer6-2" class="answer">
+                <h4>参考答案：</h4>
+                <pre><code class="language-solidity">contract StablecoinLiquidityOptimizer {
+    struct Position {
+        uint256 tokenId;
+        address pool;
+        int24 tickLower;
+        int24 tickUpper;
+        uint128 liquidity;
+        uint256 feeEarned;
+        uint256 impermanentLoss;
+        uint256 lastRebalance;
+    }
+    
+    mapping(uint256 => Position) public positions;
+    uint256 public nextPositionId;
+    
+    uint256 public maxImpermanentLoss = 50; // 0.5%
+    uint256 public minFeeAPY = 500; // 5% APY
+    uint256 public rebalanceInterval = 1 days;
+    
+    function optimizePosition(
+        address token0,
+        address token1,
+        uint256 amount0,
+        uint256 amount1
+    ) external returns (uint256 positionId) {
+        // 1. 分析历史数据找出最优范围
+        (int24 optimalLower, int24 optimalUpper) = findOptimalRange(token0, token1);
+        
+        // 2. 评估不同池的收益潜力
+        PoolEvaluation[] memory evaluations = evaluatePools(token0, token1);
+        
+        // 3. 分配流动性到多个池
+        for (uint256 i = 0; i < evaluations.length && i < 3; i++) {
+            if (evaluations[i].expectedAPY > minFeeAPY) {
+                uint256 allocation = calculateOptimalAllocation(
+                    evaluations[i],
+                    amount0,
+                    amount1
+                );
+                
+                if (allocation > 0) {
+                    uint256 tokenId = deployLiquidity(
+                        evaluations[i].pool,
+                        amount0 * allocation / 100,
+                        amount1 * allocation / 100,
+                        optimalLower,
+                        optimalUpper
+                    );
+                    
+                    positions[nextPositionId++] = Position({
+                        tokenId: tokenId,
+                        pool: evaluations[i].pool,
+                        tickLower: optimalLower,
+                        tickUpper: optimalUpper,
+                        liquidity: getLiquidityAmount(tokenId),
+                        feeEarned: 0,
+                        impermanentLoss: 0,
+                        lastRebalance: block.timestamp
+                    });
+                }
+            }
+        }
+        
+        return nextPositionId - 1;
+    }
+    
+    function autoRebalance(uint256 positionId) external {
+        Position storage pos = positions[positionId];
+        require(block.timestamp >= pos.lastRebalance + rebalanceInterval, "Too soon");
+        
+        // 计算当前表现
+        (uint256 currentFees, uint256 currentIL) = calculatePerformance(pos);
+        
+        // 检查是否需要调整
+        bool needsRebalance = false;
+        
+        if (currentIL > maxImpermanentLoss) {
+            needsRebalance = true; // IL过高
+        }
+        
+        uint256 feeAPY = currentFees * 365 days * 10000 / 
+                         (pos.liquidity * (block.timestamp - pos.lastRebalance));
+        
+        if (feeAPY < minFeeAPY) {
+            needsRebalance = true; // 收益过低
+        }
+        
+        if (needsRebalance) {
+            // 收集流动性和费用
+            collectAndRemove(pos.tokenId);
+            
+            // 重新优化部署
+            optimizePosition(
+                getToken0(pos.pool),
+                getToken1(pos.pool),
+                getBalance0(),
+                getBalance1()
+            );
+        }
+        
+        pos.lastRebalance = block.timestamp;
+    }
+    
+    function findOptimalRange(
+        address token0,
+        address token1
+    ) private view returns (int24 tickLower, int24 tickUpper) {
+        // 分析历史价格分布
+        uint256[] memory priceDistribution = getPriceDistribution(token0, token1, 30 days);
+        
+        // 找出包含95%交易的价格范围
+        uint256 percentile25 = getPercentile(priceDistribution, 25);
+        uint256 percentile75 = getPercentile(priceDistribution, 75);
+        
+        // 转换为tick
+        tickLower = priceToTick(percentile25);
+        tickUpper = priceToTick(percentile75);
+        
+        // 确保范围不太窄
+        int24 minWidth = 10; // 最小10个tick
+        if (tickUpper - tickLower < minWidth) {
+            int24 mid = (tickLower + tickUpper) / 2;
+            tickLower = mid - minWidth / 2;
+            tickUpper = mid + minWidth / 2;
+        }
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <div class="exercise">
+            <h4>练习 6.3：实现跨链AMM聚合器</h4>
+            <p>构建一个跨链AMM聚合器，要求：</p>
+            <ul>
+                <li>聚合多条链上的流动性</li>
+                <li>自动选择最优执行路径</li>
+                <li>处理跨链延迟和失败</li>
+                <li>优化Gas成本</li>
+            </ul>
+            
+            <button onclick="toggleAnswer('answer6-3')">查看参考答案</button>
+            <div id="answer6-3" class="answer">
+                <h4>参考答案：</h4>
+                <pre><code class="language-solidity">contract CrossChainAMMAggregator {
+    using LayerZeroEndpoint for address;
+    
+    struct ChainLiquidity {
+        uint16 chainId;
+        address[] amms;
+        uint256[] reserves;
+        uint256[] fees;
+        uint256 gasPrice;
+    }
+    
+    struct CrossChainRoute {
+        uint16[] chains;
+        address[] amms;
+        uint256[] amounts;
+        uint256 totalGas;
+        uint256 estimatedOut;
+    }
+    
+    mapping(uint16 => ChainLiquidity) public chainLiquidities;
+    mapping(bytes32 => PendingSwap) public pendingSwaps;
+    
+    ILayerZeroEndpoint public immutable lzEndpoint;
+    
+    function findBestCrossChainRoute(
+        address tokenIn,
+        address tokenOut,
+        uint256 amountIn,
+        uint16[] memory targetChains
+    ) public view returns (CrossChainRoute memory bestRoute) {
+        uint256 bestOutput = 0;
+        
+        // 单链执行
+        for (uint256 i = 0; i < targetChains.length; i++) {
+            (uint256 output, uint256 gas) = getChainQuote(
+                targetChains[i],
+                tokenIn,
+                tokenOut,
+                amountIn
+            );
+            
+            if (output > bestOutput) {
+                bestOutput = output;
+                bestRoute = CrossChainRoute({
+                    chains: new uint16[](1),
+                    amms: new address[](1),
+                    amounts: new uint256[](1),
+                    totalGas: gas,
+                    estimatedOut: output
+                });
+                bestRoute.chains[0] = targetChains[i];
+            }
+        }
+        
+        // 多链分割执行
+        if (targetChains.length > 1) {
+            CrossChainRoute memory splitRoute = optimizeSplitRoute(
+                tokenIn,
+                tokenOut,
+                amountIn,
+                targetChains
+            );
+            
+            if (splitRoute.estimatedOut > bestOutput) {
+                bestRoute = splitRoute;
+            }
+        }
+    }
+    
+    function executeCrossChainSwap(
+        CrossChainRoute memory route,
+        uint256 minAmountOut,
+        address recipient
+    ) external payable {
+        require(route.estimatedOut >= minAmountOut, "Slippage");
+        
+        bytes32 swapId = keccak256(abi.encodePacked(
+            msg.sender,
+            route.chains,
+            block.timestamp
+        ));
+        
+        pendingSwaps[swapId] = PendingSwap({
+            user: msg.sender,
+            recipient: recipient,
+            expectedOut: route.estimatedOut,
+            receivedOut: 0,
+            completedChains: 0,
+            totalChains: route.chains.length,
+            deadline: block.timestamp + 30 minutes
+        });
+        
+        // 执行每条链的交换
+        for (uint256 i = 0; i < route.chains.length; i++) {
+            if (route.chains[i] == getChainId()) {
+                // 本链执行
+                executeLocalSwap(
+                    route.amms[i],
+                    route.amounts[i],
+                    swapId
+                );
+            } else {
+                // 跨链执行
+                bytes memory payload = abi.encode(
+                    swapId,
+                    route.amms[i],
+                    route.amounts[i],
+                    recipient
+                );
+                
+                lzEndpoint.send{value: msg.value / route.chains.length}(
+                    route.chains[i],
+                    abi.encodePacked(address(this)),
+                    payload,
+                    payable(msg.sender),
+                    address(0),
+                    bytes("")
+                );
+            }
+        }
+    }
+    
+    function lzReceive(
+        uint16 _srcChainId,
+        bytes memory _srcAddress,
+        uint64 _nonce,
+        bytes memory _payload
+    ) external {
+        require(msg.sender == address(lzEndpoint), "Invalid endpoint");
+        
+        (bytes32 swapId, address amm, uint256 amount, address recipient) = 
+            abi.decode(_payload, (bytes32, address, uint256, address));
+        
+        PendingSwap storage swap = pendingSwaps[swapId];
+        require(swap.deadline > block.timestamp, "Expired");
+        
+        // 执行交换
+        uint256 amountOut = IAMM(amm).swap(amount, recipient);
+        
+        swap.receivedOut += amountOut;
+        swap.completedChains++;
+        
+        if (swap.completedChains == swap.totalChains) {
+            // 检查滑点
+            require(
+                swap.receivedOut >= swap.expectedOut * 95 / 100,
+                "Excessive slippage"
+            );
+            
+            emit CrossChainSwapCompleted(swapId, swap.receivedOut);
+            delete pendingSwaps[swapId];
+        }
+    }
+    
+    // 失败处理
+    function handleFailedSwap(bytes32 swapId) external {
+        PendingSwap storage swap = pendingSwaps[swapId];
+        require(swap.user == msg.sender, "Not owner");
+        require(swap.deadline < block.timestamp, "Not expired");
+        require(swap.completedChains < swap.totalChains, "Already completed");
+        
+        // 返还已完成部分
+        if (swap.receivedOut > 0) {
+            IERC20(tokenOut).transfer(swap.recipient, swap.receivedOut);
+        }
+        
+        // 触发未完成链的退款流程
+        for (uint256 i = 0; i < swap.totalChains; i++) {
+            if (!isChainCompleted(swapId, i)) {
+                triggerRefund(swap.chains[i], swapId);
+            }
+        }
+        
+        emit CrossChainSwapFailed(swapId, swap.completedChains, swap.totalChains);
+        delete pendingSwaps[swapId];
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <div class="exercise">
+            <h4>练习 6.4：设计专用稳定币AMM曲线</h4>
+            <p>设计一个新的AMM曲线，专门优化稳定币交易：</p>
+            <ul>
+                <li>在0.99-1.01范围内提供极低滑点</li>
+                <li>支持多资产池（3个以上稳定币）</li>
+                <li>动态调整曲线参数</li>
+                <li>内置脱锚保护机制</li>
+            </ul>
+            
+            <button onclick="toggleAnswer('answer6-4')">查看参考答案</button>
+            <div id="answer6-4" class="answer">
+                <h4>参考答案：</h4>
+                <pre><code class="language-solidity">contract AdvancedStableCurve {
+    using FixedPoint for uint256;
+    
+    uint256 private constant PRECISION = 1e18;
+    uint256 private constant A_MULTIPLIER = 10000;
+    
+    struct PoolParams {
+        uint256 A;              // 放大系数
+        uint256 gamma;          // 曲率参数
+        uint256 beta;           // 价格影响参数
+        uint256 delta;          // 脱锚惩罚参数
+        uint256[] weights;      // 资产权重
+        uint256 lastUpdateTime;
+    }
+    
+    PoolParams public params;
+    uint256[] public balances;
+    uint256 public D; // 不变量
+    
+    // 新的不变量公式：混合几何平均和算术平均
+    function computeD(uint256[] memory xp) private view returns (uint256) {
+        uint256 n = xp.length;
+        uint256 s = 0;
+        uint256 p = PRECISION;
+        
+        for (uint256 i = 0; i < n; i++) {
+            s += xp[i];
+            p = p * xp[i] / PRECISION;
+        }
+        
+        if (s == 0) return 0;
+        
+        uint256 nPow = PRECISION;
+        for (uint256 i = 0; i < n - 1; i++) {
+            nPow = nPow * n / PRECISION;
+        }
+        
+        uint256 d = s;
+        uint256 d_prev;
+        uint256 ann = params.A * nPow;
+        
+        // 混合不变量：D^n + b*D = a*sum(x_i) + c*prod(x_i)
+        for (uint256 i = 0; i < 255; i++) {
+            uint256 dp = d;
+            for (uint256 j = 0; j < n; j++) {
+                dp = dp * d / (xp[j] * n);
+            }
+            
+            d_prev = d;
+            
+            // 加入曲率调整
+            uint256 gamma_adj = PRECISION + params.gamma * (s - d) / s;
+            
+            d = (ann * s * gamma_adj / PRECISION + dp * n) * d /
+                ((ann - PRECISION) * d / PRECISION + (n + 1) * dp);
+            
+            if (d > d_prev) {
+                if (d - d_prev <= 1) break;
+            } else {
+                if (d_prev - d <= 1) break;
+            }
+        }
+        
+        return d;
+    }
+    
+    // 动态A值调整
+    function updateAmplification() external {
+        uint256 timePassed = block.timestamp - params.lastUpdateTime;
+        if (timePassed < 1 hours) return;
+        
+        // 计算价格偏离度
+        uint256 maxDeviation = 0;
+        for (uint256 i = 0; i < balances.length; i++) {
+            uint256 idealBalance = D * params.weights[i] / PRECISION;
+            uint256 deviation = balances[i] > idealBalance ?
+                (balances[i] - idealBalance) * PRECISION / idealBalance :
+                (idealBalance - balances[i]) * PRECISION / idealBalance;
+            
+            if (deviation > maxDeviation) maxDeviation = deviation;
+        }
+        
+        // 根据偏离度调整A值
+        if (maxDeviation > 0.01e18) { // 1%以上偏离
+            params.A = params.A * 95 / 100; // 降低A值
+        } else if (maxDeviation < 0.001e18) { // 0.1%以下偏离
+            params.A = params.A * 105 / 100; // 提高A值
+        }
+        
+        // 限制A值范围
+        if (params.A < 10) params.A = 10;
+        if (params.A > 10000) params.A = 10000;
+        
+        params.lastUpdateTime = block.timestamp;
+    }
+    
+    // 脱锚保护
+    function applyDepegProtection(
+        uint256[] memory amounts,
+        uint256[] memory prices
+    ) private view returns (uint256[] memory adjusted) {
+        adjusted = new uint256[](amounts.length);
+        
+        for (uint256 i = 0; i < amounts.length; i++) {
+            uint256 priceDeviation = prices[i] > PRECISION ?
+                (prices[i] - PRECISION) * PRECISION / PRECISION :
+                (PRECISION - prices[i]) * PRECISION / PRECISION;
+            
+            if (priceDeviation > 0.02e18) { // 2%以上脱锚
+                // 应用惩罚因子
+                uint256 penalty = PRECISION + params.delta * priceDeviation / PRECISION;
+                adjusted[i] = amounts[i] * PRECISION / penalty;
+            } else {
+                adjusted[i] = amounts[i];
+            }
+        }
+    }
+    
+    // 多资产交换
+    function swapExactInput(
+        uint256 tokenIn,
+        uint256 tokenOut,
+        uint256 amountIn,
+        uint256 minAmountOut
+    ) external returns (uint256 amountOut) {
+        require(tokenIn < balances.length && tokenOut < balances.length, "Invalid token");
+        require(tokenIn != tokenOut, "Same token");
+        
+        // 获取外部价格
+        uint256[] memory prices = getExternalPrices();
+        
+        // 应用脱锚保护
+        uint256[] memory adjustedBalances = applyDepegProtection(balances, prices);
+        
+        // 计算输出
+        uint256 y = computeY(tokenIn, tokenOut, adjustedBalances[tokenIn] + amountIn, adjustedBalances);
+        amountOut = adjustedBalances[tokenOut] - y;
+        
+        // 动态费用
+        uint256 fee = calculateDynamicFee(tokenIn, tokenOut, amountIn, prices);
+        amountOut = amountOut - amountOut * fee / PRECISION;
+        
+        require(amountOut >= minAmountOut, "Slippage");
+        
+        // 更新余额
+        balances[tokenIn] += amountIn;
+        balances[tokenOut] -= amountOut;
+        
+        // 更新D值
+        D = computeD(balances);
+        
+        emit Swap(msg.sender, tokenIn, tokenOut, amountIn, amountOut);
+    }
+    
+    function calculateDynamicFee(
+        uint256 tokenIn,
+        uint256 tokenOut,
+        uint256 amount,
+        uint256[] memory prices
+    ) private view returns (uint256 fee) {
+        // 基础费用
+        fee = 0.0001e18; // 0.01%
+        
+        // 价格偏离费用
+        uint256 priceDevIn = prices[tokenIn] > PRECISION ?
+            prices[tokenIn] - PRECISION : PRECISION - prices[tokenIn];
+        uint256 priceDevOut = prices[tokenOut] > PRECISION ?
+            prices[tokenOut] - PRECISION : PRECISION - prices[tokenOut];
+        
+        fee += (priceDevIn + priceDevOut) * params.beta / PRECISION;
+        
+        // 不平衡费用
+        uint256 imbalance = calculateImbalance();
+        fee += imbalance * 0.001e18 / PRECISION;
+        
+        // 限制最大费用
+        if (fee > 0.01e18) fee = 0.01e18; // 最大1%
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <h3>本章小结</h3>
+        <div class="tip">
+            <strong>关键要点：</strong>
+            <ul>
+                <li><strong>AMM选择：</strong>不同的AMM模型适合不同的稳定币交易场景，需要根据具体需求选择</li>
+                <li><strong>资本效率：</strong>集中流动性和专用曲线可以显著提高稳定币交易的资本效率</li>
+                <li><strong>MEV防护：</strong>稳定币AMM特别容易受到MEV攻击，需要专门的防护机制</li>
+                <li><strong>动态调整：</strong>费用、流动性范围和曲线参数都应该根据市场条件动态调整</li>
+                <li><strong>跨链整合：</strong>未来的AMM需要考虑跨链流动性聚合以提供最优价格</li>
+            </ul>
+        </div>
+        
+        <h3>术语速查表</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+            <tr style="background: #f3f4f6;">
+                <th style="border: 1px solid #ddd; padding: 12px;">术语</th>
+                <th style="border: 1px solid #ddd; padding: 12px;">英文</th>
+                <th style="border: 1px solid #ddd; padding: 12px;">含义</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">自动做市商</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Automated Market Maker (AMM)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">使用算法自动提供流动性的协议</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">恒定乘积</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Constant Product</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">x*y=k的AMM公式</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">集中流动性</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Concentrated Liquidity</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">将流动性集中在特定价格范围</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">无常损失</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Impermanent Loss</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">提供流动性vs持有代币的价值差异</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">滑点</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Slippage</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">预期价格与实际执行价格的差异</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">TWAP</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Time-Weighted Average Price</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">时间加权平均价格</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">放大系数</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Amplification Factor</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Curve中控制曲线平坦度的参数</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">JIT流动性</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Just-In-Time Liquidity</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">在交易前临时添加的流动性</td>
+            </tr>
+        </table>
+
+        <h3>第六章小结</h3>
+        <div class="info-box">
+            <h4>核心要点</h4>
+            <ul>
+                <li><strong>理论基础：</strong>从恒定乘积到恒定和，理解AMM模型的数学本质</li>
+                <li><strong>效率优化：</strong>从V2到V3，集中流动性提升100倍资本效率但增加风险</li>
+                <li><strong>稳定币专用：</strong>Curve StableSwap通过混合不变量实现低滑点高效率</li>
+                <li><strong>动态调整：</strong>Curve V2的自适应系统，根据市场状态调整参数</li>
+                <li><strong>前沿发展：</strong>Uniswap V4 Hooks、AI驱动优化、跨链聚合</li>
+            </ul>
+        </div>
+
+        <div class="example-box">
+            <h4>实践建议</h4>
+            <ol>
+                <li><strong>风险评估：</strong>部署前必须进行无常损失和脱锚风险的定量分析</li>
+                <li><strong>参数选择：</strong>根据资产特性和市场环境合理设置放大系数A</li>
+                <li><strong>MEV防护：</strong>实施TWAP、批量交易等机制保护用户</li>
+                <li><strong>监控系统：</strong>建立实时监控，及时响应市场异常</li>
+                <li><strong>治理机制：</strong>通过veToken等模型建立可持续的激励体系</li>
+            </ol>
+        </div>
+
+        <div class="warning-box">
+            <h4>风险提醒</h4>
+            <ul>
+                <li><strong>流动性风险：</strong>极端市场条件下可能出现流动性枯竭</li>
+                <li><strong>Oracle风险：</strong>价格预言机操纵可能导致协议损失</li>
+                <li><strong>智能合约风险：</strong>代码漏洞可能被利用造成资金损失</li>
+                <li><strong>治理攻击：</strong>恶意提案可能损害协议利益</li>
+                <li><strong>监管风险：</strong>法规变化可能影响协议运营</li>
+            </ul>
+        </div>
+
+        <h3>推荐阅读</h3>
+        <ul>
+            <li><a href="https://curve.fi/files/stableswap-paper.pdf" target="_blank">Curve StableSwap Whitepaper</a></li>
+            <li><a href="https://uniswap.org/whitepaper-v3.pdf" target="_blank">Uniswap V3 Core</a></li>
+            <li><a href="https://github.com/Uniswap/v4-core" target="_blank">Uniswap V4 Documentation</a></li>
+            <li><a href="https://arxiv.org/abs/2103.12732" target="_blank">Automated Market Making: Theory and Practice</a></li>
+            <li><a href="https://ethereum.org/en/developers/docs/mev/" target="_blank">MEV Research Resources</a></li>
+        </ul>
+    
+            
+            <!-- 章节导航 -->
+            <div class="chapter-nav">
+                <a href="chapter5.html">← 第5章</a>
+                <a href="chapter7.html">第7章 →</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-solidity.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,2372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第三章：ERC-20及扩展标准 - 区块链稳定币教程</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-brand">稳定币教程</a>
+            <button class="navbar-toggle" onclick="toggleMobileNav()">☰</button>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a href="intro.html" class="nav-link">引言</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">章节</a>
+                    <div class="dropdown-menu">
+                        <a href="chapter1.html" class="dropdown-item">第1章：区块链基础</a>
+                        <a href="chapter2.html" class="dropdown-item">第2章：稳定币分类</a>
+                        <a href="chapter3.html" class="dropdown-item">第3章：ERC-20标准</a>
+                        <a href="chapter4.html" class="dropdown-item">第4章：抵押型设计</a>
+                        <a href="chapter5.html" class="dropdown-item">第5章：数学模型</a>
+                        <a href="chapter6.html" class="dropdown-item">第6章：AMM集成</a>
+                        <a href="chapter7.html" class="dropdown-item">第7章：借贷协议</a>
+                        <a href="chapter8.html" class="dropdown-item">第8章：收益策略</a>
+                        <a href="chapter9.html" class="dropdown-item">第9章：智能合约安全</a>
+                        <a href="chapter10.html" class="dropdown-item">第10章：经济攻击</a>
+                        <a href="chapter11.html" class="dropdown-item">第11章：未来方向</a>
+                        <a href="chapter12.html" class="dropdown-item">第12章：生产部署</a>
+                        <a href="chapter13.html" class="dropdown-item">第13章：生态集成</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="#resources" class="nav-link">资源</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- 头部 -->
+    <header id="top">
+        <div class="container">
+            <h1>第三章：ERC-20及扩展标准</h1>
+        </div>
+    </header>
+    
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="chapter">
+<h2>第三章：ERC-20标准与扩展</h2>
+            
+            <div class="intro-box">
+                <strong>本章概览：</strong>
+                <ul>
+                    <li>深入理解ERC-20标准及其在稳定币中的应用</li>
+                    <li>探索代理模式和可升级合约架构</li>
+                    <li>跨链标准与互操作性解决方案</li>
+                    <li>实战：构建企业级可升级稳定币</li>
+                </ul>
+            </div>
+
+            <h3>3.1 标准代币接口深度解析</h3>
+            
+            <h4>3.1.1 ERC-20标准的演进历程</h4>
+            <p>ERC-20标准诞生于2015年11月，由Fabian Vogelsteller提出，成为以太坊生态系统中最成功的标准之一。让我们深入了解其技术细节和在稳定币中的特殊应用。</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">基础ERC-20接口定义 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+interface IERC20 {
+    // 查询代币总供应量
+    function totalSupply() external view returns (uint256);
+    
+    // 查询账户余额
+    function balanceOf(address account) external view returns (uint256);
+    
+    // 转账函数
+    function transfer(address to, uint256 amount) external returns (bool);
+    
+    // 查询授权额度
+    function allowance(address owner, address spender) external view returns (uint256);
+    
+    // 授权函数
+    function approve(address spender, uint256 amount) external returns (bool);
+    
+    // 授权转账
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+    
+    // 事件定义
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>3.1.2 稳定币特有的扩展功能</h4>
+            <p>稳定币在实现ERC-20标准的基础上，通常需要添加额外的功能以满足合规和运营需求：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">稳定币扩展功能实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">abstract contract StablecoinBase is ERC20, Pausable, AccessControl {
+    // 角色定义
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+    bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
+    
+    // 黑名单映射
+    mapping(address => bool) private _blacklisted;
+    
+    // 铸币限额管理
+    mapping(address => uint256) private _minterAllowances;
+    
+    // 事件
+    event Blacklisted(address indexed account);
+    event UnBlacklisted(address indexed account);
+    event MinterConfigured(address indexed minter, uint256 allowance);
+    event MinterRemoved(address indexed minter);
+    
+    // 修饰器：检查黑名单
+    modifier notBlacklisted(address account) {
+        require(!_blacklisted[account], "Account is blacklisted");
+        _;
+    }
+    
+    // 铸币功能（带限额控制）
+    function mint(address to, uint256 amount) 
+        external 
+        onlyRole(MINTER_ROLE) 
+        whenNotPaused 
+        notBlacklisted(to) 
+    {
+        require(amount <= _minterAllowances[msg.sender], "Exceeds minter allowance");
+        _minterAllowances[msg.sender] -= amount;
+        _mint(to, amount);
+    }
+    
+    // 销毁功能
+    function burn(uint256 amount) external whenNotPaused {
+        _burn(msg.sender, amount);
+    }
+    
+    // 黑名单管理
+    function blacklist(address account) external onlyRole(BLACKLISTER_ROLE) {
+        _blacklisted[account] = true;
+        emit Blacklisted(account);
+    }
+    
+    // 重写transfer以检查黑名单
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual override {
+        super._beforeTokenTransfer(from, to, amount);
+        require(!_blacklisted[from] && !_blacklisted[to], "Blacklisted address");
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>3.1.3 ERC-2612 Permit扩展</h4>
+            <p>ERC-2612允许用户通过签名授权代币转移，无需预先的approve交易，极大改善了用户体验：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">ERC-2612 Permit实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">abstract contract ERC20Permit is ERC20, IERC20Permit {
+    using ECDSA for bytes32;
+    
+    bytes32 public constant PERMIT_TYPEHASH = keccak256(
+        "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+    );
+    
+    mapping(address => uint256) public nonces;
+    
+    // EIP-712 Domain
+    bytes32 private immutable DOMAIN_SEPARATOR;
+    
+    constructor() {
+        DOMAIN_SEPARATOR = keccak256(
+            abi.encode(
+                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+                keccak256(bytes(name())),
+                keccak256(bytes("1")),
+                block.chainid,
+                address(this)
+            )
+        );
+    }
+    
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual override {
+        require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
+        
+        bytes32 structHash = keccak256(
+            abi.encode(
+                PERMIT_TYPEHASH,
+                owner,
+                spender,
+                value,
+                nonces[owner]++,
+                deadline
+            )
+        );
+        
+        bytes32 hash = keccak256(
+            abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, structHash)
+        );
+        
+        address signer = hash.recover(v, r, s);
+        require(signer == owner, "ERC20Permit: invalid signature");
+        
+        _approve(owner, spender, value);
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>3.1.4 Gas优化技巧</h4>
+            <p>稳定币通常有高频交易需求，Gas优化至关重要：</p>
+            
+            <div class="tip">
+                💡 关键洞察：通过批量操作和存储优化，可以将Gas消耗降低30-50%。2024年新增的瞬时存储（EIP-1153）可进一步优化复杂交易流。
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">Gas优化实现示例 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">contract GasOptimizedStablecoin is StablecoinBase {
+    // 使用packed结构体减少存储槽
+    struct UserInfo {
+        uint128 balance;      // 足够存储大部分余额
+        uint64 lastTransfer;  // 时间戳
+        bool isBlacklisted;   // 黑名单状态
+        bool isWhitelisted;   // 白名单状态（免Gas费）
+    }
+    
+    mapping(address => UserInfo) private _userInfo;
+    
+    // 批量转账（节省基础Gas开销）
+    function batchTransfer(
+        address[] calldata recipients,
+        uint256[] calldata amounts
+    ) external whenNotPaused {
+        require(recipients.length == amounts.length, "Length mismatch");
+        require(recipients.length <= 100, "Too many recipients");
+        
+        uint256 totalAmount;
+        for (uint256 i = 0; i < amounts.length; ) {
+            totalAmount += amounts[i];
+            unchecked { ++i; }
+        }
+        
+        require(_userInfo[msg.sender].balance >= totalAmount, "Insufficient balance");
+        
+        // 使用unchecked节省溢出检查Gas
+        unchecked {
+            _userInfo[msg.sender].balance -= uint128(totalAmount);
+        }
+        
+        for (uint256 i = 0; i < recipients.length; ) {
+            _userInfo[recipients[i]].balance += uint128(amounts[i]);
+            emit Transfer(msg.sender, recipients[i], amounts[i]);
+            unchecked { ++i; }
+        }
+    }
+    
+    // 使用assembly优化的余额查询
+    function balanceOf(address account) public view returns (uint256 balance) {
+        assembly {
+            // 直接读取存储槽
+            let slot := _userInfo.slot
+            let key := account
+            mstore(0x00, key)
+            mstore(0x20, slot)
+            let location := keccak256(0x00, 0x40)
+            balance := shr(128, sload(location))
+        }
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h3>3.2 可升级模式深度实践</h3>
+            
+            <h4>3.2.1 代理模式对比分析</h4>
+            <p>稳定币合约的可升级性是一个关键特性，让我们深入比较不同的升级模式：</p>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>升级模式</th>
+                    <th>Gas成本</th>
+                    <th>复杂度</th>
+                    <th>存储冲突风险</th>
+                    <th>适用场景</th>
+                </tr>
+                <tr>
+                    <td>透明代理（Transparent Proxy）</td>
+                    <td>~2300 Gas额外开销</td>
+                    <td>中等</td>
+                    <td>低</td>
+                    <td>USDC、USDT等主流稳定币</td>
+                </tr>
+                <tr>
+                    <td>UUPS（Universal Upgradeable Proxy）</td>
+                    <td>~1000 Gas额外开销</td>
+                    <td>高</td>
+                    <td>中</td>
+                    <td>Gas敏感的DeFi协议</td>
+                </tr>
+                <tr>
+                    <td>钻石标准（Diamond/EIP-2535）</td>
+                    <td>~2500 Gas额外开销</td>
+                    <td>很高</td>
+                    <td>很低</td>
+                    <td>复杂的模块化系统</td>
+                </tr>
+                <tr>
+                    <td>Beacon代理</td>
+                    <td>~2100 Gas额外开销</td>
+                    <td>中等</td>
+                    <td>低</td>
+                    <td>多实例部署场景</td>
+                </tr>
+            </table>
+            
+            <h4>3.2.2 UUPS模式实现</h4>
+            <p>UUPS模式将升级逻辑放在实现合约中，提供更好的Gas效率：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">UUPS可升级稳定币实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// 使用OpenZeppelin的UUPS实现
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
+contract StablecoinV1 is 
+    Initializable,
+    ERC20Upgradeable,
+    PausableUpgradeable,
+    OwnableUpgradeable,
+    UUPSUpgradeable 
+{
+    // 存储布局版本控制
+    uint256 private constant STORAGE_VERSION = 1;
+    
+    // 状态变量（注意顺序很重要）
+    mapping(address => bool) public blacklisted;
+    mapping(address => uint256) public minterAllowance;
+    address[] public minters;
+    
+    // 初始化函数（代替构造函数）
+    function initialize(
+        string memory name,
+        string memory symbol
+    ) public initializer {
+        __ERC20_init(name, symbol);
+        __Pausable_init();
+        __Ownable_init();
+        __UUPSUpgradeable_init();
+    }
+    
+    // 升级授权（只有owner可以升级）
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
+    
+    // 获取实现版本
+    function version() external pure returns (string memory) {
+        return "1.0.0";
+    }
+}
+
+// V2版本示例（添加新功能）
+contract StablecoinV2 is StablecoinV1 {
+    // 新增状态变量（只能在最后添加）
+    mapping(address => uint256) public dailyTransferLimit;
+    mapping(address => uint256) public dailyTransferAmount;
+    mapping(address => uint256) public lastTransferDay;
+    
+    // 新增功能：每日转账限额
+    function setDailyLimit(address user, uint256 limit) external onlyOwner {
+        dailyTransferLimit[user] = limit;
+    }
+    
+    // 重写transfer以实现限额检查
+    function transfer(address to, uint256 amount) 
+        public 
+        override 
+        returns (bool) 
+    {
+        _checkDailyLimit(msg.sender, amount);
+        return super.transfer(to, amount);
+    }
+    
+    function _checkDailyLimit(address user, uint256 amount) private {
+        uint256 today = block.timestamp / 1 days;
+        
+        if (lastTransferDay[user] < today) {
+            dailyTransferAmount[user] = 0;
+            lastTransferDay[user] = today;
+        }
+        
+        require(
+            dailyTransferAmount[user] + amount <= dailyTransferLimit[user],
+            "Daily limit exceeded"
+        );
+        
+        dailyTransferAmount[user] += amount;
+    }
+    
+    function version() external pure override returns (string memory) {
+        return "2.0.0";
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>3.2.3 存储冲突防护</h4>
+            <p>升级合约时最大的风险是存储冲突，这里是防护措施：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">存储间隙模式（Storage Gap） <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">abstract contract StablecoinStorageV1 {
+    // 状态变量
+    mapping(address => uint256) internal _balances;
+    mapping(address => mapping(address => uint256)) internal _allowances;
+    uint256 internal _totalSupply;
+    
+    // 存储间隙：预留升级空间
+    uint256[47] private __gap;  // 50 - 3 = 47
+}
+
+abstract contract StablecoinStorageV2 is StablecoinStorageV1 {
+    // 新增状态变量
+    mapping(address => bool) internal _frozen;
+    uint256 internal _maxSupply;
+    
+    // 更新存储间隙
+    uint256[45] private __gap;  // 47 - 2 = 45
+}
+
+// 使用非结构化存储（Unstructured Storage）
+contract DiamondStorage {
+    struct DiamondStorageStruct {
+        mapping(address => uint256) balances;
+        mapping(address => bool) blacklisted;
+        uint256 totalSupply;
+        address admin;
+    }
+    
+    function diamondStorage() 
+        internal 
+        pure 
+        returns (DiamondStorageStruct storage ds) 
+    {
+        bytes32 position = keccak256("diamond.standard.diamond.storage");
+        assembly {
+            ds.slot := position
+        }
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h3>3.3 跨链标准与实现</h3>
+            
+            <h4>3.3.1 主流跨链协议对比</h4>
+            <p>稳定币的跨链需求日益增长，让我们深入了解各种跨链解决方案：</p>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>跨链协议</th>
+                    <th>安全模型</th>
+                    <th>延迟</th>
+                    <th>支持链数</th>
+                    <th>去中心化程度</th>
+                </tr>
+                <tr>
+                    <td>LayerZero</td>
+                    <td>Oracle + Relayer</td>
+                    <td>几分钟</td>
+                    <td>40+</td>
+                    <td>中等</td>
+                </tr>
+                <tr>
+                    <td>Axelar</td>
+                    <td>PoS验证者集</td>
+                    <td>5-30分钟</td>
+                    <td>30+</td>
+                    <td>高</td>
+                </tr>
+                <tr>
+                    <td>Wormhole</td>
+                    <td>Guardian网络</td>
+                    <td>几分钟</td>
+                    <td>20+</td>
+                    <td>中等</td>
+                </tr>
+                <tr>
+                    <td>IBC (Cosmos)</td>
+                    <td>轻客户端</td>
+                    <td>几秒</td>
+                    <td>50+ (Cosmos生态)</td>
+                    <td>很高</td>
+                </tr>
+            </table>
+            
+            <h4>3.3.2 LayerZero集成实现</h4>
+            <p>LayerZero提供了灵活的跨链消息传递，适合稳定币的全链部署：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">LayerZero OFT稳定币实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">import "@layerzerolabs/solidity-examples/contracts/token/oft/v2/OFTV2.sol";
+
+contract OmniChainStablecoin is OFTV2, Pausable {
+    // 链ID到地址的映射（用于限额管理）
+    mapping(uint16 => address) public trustedRemotes;
+    
+    // 每条链的铸币限额
+    mapping(uint16 => uint256) public chainMintLimit;
+    mapping(uint16 => uint256) public chainMintAmount;
+    
+    // 跨链转账费用（基点）
+    uint256 public bridgeFee = 10; // 0.1%
+    address public feeCollector;
+    
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals,
+        address _lzEndpoint
+    ) OFTV2(_name, _symbol, _decimals, _lzEndpoint) {
+        feeCollector = msg.sender;
+    }
+    
+    // 设置可信远程合约
+    function setTrustedRemote(
+        uint16 _chainId,
+        bytes calldata _path
+    ) external onlyOwner {
+        trustedRemotes[_chainId] = address(bytes20(_path));
+        trustedRemote[_chainId] = _path;
+    }
+    
+    // 重写发送函数以实现费用收取
+    function _send(
+        address _from,
+        uint16 _dstChainId,
+        bytes32 _toAddress,
+        uint256 _amount,
+        address payable _refundAddress,
+        address _zroPaymentAddress,
+        bytes memory _adapterParams
+    ) internal override returns (uint256 amount) {
+        // 计算并收取跨链费用
+        uint256 fee = (_amount * bridgeFee) / 10000;
+        uint256 amountAfterFee = _amount - fee;
+        
+        if (fee > 0) {
+            _transfer(_from, feeCollector, fee);
+        }
+        
+        // 检查目标链限额
+        require(
+            chainMintAmount[_dstChainId] + amountAfterFee <= chainMintLimit[_dstChainId],
+            "Chain mint limit exceeded"
+        );
+        
+        chainMintAmount[_dstChainId] += amountAfterFee;
+        
+        return super._send(
+            _from,
+            _dstChainId,
+            _toAddress,
+            amountAfterFee,
+            _refundAddress,
+            _zroPaymentAddress,
+            _adapterParams
+        );
+    }
+    
+    // 估算跨链费用
+    function estimateSendFee(
+        uint16 _dstChainId,
+        bytes32 _toAddress,
+        uint256 _amount,
+        bool _useZro,
+        bytes calldata _adapterParams
+    ) public view override returns (uint256 nativeFee, uint256 zroFee) {
+        uint256 amountAfterFee = _amount - (_amount * bridgeFee) / 10000;
+        return super.estimateSendFee(
+            _dstChainId,
+            _toAddress,
+            amountAfterFee,
+            _useZro,
+            _adapterParams
+        );
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>3.3.3 IBC协议集成（Cosmos生态）</h4>
+            <p>IBC提供了最去中心化的跨链解决方案，特别适合Cosmos生态：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">CosmWasm IBC稳定币合约 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-rust">use cosmwasm_std::{
+    entry_point, to_binary, Binary, Deps, DepsMut, 
+    Env, MessageInfo, Response, StdResult, Uint128,
+    IbcMsg, IbcTimeout, CosmosMsg,
+};
+use cw20::{Cw20Contract, Cw20ExecuteMsg};
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct IbcTransferMsg {
+    pub channel_id: String,
+    pub to_address: String,
+    pub amount: Uint128,
+    pub timeout: IbcTimeout,
+}
+
+#[entry_point]
+pub fn execute(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    msg: ExecuteMsg,
+) -> Result<Response, ContractError> {
+    match msg {
+        ExecuteMsg::IbcTransfer(transfer_msg) => {
+            execute_ibc_transfer(deps, env, info, transfer_msg)
+        }
+        _ => handle_cw20_execute(deps, env, info, msg),
+    }
+}
+
+fn execute_ibc_transfer(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    msg: IbcTransferMsg,
+) -> Result<Response, ContractError> {
+    // 检查余额
+    let balance = BALANCES.load(deps.storage, &info.sender)?;
+    if balance < msg.amount {
+        return Err(ContractError::InsufficientFunds {});
+    }
+    
+    // 扣除余额
+    BALANCES.update(
+        deps.storage,
+        &info.sender,
+        |balance| -> StdResult<_> {
+            Ok(balance.unwrap_or_default() - msg.amount)
+        },
+    )?;
+    
+    // 构建IBC消息
+    let ibc_msg = IbcMsg::Transfer {
+        channel_id: msg.channel_id,
+        to_address: msg.to_address,
+        amount: coin(msg.amount.u128(), "ustable"),
+        timeout: msg.timeout,
+    };
+    
+    Ok(Response::new()
+        .add_message(ibc_msg)
+        .add_attribute("action", "ibc_transfer")
+        .add_attribute("from", info.sender)
+        .add_attribute("amount", msg.amount))
+}
+
+// IBC包接收处理
+#[entry_point]
+pub fn ibc_packet_receive(
+    deps: DepsMut,
+    _env: Env,
+    msg: IbcPacketReceiveMsg,
+) -> Result<IbcReceiveResponse, Never> {
+    // 解析接收的数据
+    let packet: TransferPacket = from_slice(&msg.packet.data)?;
+    
+    // 铸造代币给接收者
+    BALANCES.update(
+        deps.storage,
+        &packet.receiver,
+        |balance| -> StdResult<_> {
+            Ok(balance.unwrap_or_default() + packet.amount)
+        },
+    )?;
+    
+    Ok(IbcReceiveResponse::new()
+        .set_ack(to_binary(&TransferAck::Success)?)
+        .add_attribute("action", "receive")
+        .add_attribute("receiver", packet.receiver)
+        .add_attribute("amount", packet.amount))
+}</code></pre>
+                </div>
+            </div>
+            
+            <h3>3.4 实践项目：构建企业级可升级稳定币</h3>
+            
+            <h4>3.4.1 项目需求分析</h4>
+            <p>我们将构建一个具备以下特性的企业级稳定币：</p>
+            <ul>
+                <li>符合监管要求的KYC/AML功能</li>
+                <li>可升级架构，支持功能迭代</li>
+                <li>多链部署，支持主流公链</li>
+                <li>完善的权限管理系统</li>
+                <li>紧急暂停和恢复机制</li>
+            </ul>
+            
+            <h4>3.4.2 完整实现</h4>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">企业级稳定币完整实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+
+contract EnterpriseStablecoin is 
+    Initializable,
+    ERC20Upgradeable,
+    PausableUpgradeable,
+    AccessControlUpgradeable,
+    UUPSUpgradeable 
+{
+    using ECDSA for bytes32;
+    
+    // 角色定义
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+    bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
+    bytes32 public constant KYC_ROLE = keccak256("KYC_ROLE");
+    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+    
+    // 状态变量
+    mapping(address => bool) public blacklisted;
+    mapping(address => bool) public kycApproved;
+    mapping(address => uint256) public minterAllowance;
+    mapping(address => uint256) public lastActivity;
+    
+    // 交易限制
+    uint256 public maxTransactionAmount;
+    uint256 public dailyTransferLimit;
+    mapping(address => uint256) public dailyTransferred;
+    mapping(address => uint256) public lastTransferDay;
+    
+    // 合规功能
+    bool public kycRequired;
+    uint256 public inactivityThreshold;
+    
+    // 签名nonce（防重放）
+    mapping(address => uint256) public nonces;
+    
+    // 事件
+    event Blacklisted(address indexed account);
+    event UnBlacklisted(address indexed account);
+    event KYCApproved(address indexed account);
+    event KYCRevoked(address indexed account);
+    event ComplianceConfigUpdated(bool kycRequired, uint256 inactivityThreshold);
+    
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+    
+    function initialize(
+        string memory name,
+        string memory symbol,
+        bool _kycRequired
+    ) public initializer {
+        __ERC20_init(name, symbol);
+        __Pausable_init();
+        __AccessControl_init();
+        __UUPSUpgradeable_init();
+        
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(PAUSER_ROLE, msg.sender);
+        _grantRole(MINTER_ROLE, msg.sender);
+        _grantRole(UPGRADER_ROLE, msg.sender);
+        
+        kycRequired = _kycRequired;
+        maxTransactionAmount = 1000000 * 10**decimals(); // 1M默认限额
+        dailyTransferLimit = 5000000 * 10**decimals();   // 5M每日限额
+        inactivityThreshold = 365 days;                  // 1年不活跃阈值
+    }
+    
+    // 铸币功能
+    function mint(address to, uint256 amount) 
+        external 
+        onlyRole(MINTER_ROLE)
+        whenNotPaused 
+    {
+        require(!blacklisted[to], "Recipient is blacklisted");
+        require(!kycRequired || kycApproved[to], "KYC not approved");
+        require(amount <= minterAllowance[msg.sender], "Exceeds allowance");
+        
+        minterAllowance[msg.sender] -= amount;
+        _mint(to, amount);
+        lastActivity[to] = block.timestamp;
+    }
+    
+    // 带签名的铸币（链下授权）
+    function mintWithSignature(
+        address to,
+        uint256 amount,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external whenNotPaused {
+        require(block.timestamp <= deadline, "Signature expired");
+        
+        bytes32 structHash = keccak256(
+            abi.encode(
+                keccak256("Mint(address to,uint256 amount,uint256 nonce,uint256 deadline)"),
+                to,
+                amount,
+                nonces[to]++,
+                deadline
+            )
+        );
+        
+        bytes32 hash = _hashTypedDataV4(structHash);
+        address signer = hash.recover(v, r, s);
+        
+        require(hasRole(MINTER_ROLE, signer), "Invalid signer");
+        require(!blacklisted[to], "Recipient is blacklisted");
+        require(!kycRequired || kycApproved[to], "KYC not approved");
+        
+        _mint(to, amount);
+        lastActivity[to] = block.timestamp;
+    }
+    
+    // 重写transfer函数
+    function _transfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override {
+        require(!blacklisted[from] && !blacklisted[to], "Blacklisted address");
+        require(!kycRequired || (kycApproved[from] && kycApproved[to]), "KYC required");
+        require(amount <= maxTransactionAmount, "Exceeds max transaction");
+        
+        // 检查每日限额
+        _checkDailyLimit(from, amount);
+        
+        super._transfer(from, to, amount);
+        
+        // 更新活动时间
+        lastActivity[from] = block.timestamp;
+        lastActivity[to] = block.timestamp;
+    }
+    
+    // 每日限额检查
+    function _checkDailyLimit(address user, uint256 amount) private {
+        uint256 today = block.timestamp / 1 days;
+        
+        if (lastTransferDay[user] < today) {
+            dailyTransferred[user] = 0;
+            lastTransferDay[user] = today;
+        }
+        
+        require(
+            dailyTransferred[user] + amount <= dailyTransferLimit,
+            "Daily limit exceeded"
+        );
+        
+        dailyTransferred[user] += amount;
+    }
+    
+    // 冻结不活跃账户的资金
+    function freezeInactiveAccount(address account) 
+        external 
+        onlyRole(BLACKLISTER_ROLE) 
+    {
+        require(
+            block.timestamp - lastActivity[account] > inactivityThreshold,
+            "Account still active"
+        );
+        blacklisted[account] = true;
+        emit Blacklisted(account);
+    }
+    
+    // 批量KYC审批
+    function batchApproveKYC(address[] calldata accounts) 
+        external 
+        onlyRole(KYC_ROLE) 
+    {
+        for (uint256 i = 0; i < accounts.length; i++) {
+            kycApproved[accounts[i]] = true;
+            emit KYCApproved(accounts[i]);
+        }
+    }
+    
+    // 紧急提取（仅限被黑名单地址）
+    function emergencyWithdraw(address blacklistedAccount, address to) 
+        external 
+        onlyRole(DEFAULT_ADMIN_ROLE) 
+    {
+        require(blacklisted[blacklistedAccount], "Account not blacklisted");
+        uint256 amount = balanceOf(blacklistedAccount);
+        _burn(blacklistedAccount, amount);
+        _mint(to, amount);
+    }
+    
+    // 升级授权
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyRole(UPGRADER_ROLE)
+        override
+    {}
+    
+    // 暂停功能
+    function pause() external onlyRole(PAUSER_ROLE) {
+        _pause();
+    }
+    
+    function unpause() external onlyRole(PAUSER_ROLE) {
+        _unpause();
+    }
+    
+    // 获取版本
+    function version() external pure returns (string memory) {
+        return "1.0.0";
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>3.4.3 部署和测试脚本</h4>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">Hardhat部署和测试脚本 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-javascript">// deploy/01_deploy_stablecoin.js
+const { ethers, upgrades } = require("hardhat");
+
+module.exports = async ({ getNamedAccounts, deployments }) => {
+    const { deploy } = deployments;
+    const { deployer } = await getNamedAccounts();
+    
+    // 部署实现合约
+    const EnterpriseStablecoin = await ethers.getContractFactory(
+        "EnterpriseStablecoin"
+    );
+    
+    const proxy = await upgrades.deployProxy(
+        EnterpriseStablecoin,
+        ["USD Stablecoin", "USDS", true], // 启用KYC
+        { 
+            initializer: "initialize",
+            kind: "uups" 
+        }
+    );
+    
+    await proxy.deployed();
+    console.log("Proxy deployed to:", proxy.address);
+    
+    // 获取实现地址
+    const implementationAddress = await upgrades.erc1967.getImplementationAddress(
+        proxy.address
+    );
+    console.log("Implementation deployed to:", implementationAddress);
+    
+    // 配置角色
+    const MINTER_ROLE = ethers.utils.keccak256(
+        ethers.utils.toUtf8Bytes("MINTER_ROLE")
+    );
+    const KYC_ROLE = ethers.utils.keccak256(
+        ethers.utils.toUtf8Bytes("KYC_ROLE")
+    );
+    
+    // 设置铸币者
+    await proxy.grantRole(MINTER_ROLE, deployer);
+    await proxy.setMinterAllowance(deployer, ethers.utils.parseUnits("1000000", 6));
+    
+    // 保存部署信息
+    deployments.save("EnterpriseStablecoin", {
+        address: proxy.address,
+        implementation: implementationAddress,
+        abi: EnterpriseStablecoin.interface.format("json"),
+    });
+};
+
+// test/EnterpriseStablecoin.test.js
+const { expect } = require("chai");
+const { ethers, upgrades } = require("hardhat");
+
+describe("EnterpriseStablecoin", function () {
+    let stablecoin;
+    let owner, minter, user1, user2, blacklister;
+    let MINTER_ROLE, BLACKLISTER_ROLE, KYC_ROLE;
+    
+    beforeEach(async function () {
+        [owner, minter, user1, user2, blacklister] = await ethers.getSigners();
+        
+        const EnterpriseStablecoin = await ethers.getContractFactory(
+            "EnterpriseStablecoin"
+        );
+        stablecoin = await upgrades.deployProxy(
+            EnterpriseStablecoin,
+            ["Test USD", "TUSD", true],
+            { kind: "uups" }
+        );
+        
+        // 获取角色常量
+        MINTER_ROLE = await stablecoin.MINTER_ROLE();
+        BLACKLISTER_ROLE = await stablecoin.BLACKLISTER_ROLE();
+        KYC_ROLE = await stablecoin.KYC_ROLE();
+        
+        // 配置角色
+        await stablecoin.grantRole(MINTER_ROLE, minter.address);
+        await stablecoin.grantRole(BLACKLISTER_ROLE, blacklister.address);
+        await stablecoin.grantRole(KYC_ROLE, owner.address);
+    });
+    
+    describe("KYC功能", function () {
+        it("未通过KYC不能接收代币", async function () {
+            await stablecoin.setMinterAllowance(
+                minter.address, 
+                ethers.utils.parseUnits("1000", 6)
+            );
+            
+            await expect(
+                stablecoin.connect(minter).mint(
+                    user1.address, 
+                    ethers.utils.parseUnits("100", 6)
+                )
+            ).to.be.revertedWith("KYC not approved");
+        });
+        
+        it("通过KYC后可以正常交易", async function () {
+            // 批准KYC
+            await stablecoin.batchApproveKYC([user1.address, user2.address]);
+            
+            // 设置铸币额度
+            await stablecoin.setMinterAllowance(
+                minter.address, 
+                ethers.utils.parseUnits("1000", 6)
+            );
+            
+            // 铸币
+            await stablecoin.connect(minter).mint(
+                user1.address, 
+                ethers.utils.parseUnits("100", 6)
+            );
+            
+            // 转账
+            await stablecoin.connect(user1).transfer(
+                user2.address, 
+                ethers.utils.parseUnits("50", 6)
+            );
+            
+            expect(await stablecoin.balanceOf(user2.address))
+                .to.equal(ethers.utils.parseUnits("50", 6));
+        });
+    });
+    
+    describe("升级功能", function () {
+        it("可以升级到新版本", async function () {
+            const EnterpriseStablecoinV2 = await ethers.getContractFactory(
+                "EnterpriseStablecoinV2"
+            );
+            
+            const upgraded = await upgrades.upgradeProxy(
+                stablecoin.address,
+                EnterpriseStablecoinV2
+            );
+            
+            expect(await upgraded.version()).to.equal("2.0.0");
+        });
+    });
+});</code></pre>
+                </div>
+            </div>
+            
+            <h3>练习题</h3>
+            
+            <div class="exercise">
+                <h4>练习 3.1：ERC-20扩展实现</h4>
+                <p>实现一个支持以下功能的ERC-20扩展：</p>
+                <ul>
+                    <li>批量转账功能（单笔交易中向多个地址转账）</li>
+                    <li>转账备注功能（在链上记录转账备注信息）</li>
+                    <li>定时锁定功能（代币在指定时间后才能转移）</li>
+                </ul>
+                <p>要求：Gas优化，支持紧急暂停。</p>
+                
+                <div class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案 ▼</div>
+                <div class="answer" style="display: none;">
+                    <pre><code class="language-solidity">contract ExtendedERC20 is ERC20, Pausable, Ownable {
+    // 转账备注
+    mapping(bytes32 => string) public transferNotes;
+    
+    // 时间锁
+    struct TimeLock {
+        uint256 amount;
+        uint256 releaseTime;
+    }
+    mapping(address => TimeLock[]) public timeLocks;
+    
+    // 事件
+    event TransferWithNote(address indexed from, address indexed to, uint256 value, string note);
+    event TokensLocked(address indexed account, uint256 amount, uint256 releaseTime);
+    event TokensUnlocked(address indexed account, uint256 amount);
+    
+    // 批量转账
+    function batchTransfer(
+        address[] calldata recipients,
+        uint256[] calldata amounts
+    ) external whenNotPaused returns (bool) {
+        require(recipients.length == amounts.length, "Length mismatch");
+        require(recipients.length <= 100, "Too many recipients");
+        
+        uint256 totalAmount;
+        for (uint256 i = 0; i < amounts.length; ) {
+            totalAmount += amounts[i];
+            unchecked { ++i; }
+        }
+        
+        require(balanceOf(msg.sender) >= totalAmount, "Insufficient balance");
+        
+        for (uint256 i = 0; i < recipients.length; ) {
+            _transfer(msg.sender, recipients[i], amounts[i]);
+            unchecked { ++i; }
+        }
+        
+        return true;
+    }
+    
+    // 带备注的转账
+    function transferWithNote(
+        address to,
+        uint256 amount,
+        string calldata note
+    ) external whenNotPaused returns (bool) {
+        _transfer(msg.sender, to, amount);
+        
+        bytes32 txHash = keccak256(
+            abi.encodePacked(msg.sender, to, amount, block.timestamp)
+        );
+        transferNotes[txHash] = note;
+        
+        emit TransferWithNote(msg.sender, to, amount, note);
+        return true;
+    }
+    
+    // 锁定代币
+    function lockTokens(uint256 amount, uint256 lockDuration) external {
+        require(amount > 0, "Amount must be positive");
+        require(lockDuration > 0, "Duration must be positive");
+        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
+        
+        _transfer(msg.sender, address(this), amount);
+        
+        timeLocks[msg.sender].push(TimeLock({
+            amount: amount,
+            releaseTime: block.timestamp + lockDuration
+        }));
+        
+        emit TokensLocked(msg.sender, amount, block.timestamp + lockDuration);
+    }
+    
+    // 解锁代币
+    function unlockTokens() external {
+        TimeLock[] storage locks = timeLocks[msg.sender];
+        uint256 totalUnlocked;
+        
+        for (uint256 i = 0; i < locks.length; ) {
+            if (locks[i].releaseTime <= block.timestamp && locks[i].amount > 0) {
+                totalUnlocked += locks[i].amount;
+                locks[i].amount = 0;
+            }
+            unchecked { ++i; }
+        }
+        
+        require(totalUnlocked > 0, "No tokens to unlock");
+        _transfer(address(this), msg.sender, totalUnlocked);
+        
+        emit TokensUnlocked(msg.sender, totalUnlocked);
+    }
+    
+    // 查询锁定的代币
+    function getLockedBalance(address account) external view returns (uint256) {
+        TimeLock[] memory locks = timeLocks[account];
+        uint256 locked;
+        
+        for (uint256 i = 0; i < locks.length; i++) {
+            if (locks[i].releaseTime > block.timestamp) {
+                locked += locks[i].amount;
+            }
+        }
+        
+        return locked;
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <div class="exercise">
+                <h4>练习 3.2：跨链桥实现</h4>
+                <p>设计并实现一个简化的跨链桥，支持：</p>
+                <ul>
+                    <li>在源链锁定代币</li>
+                    <li>在目标链铸造包装代币</li>
+                    <li>实现简单的验证机制</li>
+                    <li>处理跨链失败的情况</li>
+                </ul>
+                
+                <div class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案 ▼</div>
+                <div class="answer" style="display: none;">
+                    <pre><code class="language-solidity">// 源链合约
+contract SourceBridge is Ownable, Pausable {
+    IERC20 public token;
+    mapping(bytes32 => bool) public processedTransfers;
+    uint256 public nonce;
+    
+    event TokensLocked(
+        address indexed from,
+        address indexed to,
+        uint256 amount,
+        uint256 targetChain,
+        uint256 nonce
+    );
+    
+    constructor(address _token) {
+        token = IERC20(_token);
+    }
+    
+    function lockTokens(
+        address targetAddress,
+        uint256 amount,
+        uint256 targetChain
+    ) external whenNotPaused {
+        require(amount > 0, "Amount must be positive");
+        require(token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+        
+        emit TokensLocked(msg.sender, targetAddress, amount, targetChain, ++nonce);
+    }
+    
+    function emergencyWithdraw() external onlyOwner {
+        uint256 balance = token.balanceOf(address(this));
+        require(token.transfer(owner(), balance), "Withdraw failed");
+    }
+}
+
+// 目标链合约
+contract TargetBridge is Ownable, Pausable {
+    mapping(address => bool) public validators;
+    mapping(bytes32 => uint256) public confirmations;
+    mapping(bytes32 => bool) public processedTransfers;
+    
+    uint256 public requiredConfirmations = 3;
+    WrappedToken public wrappedToken;
+    
+    event TokensMinted(address indexed to, uint256 amount, bytes32 transferId);
+    event TransferConfirmed(bytes32 transferId, address validator);
+    
+    constructor(string memory name, string memory symbol) {
+        wrappedToken = new WrappedToken(name, symbol);
+    }
+    
+    function addValidator(address validator) external onlyOwner {
+        validators[validator] = true;
+    }
+    
+    function confirmTransfer(
+        address to,
+        uint256 amount,
+        uint256 sourceChain,
+        uint256 nonce
+    ) external {
+        require(validators[msg.sender], "Not a validator");
+        
+        bytes32 transferId = keccak256(
+            abi.encodePacked(to, amount, sourceChain, nonce)
+        );
+        
+        require(!processedTransfers[transferId], "Already processed");
+        
+        confirmations[transferId]++;
+        emit TransferConfirmed(transferId, msg.sender);
+        
+        if (confirmations[transferId] >= requiredConfirmations) {
+            processedTransfers[transferId] = true;
+            wrappedToken.mint(to, amount);
+            emit TokensMinted(to, amount, transferId);
+        }
+    }
+}
+
+// 包装代币合约
+contract WrappedToken is ERC20, Ownable {
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}
+    
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
+    }
+    
+    function burn(uint256 amount) external {
+        _burn(msg.sender, amount);
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <div class="exercise">
+                <h4>练习 3.3：Gas优化挑战</h4>
+                <p>给定一个低效的ERC-20实现，将其Gas消耗优化至少30%：</p>
+                <pre><code class="language-solidity">// 低效实现
+contract InefficientToken is ERC20 {
+    mapping(address => bool) public whitelist;
+    uint256[] public transferHistory;
+    mapping(address => uint256[]) public userTransfers;
+    
+    function transfer(address to, uint256 amount) public override returns (bool) {
+        require(whitelist[msg.sender] || whitelist[to], "Not whitelisted");
+        
+        transferHistory.push(block.timestamp);
+        userTransfers[msg.sender].push(amount);
+        userTransfers[to].push(amount);
+        
+        return super.transfer(to, amount);
+    }
+}</code></pre>
+                
+                <div class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案 ▼</div>
+                <div class="answer" style="display: none;">
+                    <pre><code class="language-solidity">contract OptimizedToken is ERC20 {
+    // 使用bitmap替代mapping节省存储
+    mapping(uint256 => uint256) private whitelistBitmap;
+    
+    // 事件替代存储历史记录
+    event TransferRecorded(address indexed from, address indexed to, uint256 amount, uint256 timestamp);
+    
+    // 只存储必要的统计信息
+    mapping(address => uint256) public transferCount;
+    
+    function setWhitelist(address account, bool status) external onlyOwner {
+        uint256 index = uint256(uint160(account));
+        uint256 wordIndex = index / 256;
+        uint256 bitIndex = index % 256;
+        
+        if (status) {
+            whitelistBitmap[wordIndex] |= (1 << bitIndex);
+        } else {
+            whitelistBitmap[wordIndex] &= ~(1 << bitIndex);
+        }
+    }
+    
+    function isWhitelisted(address account) public view returns (bool) {
+        uint256 index = uint256(uint160(account));
+        uint256 wordIndex = index / 256;
+        uint256 bitIndex = index % 256;
+        uint256 word = whitelistBitmap[wordIndex];
+        return (word & (1 << bitIndex)) != 0;
+    }
+    
+    function transfer(address to, uint256 amount) public override returns (bool) {
+        // 使用局部变量缓存状态
+        bool senderWhitelisted = isWhitelisted(msg.sender);
+        bool recipientWhitelisted = isWhitelisted(to);
+        
+        require(senderWhitelisted || recipientWhitelisted, "Not whitelisted");
+        
+        // 使用事件记录历史，而不是存储
+        emit TransferRecorded(msg.sender, to, amount, block.timestamp);
+        
+        // 使用unchecked节省Gas
+        unchecked {
+            transferCount[msg.sender]++;
+            transferCount[to]++;
+        }
+        
+        return super.transfer(to, amount);
+    }
+    
+    // 批量检查白名单状态
+    function batchCheckWhitelist(address[] calldata accounts) 
+        external 
+        view 
+        returns (bool[] memory) 
+    {
+        bool[] memory results = new bool[](accounts.length);
+        for (uint256 i = 0; i < accounts.length; ) {
+            results[i] = isWhitelisted(accounts[i]);
+            unchecked { ++i; }
+        }
+        return results;
+    }
+}</code></pre>
+                    <p><strong>优化说明：</strong></p>
+                    <ul>
+                        <li>使用bitmap存储白名单，每个地址只需1bit而不是256bit</li>
+                        <li>用事件替代数组存储，节省大量存储Gas</li>
+                        <li>使用unchecked块避免不必要的溢出检查</li>
+                        <li>缓存存储读取结果，避免重复SLOAD</li>
+                        <li>移除不必要的动态数组操作</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <h3>3.5 Gas优化高级技术</h3>
+            
+            <h4>3.5.1 EIP-1153 瞬时存储</h4>
+            
+            <div class="tip-box">
+                <strong>⚡ EIP-1153 核心概念：</strong>
+                <ul>
+                    <li><strong>TSTORE/TLOAD：</strong>在同一笔交易内保存临时数据，交易结束后自动清除</li>
+                    <li><strong>Gas成本：</strong>TSTORE 100 gas，TLOAD 100 gas（vs SSTORE 20,000 gas）</li>
+                    <li><strong>应用场景：</strong>重入锁、临时标记、跨函数数据传递</li>
+                </ul>
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">使用EIP-1153优化的稳定币 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+contract GasOptimizedStablecoin {
+    // 传统存储变量
+    mapping(address => uint256) public balances;
+    
+    // 瞬时存储键
+    uint256 constant REENTRANCY_GUARD_SLOT = uint256(keccak256("reentrancy.guard"));
+    uint256 constant TEMP_ALLOWANCE_SLOT = uint256(keccak256("temp.allowance"));
+    
+    // 使用瞬时存储的重入锁
+    modifier nonReentrant() {
+        assembly {
+            if tload(REENTRANCY_GUARD_SLOT) {
+                revert(0, 0)
+            }
+            tstore(REENTRANCY_GUARD_SLOT, 1)
+        }
+        _;
+        assembly {
+            tstore(REENTRANCY_GUARD_SLOT, 0)
+        }
+    }
+    
+    // 复杂的批量转账操作
+    function batchTransferWithKYC(
+        address[] calldata recipients,
+        uint256[] calldata amounts,
+        bytes[] calldata kycProofs
+    ) external nonReentrant {
+        require(recipients.length == amounts.length, "Length mismatch");
+        
+        uint256 totalAmount;
+        
+        // 第一次遍历：验证KYC并计算总额
+        for (uint256 i = 0; i < recipients.length; i++) {
+            // 使用瞬时存储缓存KYC验证结果
+            bytes32 kycKey = keccak256(abi.encode(recipients[i], "kyc"));
+            
+            assembly {
+                // 检查是否已验证
+                if iszero(tload(kycKey)) {
+                    // 验证KYC（简化版）
+                    let kycValid := 1 // 假设验证通过
+                    tstore(kycKey, kycValid)
+                }
+            }
+            
+            totalAmount += amounts[i];
+        }
+        
+        // 检查总余额
+        require(balances[msg.sender] >= totalAmount, "Insufficient balance");
+        
+        // 第二次遍历：执行转账
+        for (uint256 i = 0; i < recipients.length; i++) {
+            _transferOptimized(msg.sender, recipients[i], amounts[i]);
+        }
+    }
+    
+    // 优化的转账函数
+    function _transferOptimized(
+        address from,
+        address to,
+        uint256 amount
+    ) internal {
+        assembly {
+            // 加载余额
+            let fromBalance := sload(add(balances.slot, from))
+            let toBalance := sload(add(balances.slot, to))
+            
+            // 检查余额
+            if lt(fromBalance, amount) {
+                revert(0, 0)
+            }
+            
+            // 使用unchecked数学
+            let newFromBalance := sub(fromBalance, amount)
+            let newToBalance := add(toBalance, amount)
+            
+            // 存储新余额
+            sstore(add(balances.slot, from), newFromBalance)
+            sstore(add(balances.slot, to), newToBalance)
+        }
+    }
+    
+    // 使用瞬时存储的闪电贷
+    function flashLoan(
+        address receiver,
+        uint256 amount,
+        bytes calldata data
+    ) external nonReentrant {
+        uint256 balanceBefore = balances[address(this)];
+        
+        // 使用瞬时存储记录贷款信息
+        assembly {
+            tstore(TEMP_ALLOWANCE_SLOT, amount)
+        }
+        
+        // 发送代币
+        balances[address(this)] -= amount;
+        balances[receiver] += amount;
+        
+        // 调用接收者
+        IFlashLoanReceiver(receiver).onFlashLoan(amount, data);
+        
+        // 检查还款
+        uint256 fee = amount * 3 / 1000; // 0.3% 费用
+        require(
+            balances[address(this)] >= balanceBefore + fee,
+            "Flash loan not repaid"
+        );
+        
+        // 清除瞬时存储
+        assembly {
+            tstore(TEMP_ALLOWANCE_SLOT, 0)
+        }
+    }
+}
+
+// 存储槽打包优化示例
+contract StoragePackingExample {
+    // 未优化：3个存储槽
+    struct BadPacking {
+        uint256 amount;     // 槽0
+        bool active;        // 槽1
+        uint128 limit;      // 槽2
+    }
+    
+    // 优化后：2个存储槽
+    struct GoodPacking {
+        uint256 amount;     // 槽0
+        uint128 limit;      // 槽1的前128位
+        bool active;        // 槽1的第129位
+        uint120 reserved;   // 槽1的剩余位
+    }
+    
+    // 最优化：一个槽存储多个小数据
+    struct UltraPacking {
+        uint128 balance;
+        uint64 lastUpdate;
+        uint32 nonce;
+        uint16 flags;
+        uint8 decimals;
+        uint8 version;
+    } // 正好256位，一个槽
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>3.5.2 汇编优化技巧</h4>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">汇编级别的Gas优化 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">contract AssemblyOptimized {
+    // 优化的批量余额查询
+    function balanceOfBatch(
+        address[] calldata accounts
+    ) external view returns (uint256[] memory balances_) {
+        assembly {
+            let length := calldataload(add(accounts.offset, sub(0x20, 0x04)))
+            
+            // 分配内存
+            balances_ := mload(0x40)
+            let dataPtr := add(balances_, 0x20)
+            mstore(0x40, add(dataPtr, mul(length, 0x20)))
+            mstore(balances_, length)
+            
+            // 遍历账户
+            for { let i := 0 } lt(i, length) { i := add(i, 1) } {
+                let account := calldataload(add(accounts.offset, mul(i, 0x20)))
+                
+                // 计算存储位置
+                mstore(0x00, account)
+                mstore(0x20, balances.slot)
+                let slot := keccak256(0x00, 0x40)
+                
+                // 读取并存储余额
+                mstore(add(dataPtr, mul(i, 0x20)), sload(slot))
+            }
+        }
+    }
+    
+    // 优化的余额更新（避免零到非零的SSTORE）
+    function updateBalance(
+        address account,
+        uint256 newBalance
+    ) external {
+        assembly {
+            // 计算存储位置
+            mstore(0x00, account)
+            mstore(0x20, balances.slot)
+            let slot := keccak256(0x00, 0x40)
+            
+            let oldBalance := sload(slot)
+            
+            // 如果从零到非零，使用更贵的操作码
+            // 如果从非零到零，可以获得gas退款
+            switch newBalance
+            case 0 {
+                // 清零操作
+                if oldBalance {
+                    sstore(slot, 0)
+                    // 获得退款
+                }
+            }
+            default {
+                // 更新操作
+                if iszero(eq(oldBalance, newBalance)) {
+                    sstore(slot, newBalance)
+                }
+            }
+        }
+    }
+}
+
+// EVM操作码成本对比
+contract OpcodesCost {
+    // 存储操作成本
+    // SLOAD: 2100 gas (温读取) / 2600 gas (冷读取)
+    // SSTORE: 2900 gas (温写入) / 22100 gas (冷写入从零到非零)
+    // TLOAD: 100 gas
+    // TSTORE: 100 gas
+    
+    // 内存操作成本
+    // MLOAD: 3 gas
+    // MSTORE: 3 gas
+    // MSTORE8: 3 gas
+    
+    // 计算操作成本
+    // ADD/SUB: 3 gas
+    // MUL: 5 gas
+    // DIV: 5 gas
+    // EXP: 10 gas + 50 gas per byte
+}</code></pre>
+                </div>
+            </div>
+            
+            <h3>3.6 安全最佳实践</h3>
+            
+            <div class="tip-box">
+                <strong>🔒 审计中常见的安全问题：</strong>
+                <ul>
+                    <li><strong>中心化风险：</strong>单一EOA控制关键权限 → 使用多签+时间锁</li>
+                    <li><strong>权限过大：</strong>onlyOwner滥用 → 使用细粒度AccessControl</li>
+                    <li><strong>三明治攻击：</strong>DEX交互无滑点保护 → 添加minAmountOut参数</li>
+                    <li><strong>精度损失：</strong>复杂计算四舍五入 → 使用安全数学库</li>
+                    <li><strong>重入攻击：</strong>状态更新顺序错误 → CEI模式+重入锁</li>
+                </ul>
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">安全模式实例 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">contract SecureStablecoin {
+    using SafeMath for uint256;
+    
+    // 滑点保护
+    function swapToUSDC(
+        uint256 amount,
+        uint256 minAmountOut,
+        uint256 deadline
+    ) external returns (uint256 amountOut) {
+        require(block.timestamp <= deadline, "Expired");
+        
+        // 执行交换
+        amountOut = IUniswapV2Router(router).swapExactTokensForTokens(
+            amount,
+            minAmountOut,  // 滑点保护
+            path,
+            msg.sender,
+            deadline
+        )[1];
+        
+        require(amountOut >= minAmountOut, "Slippage too high");
+    }
+    
+    // CEI模式 (Checks-Effects-Interactions)
+    function withdraw(uint256 amount) external nonReentrant {
+        // Checks
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        require(amount > 0, "Zero amount");
+        
+        // Effects
+        balances[msg.sender] = balances[msg.sender].sub(amount);
+        totalSupply = totalSupply.sub(amount);
+        
+        // Interactions
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+        
+        emit Withdrawal(msg.sender, amount);
+    }
+    
+    // 防止前端跑跑
+    mapping(address => uint256) private lastActionBlock;
+    
+    modifier antiMEV() {
+        require(
+            lastActionBlock[msg.sender] < block.number,
+            "Same block action"
+        );
+        lastActionBlock[msg.sender] = block.number;
+        _;
+    }
+    
+    // 严格的访问控制
+    mapping(address => mapping(bytes4 => bool)) private permissions;
+    
+    modifier onlyPermitted(bytes4 selector) {
+        require(
+            permissions[msg.sender][selector],
+            "No permission"
+        );
+        _;
+    }
+    
+    // 参数验证
+    modifier validAddress(address addr) {
+        require(addr != address(0), "Zero address");
+        require(addr != address(this), "Invalid target");
+        _;
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <div class="practice-section">
+                <h3>📝 第三章练习题</h3>
+                
+                <div class="exercise">
+                    <h4>练习 3.1：实现完整的ERC-2612 Permit功能</h4>
+                    <p>为你的稳定币添加ERC-2612 Permit支持，实现链下签名授权。</p>
+                    <p>要求：</p>
+                    <ul>
+                        <li>实现permit函数和nonces管理</li>
+                        <li>支持EIP-712结构化签名</li>
+                        <li>实现deadline检查</li>
+                        <li>编写前端签名代码</li>
+                    </ul>
+                    <div class="answer">
+                        <h4>参考答案：</h4>
+                        <pre><code class="language-solidity">// 合约实现
+abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
+    mapping(address => uint256) private _nonces;
+    
+    bytes32 private constant _PERMIT_TYPEHASH =
+        keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
+    
+    constructor(string memory name) EIP712(name, "1") {}
+    
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual override {
+        require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
+        
+        bytes32 structHash = keccak256(abi.encode(
+            _PERMIT_TYPEHASH,
+            owner,
+            spender,
+            value,
+            _useNonce(owner),
+            deadline
+        ));
+        
+        bytes32 hash = _hashTypedDataV4(structHash);
+        address signer = ECDSA.recover(hash, v, r, s);
+        require(signer == owner, "ERC20Permit: invalid signature");
+        
+        _approve(owner, spender, value);
+    }
+    
+    function nonces(address owner) public view override returns (uint256) {
+        return _nonces[owner];
+    }
+    
+    function DOMAIN_SEPARATOR() external view override returns (bytes32) {
+        return _domainSeparatorV4();
+    }
+    
+    function _useNonce(address owner) internal returns (uint256 current) {
+        current = _nonces[owner];
+        _nonces[owner]++;
+    }
+}
+
+// 前端签名代码
+const domain = {
+    name: 'USD Stablecoin',
+    version: '1',
+    chainId: 1,
+    verifyingContract: stablecoinAddress
+};
+
+const types = {
+    Permit: [
+        { name: 'owner', type: 'address' },
+        { name: 'spender', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'deadline', type: 'uint256' }
+    ]
+};
+
+const value = {
+    owner: ownerAddress,
+    spender: spenderAddress,
+    value: amount,
+    nonce: await stablecoin.nonces(ownerAddress),
+    deadline: Math.floor(Date.now() / 1000) + 3600 // 1小时后过期
+};
+
+const signature = await signer._signTypedData(domain, types, value);
+const { v, r, s } = ethers.utils.splitSignature(signature);
+
+await stablecoin.permit(
+    ownerAddress,
+    spenderAddress,
+    amount,
+    value.deadline,
+    v, r, s
+);</code></pre>
+                    </div>
+                </div>
+                
+                <div class="exercise">
+                    <h4>练习 3.2：设计并实现紧急断路器</h4>
+                    <p>实现一个符合EIP-7265标准的紧急断路器机制。</p>
+                    <p>要求：</p>
+                    <ul>
+                        <li>检测异常大额转账</li>
+                        <li>短时间内频繁铸币自动触发</li>
+                        <li>代币价格脱锚超过5%时激活</li>
+                        <li>支持多级响应机制</li>
+                    </ul>
+                    <div class="answer">
+                        <h4>参考答案：</h4>
+                        <pre><code class="language-solidity">contract CircuitBreaker {
+    enum AlertLevel { NORMAL, WARNING, CRITICAL, EMERGENCY }
+    
+    AlertLevel public currentLevel = AlertLevel.NORMAL;
+    
+    // 阈值配置
+    uint256 public largeTransferThreshold = 1000000 * 10**6; // 100万
+    uint256 public mintRateThreshold = 10000000 * 10**6 / 1 hours; // 每小时10M
+    uint256 public priceDeviationThreshold = 500; // 5%
+    
+    // 监控数据
+    uint256 public recentMintAmount;
+    uint256 public recentMintTimestamp;
+    uint256 public lastPriceCheckTimestamp;
+    
+    // 检测大额转账
+    function checkLargeTransfer(uint256 amount) internal {
+        if (amount > largeTransferThreshold) {
+            if (currentLevel == AlertLevel.NORMAL) {
+                currentLevel = AlertLevel.WARNING;
+                emit AlertLevelChanged(AlertLevel.WARNING, "Large transfer detected");
+            }
+        }
+    }
+    
+    // 检测铸币速率
+    function checkMintRate(uint256 amount) internal {
+        if (block.timestamp > recentMintTimestamp + 1 hours) {
+            recentMintAmount = 0;
+            recentMintTimestamp = block.timestamp;
+        }
+        
+        recentMintAmount += amount;
+        
+        if (recentMintAmount > mintRateThreshold) {
+            if (currentLevel < AlertLevel.CRITICAL) {
+                currentLevel = AlertLevel.CRITICAL;
+                emit AlertLevelChanged(AlertLevel.CRITICAL, "High mint rate");
+            }
+        }
+    }
+    
+    // 检测价格脱锚
+    function checkPriceDeviation() internal {
+        if (block.timestamp < lastPriceCheckTimestamp + 5 minutes) {
+            return;
+        }
+        
+        uint256 price = getOraclePrice();
+        uint256 targetPrice = 1e18; // $1
+        
+        uint256 deviation = price > targetPrice ? 
+            ((price - targetPrice) * 10000) / targetPrice :
+            ((targetPrice - price) * 10000) / targetPrice;
+        
+        if (deviation > priceDeviationThreshold) {
+            currentLevel = AlertLevel.EMERGENCY;
+            _pause(); // 自动暂停
+            emit AlertLevelChanged(AlertLevel.EMERGENCY, "Price deviation");
+        }
+        
+        lastPriceCheckTimestamp = block.timestamp;
+    }
+    
+    // 响应机制
+    modifier circuitBreakerCheck(uint256 amount) {
+        checkLargeTransfer(amount);
+        checkPriceDeviation();
+        
+        if (currentLevel == AlertLevel.WARNING) {
+            require(amount < largeTransferThreshold / 2, "Reduced limits");
+        } else if (currentLevel == AlertLevel.CRITICAL) {
+            require(hasRole(OPERATOR_ROLE, msg.sender), "Only operators");
+        } else if (currentLevel == AlertLevel.EMERGENCY) {
+            revert("System paused");
+        }
+        
+        _;
+    }
+    
+    // 恢复机制
+    function recover() external onlyRole(EMERGENCY_ROLE) {
+        require(currentLevel != AlertLevel.NORMAL, "Already normal");
+        
+        // 检查恢复条件
+        uint256 price = getOraclePrice();
+        uint256 deviation = calculateDeviation(price);
+        require(deviation < 200, "Price still unstable"); // 2%以内
+        
+        currentLevel = AlertLevel.NORMAL;
+        _unpause();
+        emit SystemRecovered(block.timestamp);
+    }
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="exercise">
+                    <h4>练习 3.3：优化Gas消耗</h4>
+                    <p>使用各种技术优化以下合约的Gas消耗，使其比原版节省至少50%。</p>
+                    <pre><code class="language-solidity">// 原始版本
+contract ExpensiveToken {
+    mapping(address => uint256) public balances;
+    mapping(address => mapping(address => uint256)) public allowances;
+    mapping(address => bool) public isWhitelisted;
+    mapping(address => uint256) public lastTransferTime;
+    
+    uint256 public totalSupply;
+    address public owner;
+    bool public paused;
+    
+    function transfer(address to, uint256 amount) public {
+        require(!paused, "Paused");
+        require(isWhitelisted[msg.sender], "Not whitelisted");
+        require(isWhitelisted[to], "Recipient not whitelisted");
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        
+        balances[msg.sender] = balances[msg.sender] - amount;
+        balances[to] = balances[to] + amount;
+        lastTransferTime[msg.sender] = block.timestamp;
+        lastTransferTime[to] = block.timestamp;
+    }
+}</code></pre>
+                    <div class="answer">
+                        <h4>参考答案：</h4>
+                        <pre><code class="language-solidity">// 优化版本
+contract OptimizedToken {
+    // 存储槽打包
+    struct AccountData {
+        uint128 balance;
+        uint64 lastTransferTime;
+        bool isWhitelisted;
+        // 63 bits 剩余
+    }
+    
+    mapping(address => AccountData) public accounts;
+    mapping(address => mapping(address => uint256)) public allowances;
+    
+    // 打包状态变量
+    uint128 public totalSupply;
+    address public owner;
+    bool public paused;
+    // 7 bits 剩余
+    
+    // 使用modifier减少重复代码
+    modifier whenNotPaused() {
+        assembly {
+            // 直接读取packed slot
+            let slot := sload(owner.slot)
+            let isPaused := and(shr(160, slot), 1)
+            if isPaused { revert(0, 0) }
+        }
+        _;
+    }
+    
+    function transfer(address to, uint256 amount) external whenNotPaused {
+        // 使用assembly优化
+        assembly {
+            // 计算sender的存储位置
+            mstore(0x00, caller())
+            mstore(0x20, accounts.slot)
+            let senderSlot := keccak256(0x00, 0x40)
+            
+            // 计算receiver的存储位置
+            mstore(0x00, to)
+            let receiverSlot := keccak256(0x00, 0x40)
+            
+            // 读取数据
+            let senderData := sload(senderSlot)
+            let receiverData := sload(receiverSlot)
+            
+            // 解析数据
+            let senderBalance := and(senderData, 0xffffffffffffffffffffffffffffffff)
+            let senderWhitelisted := and(shr(192, senderData), 1)
+            let receiverWhitelisted := and(shr(192, receiverData), 1)
+            
+            // 检查白名单
+            if iszero(senderWhitelisted) { revert(0, 0) }
+            if iszero(receiverWhitelisted) { revert(0, 0) }
+            
+            // 检查余额
+            if lt(senderBalance, amount) { revert(0, 0) }
+            
+            // 计算新余额
+            let newSenderBalance := sub(senderBalance, amount)
+            let receiverBalance := and(receiverData, 0xffffffffffffffffffffffffffffffff)
+            let newReceiverBalance := add(receiverBalance, amount)
+            
+            // 更新时间戳
+            let timestamp := timestamp()
+            
+            // 重新打包数据
+            let newSenderData := or(
+                or(newSenderBalance, shl(128, timestamp)),
+                shl(192, senderWhitelisted)
+            )
+            let newReceiverData := or(
+                or(newReceiverBalance, shl(128, timestamp)),
+                shl(192, receiverWhitelisted)
+            )
+            
+            // 写入存储
+            sstore(senderSlot, newSenderData)
+            sstore(receiverSlot, newReceiverData)
+        }
+    }
+    
+    // 批量操作减少交易次数
+    function batchTransfer(
+        address[] calldata recipients,
+        uint256[] calldata amounts
+    ) external whenNotPaused {
+        uint256 length = recipients.length;
+        require(length == amounts.length, "Length mismatch");
+        
+        // 使用瞬时存储缓存总额
+        assembly {
+            let totalAmount := 0
+            for { let i := 0 } lt(i, length) { i := add(i, 1) } {
+                let amount := calldataload(add(amounts.offset, mul(i, 0x20)))
+                totalAmount := add(totalAmount, amount)
+            }
+            tstore(0, totalAmount)
+        }
+        
+        // 执行转账
+        for (uint256 i; i < length; ) {
+            _optimizedTransfer(recipients[i], amounts[i]);
+            unchecked { ++i; }
+        }
+    }
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="exercise">
+                    <h4>练习 3.4：跨链稳定币设计</h4>
+                    <p>设计一个支持多链部署的原生稳定币系统，避免传统桥接模式的风险。</p>
+                    <p>要求：</p>
+                    <ul>
+                        <li>每条链上独立铸币/销毁</li>
+                        <li>跨链转账通过销毁-铸造模式</li>
+                        <li>全局供应量同步</li>
+                        <li>支持故障恢复</li>
+                    </ul>
+                    <div class="answer">
+                        <h4>参考答案：</h4>
+                        <pre><code class="language-solidity">// 主合约部署在所有链上
+contract NativeMultichainStablecoin {
+    using LayerZeroEndpoint for address;
+    
+    // 链信息
+    struct ChainInfo {
+        uint256 localSupply;    // 本链供应量
+        uint256 mintCap;        // 铸币上限
+        uint256 dailyLimit;     // 每日跨链限额
+        uint256 dailyVolume;    // 今日跨链量
+        uint256 lastResetTime;  // 上次重置时间
+    }
+    
+    mapping(uint16 => ChainInfo) public chains;
+    mapping(uint16 => mapping(bytes32 => bool)) public processedMessages;
+    
+    uint256 public globalSupply; // 全局总供应量
+    uint16 public immutable currentChainId;
+    
+    // 跨链消息类型
+    enum MessageType { TRANSFER, SUPPLY_SYNC, EMERGENCY }
+    
+    // 本地铸币
+    function mintLocal(address to, uint256 amount) external onlyMinter {
+        ChainInfo storage chain = chains[currentChainId];
+        require(chain.localSupply + amount <= chain.mintCap, "Exceeds cap");
+        
+        _mint(to, amount);
+        chain.localSupply += amount;
+        
+        // 广播供应量更新
+        _broadcastSupplyUpdate();
+    }
+    
+    // 跨链转账
+    function crossChainTransfer(
+        uint16 destChainId,
+        address recipient,
+        uint256 amount
+    ) external payable {
+        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
+        
+        // 检查日限额
+        _checkDailyLimit(destChainId, amount);
+        
+        // 销毁本地代币
+        _burn(msg.sender, amount);
+        chains[currentChainId].localSupply -= amount;
+        
+        // 构建跨链消息
+        bytes memory payload = abi.encode(
+            MessageType.TRANSFER,
+            recipient,
+            amount,
+            block.timestamp
+        );
+        
+        // 发送LayerZero消息
+        _lzSend(
+            destChainId,
+            payload,
+            payable(msg.sender),
+            address(0),
+            bytes(""),
+            msg.value
+        );
+        
+        emit CrossChainTransfer(msg.sender, destChainId, recipient, amount);
+    }
+    
+    // 接收跨链消息
+    function _nonblockingLzReceive(
+        uint16 srcChainId,
+        bytes memory srcAddress,
+        uint64 nonce,
+        bytes memory payload
+    ) internal override {
+        // 防重放
+        bytes32 messageId = keccak256(abi.encode(srcChainId, nonce));
+        require(!processedMessages[srcChainId][messageId], "Duplicate");
+        processedMessages[srcChainId][messageId] = true;
+        
+        (MessageType msgType, ) = abi.decode(payload, (MessageType, bytes));
+        
+        if (msgType == MessageType.TRANSFER) {
+            _handleTransfer(srcChainId, payload);
+        } else if (msgType == MessageType.SUPPLY_SYNC) {
+            _handleSupplySync(srcChainId, payload);
+        } else if (msgType == MessageType.EMERGENCY) {
+            _handleEmergency(srcChainId, payload);
+        }
+    }
+    
+    // 处理转账
+    function _handleTransfer(
+        uint16 srcChainId,
+        bytes memory payload
+    ) internal {
+        (, address recipient, uint256 amount, ) = abi.decode(
+            payload,
+            (MessageType, address, uint256, uint256)
+        );
+        
+        // 铸造新币
+        _mint(recipient, amount);
+        chains[currentChainId].localSupply += amount;
+        
+        emit CrossChainReceived(srcChainId, recipient, amount);
+    }
+    
+    // 供应量同步
+    function _broadcastSupplyUpdate() internal {
+        bytes memory payload = abi.encode(
+            MessageType.SUPPLY_SYNC,
+            currentChainId,
+            chains[currentChainId].localSupply,
+            block.timestamp
+        );
+        
+        // 向所有链广播
+        uint16[] memory chainIds = getActiveChains();
+        for (uint i = 0; i < chainIds.length; i++) {
+            if (chainIds[i] != currentChainId) {
+                _lzSend(chainIds[i], payload, payable(address(this)), address(0), bytes(""), 0);
+            }
+        }
+    }
+    
+    // 紧急暂停
+    function emergencyPause(string memory reason) external onlyEmergency {
+        _pause();
+        
+        // 广播紧急消息
+        bytes memory payload = abi.encode(
+            MessageType.EMERGENCY,
+            currentChainId,
+            reason,
+            block.timestamp
+        );
+        
+        _broadcastEmergency(payload);
+    }
+    
+    // 故障恢复机制
+    function recoverFromFailure(
+        uint16 failedChainId,
+        uint256 lastKnownSupply
+    ) external onlyRole(RECOVERY_ROLE) {
+        // 更新失败链的供应量信息
+        chains[failedChainId].localSupply = lastKnownSupply;
+        
+        // 重新计算全局供应量
+        _recalculateGlobalSupply();
+        
+        emit ChainRecovered(failedChainId, lastKnownSupply);
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>本章小结</h3>
+            <div class="summary-box">
+                <h4>核心要点回顾：</h4>
+                <ul>
+                    <li><strong>ERC-20标准：</strong>稳定币的基础接口，需要扩展以支持合规功能</li>
+                    <li><strong>可升级架构：</strong>UUPS模式提供最佳Gas效率，适合高频交易场景</li>
+                    <li><strong>跨链互操作：</strong>LayerZero和IBC提供不同的安全性和去中心化权衡</li>
+                    <li><strong>Gas优化：</strong>通过存储打包、批量操作和事件日志可大幅降低成本</li>
+                    <li><strong>合规功能：</strong>KYC、AML、黑名单是企业级稳定币的必备功能</li>
+                </ul>
+                
+                <h4>下一步学习：</h4>
+                <p>在掌握了ERC-20标准和可升级架构后，下一章我们将深入探讨抵押型稳定币的设计，包括金库机制、清算引擎和预言机集成。</p>
+            </div>
+            
+            <h3>术语速查表</h3>
+            <table class="glossary-table">
+                <tr>
+                    <th>术语</th>
+                    <th>英文</th>
+                    <th>解释</th>
+                </tr>
+                <tr>
+                    <td>代理模式</td>
+                    <td>Proxy Pattern</td>
+                    <td>通过代理合约调用实现合约，实现可升级性</td>
+                </tr>
+                <tr>
+                    <td>存储槽</td>
+                    <td>Storage Slot</td>
+                    <td>EVM中的256位存储单位，每个槽消耗20000 Gas</td>
+                </tr>
+                <tr>
+                    <td>轻客户端</td>
+                    <td>Light Client</td>
+                    <td>只存储区块头的客户端，用于验证跨链消息</td>
+                </tr>
+                <tr>
+                    <td>包装代币</td>
+                    <td>Wrapped Token</td>
+                    <td>在目标链上代表源链资产的合成代币</td>
+                </tr>
+                <tr>
+                    <td>时间锁</td>
+                    <td>Timelock</td>
+                    <td>延迟执行机制，增加安全性和可预测性</td>
+                </tr>
+            </table>
+        
+            
+            <!-- 章节导航 -->
+            <div class="chapter-nav">
+                <a href="chapter2.html">← 第2章</a>
+                <a href="chapter4.html">第4章 →</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-solidity.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
