@@ -691,18 +691,6 @@
                     <li class="nav-item">
                         <a href="#chapter11" class="nav-link">第十一章</a>
                     </li>
-                    <li class="nav-item">
-                        <a href="#chapter12" class="nav-link">第十二章</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#chapter13" class="nav-link">第十三章</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#chapter14" class="nav-link">第十四章</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#chapter15" class="nav-link">第十五章</a>
-                    </li>
                 </ul>
             </div>
         </div>
@@ -713,21 +701,17 @@
         <h4>章节导航</h4>
         <ul class="chapter-list">
             <li><a href="#intro">引言：稳定币历史与概念</a></li>
-            <li><a href="#chapter1">1. 区块链基础</a></li>
-            <li><a href="#chapter2">2. 稳定币分类</a></li>
-            <li><a href="#chapter3">3. ERC-20标准</a></li>
-            <li><a href="#chapter4">4. 抵押机制</a></li>
-            <li><a href="#chapter5">5. 数学模型</a></li>
+            <li><a href="#chapter1">1. 区块链基础与稳定币</a></li>
+            <li><a href="#chapter2">2. 稳定币分类与经济模型</a></li>
+            <li><a href="#chapter3">3. ERC-20及扩展标准</a></li>
+            <li><a href="#chapter4">4. 抵押型稳定币设计</a></li>
+            <li><a href="#chapter5">5. 数学模型与控制理论</a></li>
             <li><a href="#chapter6">6. AMM集成</a></li>
             <li><a href="#chapter7">7. 借贷协议</a></li>
             <li><a href="#chapter8">8. 收益策略</a></li>
             <li><a href="#chapter9">9. 智能合约安全</a></li>
-            <li><a href="#chapter10">10. 经济攻击防御</a></li>
-            <li><a href="#chapter11">11. 跨链稳定币</a></li>
-            <li><a href="#chapter12">12. 监管合规</a></li>
-            <li><a href="#chapter13">13. 替代平台</a></li>
-            <li><a href="#chapter14">14. 市场分析</a></li>
-            <li><a href="#chapter15">15. 案例研究</a></li>
+            <li><a href="#chapter10">10. 经济攻击与防御</a></li>
+            <li><a href="#chapter11">11. 未来方向与研究前沿</a></li>
         </ul>
     </div>
     
@@ -27571,24 +27555,6 @@ contract MEVProtectedTradingSystem {
                 记住：安全不是一次性的工作，而是持续的过程。</div>
         </div>
     </div>
-
-    <!-- 第十一章：跨链稳定币 -->
-    <div class="chapter" id="chapter11">
-        <h2>第十一章：跨链稳定币</h2>
-        <p class="coming-soon">即将推出...</p>
-    </div>
-
-    <!-- 第十二章：监管合规 -->
-    <div class="chapter" id="chapter12">
-        <h2>第十二章：监管合规</h2>
-        <p class="coming-soon">即将推出...</p>
-    </div>
-            <ol>
-                <li>交易排序随机化</li>
-                <li>批量执行机制</li>
-                <li>MEV利润再分配</li>
-                <li>私有内存池集成</li>
-            </ol>
             
             <button class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案</button>
             <div class="answer-content">
@@ -28960,8 +28926,1040 @@ contract CrossBorderComplianceRouter {
             <p><strong>⚠️ 量子威胁时间表</strong>：专家预测，能够破解当前加密算法的量子计算机可能在10-20年内出现。稳定币系统需要提前布局后量子安全方案。</p>
         </div>
         
+        <h4>11.2.1 量子计算对当前密码学的威胁</h4>
+        
         <div class="theory-section">
-            <h4>11.2.1 量子计算对稳定币的威胁分析</h4>
+            <h5>量子算法的破解能力</h5>
+            <div class="info-box">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="background: #f3f4f6;">
+                        <th style="border: 1px solid #ddd; padding: 8px;">密码学原语</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">当前安全性</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">量子威胁</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">破解算法</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">影响时间</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">RSA-2048</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">112 bits</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">完全破解</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Shor算法</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">数小时</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">ECDSA (secp256k1)</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">128 bits</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">完全破解</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Shor算法</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">数分钟</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">SHA-256</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">256 bits</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">降至128 bits</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Grover算法</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">仍然安全</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">AES-128</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">128 bits</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">降至64 bits</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Grover算法</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">需升级到AES-256</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <h5>稳定币系统的量子风险点</h5>
+            <ul>
+                <li><strong>私钥安全</strong>：所有基于ECDSA的地址都可能被破解，包括冷钱包</li>
+                <li><strong>交易签名</strong>：历史交易可能被伪造或修改</li>
+                <li><strong>多签钱包</strong>：多重签名机制失效</li>
+                <li><strong>跨链桥</strong>：验证机制被破坏，可能导致无限铸币</li>
+                <li><strong>预言机签名</strong>：价格数据可被篡改</li>
+                <li><strong>治理投票</strong>：投票结果可被操纵</li>
+            </ul>
+            
+            <h5>量子计算发展现状</h5>
+            <div class="tip-box">
+                <strong>🔬 2024年量子计算里程碑：</strong>
+                <ul>
+                    <li>IBM Condor: 1,121量子比特</li>
+                    <li>Google Sycamore: 70量子比特，错误率< 0.1%</li>
+                    <li>中国"九章三号": 255光子量子比特</li>
+                    <li>预计破解RSA-2048需要: ~4,000逻辑量子比特</li>
+                    <li>当前差距: 需要100万物理量子比特实现4,000逻辑量子比特</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h4>11.2.2 后量子密码学方案</h4>
+        
+        <div class="theory-section">
+            <h5>NIST后量子密码学标准</h5>
+            <div class="info-box">
+                <p><strong>2024年NIST标准化算法：</strong></p>
+                <ul>
+                    <li><strong>CRYSTALS-Kyber</strong>：基于格的密钥封装机制（KEM）</li>
+                    <li><strong>CRYSTALS-Dilithium</strong>：基于格的数字签名</li>
+                    <li><strong>FALCON</strong>：基于格的紧凑签名</li>
+                    <li><strong>SPHINCS+</strong>：基于哈希的签名（无状态）</li>
+                </ul>
+            </div>
+            
+            <h5>后量子算法比较</h5>
+            <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                <tr style="background: #f3f4f6;">
+                    <th style="border: 1px solid #ddd; padding: 8px;">算法</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">类型</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">公钥大小</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">签名大小</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">速度</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">适用场景</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Dilithium-3</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">格基</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">1,952 bytes</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">3,293 bytes</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">快</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">通用</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">FALCON-512</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">格基</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">897 bytes</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">666 bytes</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">很快</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">带宽受限</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">SPHINCS+-128f</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">哈希基</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">32 bytes</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">17,088 bytes</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">慢</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">长期存储</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">XMSS</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">哈希基</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">64 bytes</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2,500 bytes</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">中等</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">固件签名</td>
+                </tr>
+            </table>
+        </div>
+        
+        <h4>11.2.3 后量子稳定币实现</h4>
+        
+        <div class="practice-section">
+            <h5>混合密码学方案</h5>
+            <p>在过渡期间，使用传统密码学和后量子密码学的组合，确保即使一种算法被破解，系统仍然安全：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">后量子稳定币合约实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// 后量子安全的稳定币合约
+pragma solidity ^0.8.0;
+
+import "./DilithiumVerifier.sol";
+import "./SPHINCSVerifier.sol";
+
+contract QuantumResistantStablecoin {
+    // 混合签名方案
+    struct HybridSignature {
+        bytes ecdsaSignature;      // 传统ECDSA签名
+        bytes dilithiumSignature;  // 后量子Dilithium签名
+        uint8 signatureType;       // 0: ECDSA, 1: Dilithium, 2: Both
+    }
+    
+    // 后量子安全的账户
+    struct QuantumSafeAccount {
+        address classicAddress;           // 传统以太坊地址
+        bytes32 dilithiumPublicKeyHash;   // Dilithium公钥哈希
+        bytes32 sphincsPublicKeyHash;     // SPHINCS+公钥哈希（备用）
+        uint256 migrationDeadline;        // 强制迁移截止时间
+        bool isQuantumSecure;             // 是否已完成量子安全迁移
+    }
+    
+    mapping(address => QuantumSafeAccount) public accounts;
+    mapping(address => uint256) public balances;
+    
+    // 量子威胁级别
+    enum QuantumThreatLevel { LOW, MEDIUM, HIGH, CRITICAL }
+    QuantumThreatLevel public currentThreatLevel = QuantumThreatLevel.LOW;
+    
+    // 事件
+    event QuantumMigrationInitiated(address account, bytes32 pqPublicKeyHash);
+    event QuantumThreatLevelUpdated(QuantumThreatLevel newLevel);
+    event EmergencyQuantumMigration(address[] accounts);
+    
+    // 注册后量子公钥
+    function registerQuantumKey(
+        bytes calldata dilithiumPublicKey,
+        bytes calldata sphincsPublicKey,
+        bytes calldata migrationProof
+    ) external {
+        // 验证公钥有效性
+        require(
+            DilithiumVerifier.verifyPublicKey(dilithiumPublicKey),
+            "Invalid Dilithium key"
+        );
+        require(
+            SPHINCSVerifier.verifyPublicKey(sphincsPublicKey),
+            "Invalid SPHINCS+ key"
+        );
+        
+        // 验证迁移证明（证明拥有原私钥）
+        require(
+            verifyMigrationProof(msg.sender, dilithiumPublicKey, migrationProof),
+            "Invalid migration proof"
+        );
+        
+        // 更新账户信息
+        accounts[msg.sender].dilithiumPublicKeyHash = keccak256(dilithiumPublicKey);
+        accounts[msg.sender].sphincsPublicKeyHash = keccak256(sphincsPublicKey);
+        accounts[msg.sender].migrationDeadline = block.timestamp + 365 days;
+        
+        emit QuantumMigrationInitiated(msg.sender, keccak256(dilithiumPublicKey));
+    }
+    
+    // 混合签名转账
+    function quantumSafeTransfer(
+        address to,
+        uint256 amount,
+        HybridSignature calldata signature,
+        bytes calldata transactionData
+    ) external {
+        address from = msg.sender;
+        
+        // 根据威胁级别决定签名要求
+        if (currentThreatLevel == QuantumThreatLevel.LOW) {
+            // 仅需要ECDSA签名
+            require(
+                verifyECDSASignature(from, transactionData, signature.ecdsaSignature),
+                "Invalid ECDSA signature"
+            );
+        } else if (currentThreatLevel == QuantumThreatLevel.MEDIUM) {
+            // 需要ECDSA或Dilithium签名
+            require(
+                verifyECDSASignature(from, transactionData, signature.ecdsaSignature) ||
+                verifyDilithiumSignature(from, transactionData, signature.dilithiumSignature),
+                "Invalid signature"
+            );
+        } else {
+            // HIGH或CRITICAL级别：必须使用后量子签名
+            require(
+                verifyDilithiumSignature(from, transactionData, signature.dilithiumSignature),
+                "Quantum signature required"
+            );
+            
+            // CRITICAL级别：需要双重签名
+            if (currentThreatLevel == QuantumThreatLevel.CRITICAL) {
+                require(
+                    verifyECDSASignature(from, transactionData, signature.ecdsaSignature),
+                    "Dual signature required"
+                );
+            }
+        }
+        
+        // 执行转账
+        _transfer(from, to, amount);
+    }
+    
+    // 量子安全的多签钱包
+    contract QuantumMultiSig {
+        struct QuantumSigner {
+            bytes32 dilithiumKeyHash;
+            bytes32 sphincsKeyHash;
+            uint8 weight;  // 签名权重
+        }
+        
+        mapping(address => QuantumSigner) public signers;
+        uint8 public requiredWeight;
+        
+        // 执行交易需要的后量子签名
+        struct QuantumMultiSigTx {
+            address to;
+            uint256 value;
+            bytes data;
+            bytes[] dilithiumSignatures;
+            address[] signerAddresses;
+        }
+        
+        function executeQuantumMultiSig(
+            QuantumMultiSigTx calldata tx
+        ) external {
+            // 计算交易哈希
+            bytes32 txHash = keccak256(abi.encode(tx.to, tx.value, tx.data));
+            
+            // 验证签名权重
+            uint8 totalWeight = 0;
+            for (uint i = 0; i < tx.signerAddresses.length; i++) {
+                QuantumSigner memory signer = signers[tx.signerAddresses[i]];
+                
+                // 验证后量子签名
+                require(
+                    DilithiumVerifier.verify(
+                        signer.dilithiumKeyHash,
+                        txHash,
+                        tx.dilithiumSignatures[i]
+                    ),
+                    "Invalid quantum signature"
+                );
+                
+                totalWeight += signer.weight;
+            }
+            
+            require(totalWeight >= requiredWeight, "Insufficient signatures");
+            
+            // 执行交易
+            (bool success,) = tx.to.call{value: tx.value}(tx.data);
+            require(success, "Transaction failed");
+        }
+    }
+    
+    // 紧急量子迁移机制
+    function emergencyQuantumMigration(
+        address[] calldata accountsToMigrate,
+        bytes[] calldata newQuantumAddresses
+    ) external onlyGovernance {
+        require(
+            currentThreatLevel >= QuantumThreatLevel.HIGH,
+            "Not in emergency state"
+        );
+        
+        for (uint i = 0; i < accountsToMigrate.length; i++) {
+            // 冻结旧账户
+            accounts[accountsToMigrate[i]].isQuantumSecure = false;
+            
+            // 创建新的量子安全账户
+            // 余额将通过特殊的恢复流程转移
+            emit EmergencyQuantumMigration(accountsToMigrate);
+        }
+    }
+    
+    // 后量子密钥轮换
+    function rotateQuantumKeys(
+        bytes calldata newDilithiumPublicKey,
+        bytes calldata rotationProof
+    ) external {
+        QuantumSafeAccount storage account = accounts[msg.sender];
+        
+        // 验证轮换证明（使用旧密钥签名新密钥）
+        require(
+            DilithiumVerifier.verify(
+                account.dilithiumPublicKeyHash,
+                keccak256(newDilithiumPublicKey),
+                rotationProof
+            ),
+            "Invalid rotation proof"
+        );
+        
+        // 更新密钥
+        account.dilithiumPublicKeyHash = keccak256(newDilithiumPublicKey);
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h5>量子随机数生成器集成</h5>
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">量子随机数生成器接口 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-python"># 量子随机数生成器集成
+import requests
+import hashlib
+from typing import List, Tuple
+import numpy as np
+
+class QuantumRandomGenerator:
+    """集成真量子随机数生成器用于密钥生成"""
+    
+    def __init__(self, provider="anu_qrng"):
+        self.provider = provider
+        self.api_endpoints = {
+            "anu_qrng": "https://qrng.anu.edu.au/API/jsonI.php",
+            "ibm_qrng": "https://quantum-computing.ibm.com/api/qrng"
+        }
+        
+    def get_quantum_random_bytes(self, num_bytes: int) -> bytes:
+        """获取量子随机字节"""
+        if self.provider == "anu_qrng":
+            # Australian National University QRNG
+            response = requests.get(
+                f"{self.api_endpoints['anu_qrng']}?length={num_bytes}&type=hex16"
+            )
+            data = response.json()
+            return bytes.fromhex(data['data'][0])
+        else:
+            # 备用：使用硬件随机数生成器
+            return os.urandom(num_bytes)
+    
+    def generate_pq_keypair(self, algorithm="dilithium"):
+        """生成后量子密钥对"""
+        # 获取量子随机种子
+        seed = self.get_quantum_random_bytes(32)
+        
+        if algorithm == "dilithium":
+            from pqcrypto.sign import dilithium3
+            # 使用量子随机数作为种子
+            public_key, secret_key = dilithium3.generate_keypair(seed)
+            return public_key, secret_key
+            
+        elif algorithm == "sphincs":
+            from pqcrypto.sign import sphincs_sha256_128f
+            public_key, secret_key = sphincs_sha256_128f.generate_keypair(seed)
+            return public_key, secret_key
+    
+    def generate_hybrid_keypair(self):
+        """生成混合密钥对（传统+后量子）"""
+        # ECDSA密钥
+        from cryptography.hazmat.primitives.asymmetric import ec
+        ecdsa_private = ec.generate_private_key(
+            ec.SECP256K1(),
+            backend=default_backend()
+        )
+        
+        # Dilithium密钥
+        dilithium_pub, dilithium_priv = self.generate_pq_keypair("dilithium")
+        
+        # SPHINCS+密钥（备用）
+        sphincs_pub, sphincs_priv = self.generate_pq_keypair("sphincs")
+        
+        return {
+            'ecdsa': {
+                'private': ecdsa_private,
+                'public': ecdsa_private.public_key()
+            },
+            'dilithium': {
+                'private': dilithium_priv,
+                'public': dilithium_pub
+            },
+            'sphincs': {
+                'private': sphincs_priv,
+                'public': sphincs_pub
+            }
+        }
+
+# 后量子安全的交易签名
+class QuantumSafeTransaction:
+    def __init__(self, qrng: QuantumRandomGenerator):
+        self.qrng = qrng
+        
+    def create_hybrid_signature(self, message: bytes, keys: dict) -> dict:
+        """创建混合签名（ECDSA + Dilithium）"""
+        # ECDSA签名
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.asymmetric import ec
+        
+        ecdsa_sig = keys['ecdsa']['private'].sign(
+            message,
+            ec.ECDSA(hashes.SHA256())
+        )
+        
+        # Dilithium签名
+        from pqcrypto.sign import dilithium3
+        dilithium_sig = dilithium3.sign(
+            keys['dilithium']['private'],
+            message
+        )
+        
+        return {
+            'ecdsa': ecdsa_sig,
+            'dilithium': dilithium_sig,
+            'message_hash': hashlib.sha256(message).hexdigest(),
+            'timestamp': int(time.time())
+        }
+    
+    def verify_hybrid_signature(self, message: bytes, signature: dict, 
+                              public_keys: dict) -> bool:
+        """验证混合签名"""
+        # 验证ECDSA
+        try:
+            public_keys['ecdsa'].verify(
+                signature['ecdsa'],
+                message,
+                ec.ECDSA(hashes.SHA256())
+            )
+            ecdsa_valid = True
+        except:
+            ecdsa_valid = False
+            
+        # 验证Dilithium
+        try:
+            from pqcrypto.sign import dilithium3
+            dilithium3.verify(
+                public_keys['dilithium'],
+                signature['dilithium'],
+                message
+            )
+            dilithium_valid = True
+        except:
+            dilithium_valid = False
+            
+        # 根据威胁级别决定验证策略
+        threat_level = self.get_quantum_threat_level()
+        
+        if threat_level == "LOW":
+            return ecdsa_valid
+        elif threat_level == "MEDIUM":
+            return ecdsa_valid or dilithium_valid
+        else:  # HIGH or CRITICAL
+            return dilithium_valid
+
+# 使用示例
+qrng = QuantumRandomGenerator()
+tx_handler = QuantumSafeTransaction(qrng)
+
+# 生成混合密钥对
+hybrid_keys = qrng.generate_hybrid_keypair()
+
+# 创建交易
+transaction_data = {
+    'from': '0x123...',
+    'to': '0x456...',
+    'amount': 1000,
+    'nonce': 42
+}
+
+message = json.dumps(transaction_data).encode()
+signature = tx_handler.create_hybrid_signature(message, hybrid_keys)
+
+# 验证签名
+is_valid = tx_handler.verify_hybrid_signature(
+    message, 
+    signature,
+    {
+        'ecdsa': hybrid_keys['ecdsa']['public'],
+        'dilithium': hybrid_keys['dilithium']['public']
+    }
+)</code></pre>
+                </div>
+            </div>
+        </div>
+        
+        <h4>11.2.4 迁移策略与时间表</h4>
+        
+        <div class="theory-section">
+            <h5>分阶段迁移计划</h5>
+            <div class="timeline" style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                <h6>📅 后量子迁移路线图</h6>
+                <ul style="list-style-type: none; padding-left: 0;">
+                    <li><strong>第一阶段 (2024-2025)</strong>：研究与原型
+                        <ul>
+                            <li>评估不同后量子算法的性能</li>
+                            <li>开发混合签名方案</li>
+                            <li>在测试网部署试点</li>
+                        </ul>
+                    </li>
+                    <li><strong>第二阶段 (2025-2027)</strong>：软迁移
+                        <ul>
+                            <li>支持传统和后量子双重签名</li>
+                            <li>鼓励用户自愿迁移</li>
+                            <li>建立量子威胁监测系统</li>
+                        </ul>
+                    </li>
+                    <li><strong>第三阶段 (2027-2030)</strong>：硬迁移
+                        <ul>
+                            <li>设置强制迁移截止日期</li>
+                            <li>逐步提高后量子签名要求</li>
+                            <li>为未迁移账户提供托管服务</li>
+                        </ul>
+                    </li>
+                    <li><strong>第四阶段 (2030+)</strong>：完全量子安全
+                        <ul>
+                            <li>停止支持传统密码学</li>
+                            <li>实现完全的后量子安全</li>
+                            <li>准备应对更高级的量子威胁</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            
+            <h5>紧急响应机制</h5>
+            <div class="warning-box">
+                <p><strong>量子突破应急预案：</strong></p>
+                <ol>
+                    <li><strong>立即冻结</strong>：暂停所有大额转账</li>
+                    <li><strong>强制迁移</strong>：48小时内完成关键账户迁移</li>
+                    <li><strong>哈希时间锁</strong>：使用HTLC保护进行中的交易</li>
+                    <li><strong>社交恢复</strong>：通过社交恢复机制保护用户资产</li>
+                    <li><strong>硬分叉准备</strong>：必要时执行紧急硬分叉</li>
+                </ol>
+            </div>
+        </div>
+        
+        <h4>11.2.5 实际挑战与解决方案</h4>
+        
+        <div class="practice-section">
+            <h5>性能优化策略</h5>
+            <div class="info-box">
+                <p><strong>后量子算法的性能挑战：</strong></p>
+                <ul>
+                    <li><strong>签名大小</strong>：Dilithium签名比ECDSA大50倍</li>
+                    <li><strong>验证时间</strong>：某些算法验证时间增加10倍</li>
+                    <li><strong>Gas成本</strong>：后量子操作可能超出区块Gas限制</li>
+                    <li><strong>存储成本</strong>：公钥和签名存储成本大幅增加</li>
+                </ul>
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">优化的后量子实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// Gas优化的后量子稳定币
+contract OptimizedQuantumStablecoin {
+    // 使用压缩的公钥表示
+    struct CompressedQuantumKey {
+        bytes32 keyHash;           // 公钥哈希
+        uint8 keyType;            // 0: Dilithium, 1: FALCON, 2: SPHINCS+
+        uint32 keyIndex;          // 批量验证索引
+    }
+    
+    // 批量验证优化
+    struct BatchVerification {
+        bytes32[] messageHashes;
+        bytes[] signatures;
+        CompressedQuantumKey[] publicKeys;
+        uint256 batchId;
+    }
+    
+    // 链下计算，链上验证
+    mapping(uint256 => bytes32) public batchVerificationResults;
+    
+    // 使用预编译合约加速
+    address constant DILITHIUM_PRECOMPILE = 0x0000000000000000000000000000000000000100;
+    address constant FALCON_PRECOMPILE = 0x0000000000000000000000000000000000000101;
+    
+    // 批量验证后量子签名
+    function batchVerifyQuantumSignatures(
+        BatchVerification calldata batch
+    ) external returns (bool) {
+        // 第一步：链下预计算
+        bytes32 batchHash = keccak256(abi.encode(
+            batch.messageHashes,
+            batch.signatures,
+            batch.publicKeys
+        ));
+        
+        // 第二步：使用预编译合约验证
+        (bool success, bytes memory result) = DILITHIUM_PRECOMPILE.staticcall(
+            abi.encode(batch)
+        );
+        
+        require(success, "Precompile verification failed");
+        
+        // 第三步：存储结果供后续使用
+        batchVerificationResults[batch.batchId] = batchHash;
+        
+        return true;
+    }
+    
+    // 分层签名方案（降低日常操作成本）
+    struct HierarchicalKey {
+        bytes32 masterKeyHash;     // 主密钥（后量子）
+        bytes32 dailyKeyHash;      // 日常密钥（传统）
+        uint256 dailyKeyExpiry;    // 日常密钥过期时间
+        uint256 dailySpendLimit;   // 日常密钥额度
+    }
+    
+    mapping(address => HierarchicalKey) public hierarchicalKeys;
+    
+    // 使用日常密钥进行小额转账
+    function transferWithDailyKey(
+        address to,
+        uint256 amount,
+        bytes calldata ecdsaSignature
+    ) external {
+        HierarchicalKey storage key = hierarchicalKeys[msg.sender];
+        
+        // 检查日常密钥有效性
+        require(block.timestamp < key.dailyKeyExpiry, "Daily key expired");
+        require(amount <= key.dailySpendLimit, "Exceeds daily limit");
+        
+        // 仅需要ECDSA验证（Gas便宜）
+        require(
+            verifyECDSAWithKeyHash(
+                msg.sender,
+                key.dailyKeyHash,
+                keccak256(abi.encode(to, amount)),
+                ecdsaSignature
+            ),
+            "Invalid daily key signature"
+        );
+        
+        // 更新日常额度
+        key.dailySpendLimit -= amount;
+        
+        // 执行转账
+        _transfer(msg.sender, to, amount);
+    }
+    
+    // 状态通道集成（减少链上操作）
+    contract QuantumStateChannel {
+        struct Channel {
+            address participantA;
+            address participantB;
+            bytes32 quantumKeyHashA;
+            bytes32 quantumKeyHashB;
+            uint256 balanceA;
+            uint256 balanceB;
+            uint256 nonce;
+        }
+        
+        mapping(bytes32 => Channel) public channels;
+        
+        // 开启状态通道（仅需一次后量子签名）
+        function openChannel(
+            address counterparty,
+            uint256 deposit,
+            bytes calldata quantumSignature
+        ) external returns (bytes32 channelId) {
+            // 验证后量子签名
+            require(
+                verifyQuantumSignature(
+                    msg.sender,
+                    keccak256(abi.encode(counterparty, deposit)),
+                    quantumSignature
+                ),
+                "Invalid quantum signature"
+            );
+            
+            // 创建通道
+            channelId = keccak256(abi.encode(
+                msg.sender,
+                counterparty,
+                block.timestamp
+            ));
+            
+            channels[channelId] = Channel({
+                participantA: msg.sender,
+                participantB: counterparty,
+                quantumKeyHashA: getQuantumKeyHash(msg.sender),
+                quantumKeyHashB: getQuantumKeyHash(counterparty),
+                balanceA: deposit,
+                balanceB: 0,
+                nonce: 0
+            });
+        }
+        
+        // 链下交易（无需后量子签名）
+        function updateChannelOffchain(
+            bytes32 channelId,
+            uint256 newBalanceA,
+            uint256 newBalanceB,
+            uint256 nonce,
+            bytes calldata signatureA,
+            bytes calldata signatureB
+        ) external pure returns (bool) {
+            // 这个函数仅用于生成状态更新
+            // 实际验证在关闭通道时进行
+            return true;
+        }
+        
+        // 关闭通道（最终结算需要后量子签名）
+        function closeChannel(
+            bytes32 channelId,
+            uint256 finalBalanceA,
+            uint256 finalBalanceB,
+            uint256 finalNonce,
+            bytes calldata quantumSignatureA,
+            bytes calldata quantumSignatureB
+        ) external {
+            Channel storage channel = channels[channelId];
+            require(finalNonce > channel.nonce, "Invalid nonce");
+            
+            // 验证双方的后量子签名
+            bytes32 stateHash = keccak256(abi.encode(
+                channelId,
+                finalBalanceA,
+                finalBalanceB,
+                finalNonce
+            ));
+            
+            require(
+                verifyQuantumSignatureWithHash(
+                    channel.quantumKeyHashA,
+                    stateHash,
+                    quantumSignatureA
+                ) &&
+                verifyQuantumSignatureWithHash(
+                    channel.quantumKeyHashB,
+                    stateHash,
+                    quantumSignatureB
+                ),
+                "Invalid channel close signatures"
+            );
+            
+            // 分配最终余额
+            _transfer(address(this), channel.participantA, finalBalanceA);
+            _transfer(address(this), channel.participantB, finalBalanceB);
+            
+            // 删除通道
+            delete channels[channelId];
+        }
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h5>跨链后量子安全</h5>
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">跨链桥的后量子升级 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-python"># 后量子安全的跨链桥实现
+from typing import Dict, List, Tuple
+import hashlib
+from dataclasses import dataclass
+from pqcrypto.sign import dilithium3, falcon512
+
+@dataclass
+class CrossChainMessage:
+    source_chain: str
+    target_chain: str
+    sender: bytes
+    recipient: bytes
+    amount: int
+    nonce: int
+    timestamp: int
+
+class QuantumSafeBridge:
+    """后量子安全的跨链桥"""
+    
+    def __init__(self):
+        self.validators = {}  # 验证者集合
+        self.threshold = 0.67  # 67%共识阈值
+        self.pending_transfers = {}
+        
+    def register_validator(self, validator_id: str, 
+                          quantum_public_key: bytes,
+                          stake_amount: int):
+        """注册后量子验证者"""
+        # 验证公钥格式
+        try:
+            # 尝试用公钥验证一个测试消息
+            test_msg = b"test"
+            test_sig = dilithium3.sign(
+                dilithium3.generate_keypair()[1], 
+                test_msg
+            )
+            # 这里只是验证公钥格式，不是真的验证签名
+            self.validators[validator_id] = {
+                'public_key': quantum_public_key,
+                'key_type': 'dilithium3',
+                'stake': stake_amount,
+                'reputation': 100,
+                'signed_messages': 0
+            }
+        except Exception as e:
+            raise ValueError(f"Invalid quantum public key: {e}")
+    
+    def create_cross_chain_proof(self, message: CrossChainMessage, 
+                               validator_signatures: Dict[str, bytes]) -> dict:
+        """创建跨链证明"""
+        # 计算消息哈希
+        message_hash = self._hash_message(message)
+        
+        # 验证签名
+        valid_signatures = 0
+        total_stake = sum(v['stake'] for v in self.validators.values())
+        signed_stake = 0
+        
+        proofs = []
+        for validator_id, signature in validator_signatures.items():
+            if validator_id not in self.validators:
+                continue
+                
+            validator = self.validators[validator_id]
+            
+            # 验证后量子签名
+            if self._verify_quantum_signature(
+                validator['public_key'],
+                message_hash,
+                signature,
+                validator['key_type']
+            ):
+                valid_signatures += 1
+                signed_stake += validator['stake']
+                proofs.append({
+                    'validator': validator_id,
+                    'signature': signature.hex(),
+                    'stake': validator['stake']
+                })
+        
+        # 检查是否达到阈值
+        if signed_stake / total_stake < self.threshold:
+            raise ValueError(
+                f"Insufficient signatures: {signed_stake}/{total_stake}"
+            )
+        
+        return {
+            'message': message.__dict__,
+            'message_hash': message_hash.hex(),
+            'proofs': proofs,
+            'total_validators': len(self.validators),
+            'signed_validators': valid_signatures,
+            'stake_percentage': signed_stake / total_stake
+        }
+    
+    def _verify_quantum_signature(self, public_key: bytes, 
+                                message_hash: bytes,
+                                signature: bytes, 
+                                key_type: str) -> bool:
+        """验证后量子签名"""
+        try:
+            if key_type == 'dilithium3':
+                dilithium3.verify(public_key, signature, message_hash)
+                return True
+            elif key_type == 'falcon512':
+                falcon512.verify(public_key, signature, message_hash)
+                return True
+        except:
+            return False
+        return False
+    
+    def migrate_to_quantum_safe(self, legacy_validators: List[dict]):
+        """从传统验证者迁移到后量子"""
+        migration_plan = []
+        
+        for validator in legacy_validators:
+            # 生成新的后量子密钥对
+            pq_public, pq_private = dilithium3.generate_keypair()
+            
+            # 创建迁移证明（用旧密钥签名新公钥）
+            migration_proof = self._create_migration_proof(
+                validator['ecdsa_private_key'],
+                pq_public
+            )
+            
+            migration_plan.append({
+                'validator_id': validator['id'],
+                'old_address': validator['address'],
+                'new_quantum_public_key': pq_public,
+                'migration_proof': migration_proof,
+                'migration_deadline': self._calculate_deadline(
+                    validator['stake']
+                )
+            })
+        
+        return migration_plan
+    
+    def _calculate_deadline(self, stake: int) -> int:
+        """根据质押量计算迁移截止时间"""
+        # 质押越多，迁移优先级越高
+        if stake > 1000000:  # 大户
+            return 30  # 30天
+        elif stake > 100000:  # 中户
+            return 90  # 90天
+        else:  # 小户
+            return 180  # 180天
+
+# 后量子安全的轻客户端
+class QuantumLightClient:
+    """用于移动设备的轻量级后量子验证"""
+    
+    def __init__(self):
+        self.trusted_roots = []  # 可信根哈希
+        self.verification_cache = {}  # 缓存验证结果
+        
+    def verify_spv_proof(self, block_header: dict, 
+                        merkle_proof: List[bytes],
+                        transaction: dict) -> bool:
+        """验证简化支付验证（SPV）证明"""
+        # 使用XMSS进行区块头签名（更适合轻客户端）
+        from pqcrypto.sign import xmss
+        
+        # 验证区块头的后量子签名
+        header_hash = hashlib.sha256(
+            json.dumps(block_header, sort_keys=True).encode()
+        ).digest()
+        
+        # 检查缓存
+        if header_hash in self.verification_cache:
+            return self.verification_cache[header_hash]
+        
+        # 验证Merkle路径
+        tx_hash = hashlib.sha256(
+            json.dumps(transaction, sort_keys=True).encode()
+        ).digest()
+        
+        current_hash = tx_hash
+        for sibling in merkle_proof:
+            if current_hash < sibling:
+                current_hash = hashlib.sha256(
+                    current_hash + sibling
+                ).digest()
+            else:
+                current_hash = hashlib.sha256(
+                    sibling + current_hash
+                ).digest()
+        
+        # 验证根哈希
+        is_valid = current_hash == bytes.fromhex(
+            block_header['merkle_root']
+        )
+        
+        # 缓存结果
+        self.verification_cache[header_hash] = is_valid
+        
+        return is_valid
+
+# 实际使用示例
+bridge = QuantumSafeBridge()
+
+# 注册验证者
+for i in range(5):
+    pub_key, priv_key = dilithium3.generate_keypair()
+    bridge.register_validator(
+        f"validator_{i}",
+        pub_key,
+        stake_amount=100000 * (i + 1)
+    )
+
+# 创建跨链消息
+msg = CrossChainMessage(
+    source_chain="ethereum",
+    target_chain="polygon",
+    sender=b"0x123...",
+    recipient=b"0x456...",
+    amount=1000000,
+    nonce=42,
+    timestamp=int(time.time())
+)
+
+# 收集签名（实际场景中由各验证者独立签名）
+signatures = {}
+# ... 收集过程 ...
+
+# 创建跨链证明
+proof = bridge.create_cross_chain_proof(msg, signatures)</code></pre>
+                </div>
+            </div>
+        </div>
+        
+        <h4>11.2.6 未来展望</h4>
+        
+        <div class="theory-section">
+            <h5>量子金融的新范式</h5>
+            <ul>
+                <li><strong>量子货币</strong>：利用量子态的不可克隆性创建真正的数字现金</li>
+                <li><strong>量子智能合约</strong>：在量子计算机上运行的智能合约</li>
+                <li><strong>量子DeFi</strong>：利用量子算法优化的去中心化金融</li>
+                <li><strong>量子预言机</strong>：提供量子随机数和量子计算结果</li>
+            </ul>
+            
+            <div class="tip">
+                💡 <strong>研究方向</strong>：
+                <ul>
+                    <li>开发更高效的后量子算法</li>
+                    <li>设计量子-经典混合协议</li>
+                    <li>探索量子纠缠在分布式共识中的应用</li>
+                    <li>研究量子安全的多方计算</li>
+                </ul>
+            </div>
+        </div>
             
             <div class="code-block">
                 <div class="code-header">
