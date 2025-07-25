@@ -358,6 +358,9 @@
             padding: 0.5rem 0;
             transition: color 0.3s;
             font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
         }
         
         .nav-link:hover,
@@ -16146,7 +16149,7 @@ allocation = optimizer.optimize_liquidity_allocation(
 
         <h3>7.1 借贷协议基础架构</h3>
         
-        <h4>7.1.1 核心概念</h4>
+        <h4>7.1.1 核心概念与设计哲学</h4>
         <div class="concept">
             <p><strong>借贷协议三要素：</strong></p>
             <ul>
@@ -16156,7 +16159,59 @@ allocation = optimizer.optimize_liquidity_allocation(
             </ul>
         </div>
 
-        <h4>7.1.2 Compound协议架构</h4>
+        <div class="info-box">
+            <h4>设计哲学对比：Compound vs Aave</h4>
+            <ul>
+                <li><strong>Compound：</strong>追求极致简洁和同质化
+                    <ul>
+                        <li>所有市场使用相似参数</li>
+                        <li>单一利率模型</li>
+                        <li>最小化治理复杂性</li>
+                    </ul>
+                </li>
+                <li><strong>Aave：</strong>追求灵活性和风险隔离
+                    <ul>
+                        <li>每个资产独立参数配置</li>
+                        <li>多种借贷模式（稳定/可变利率）</li>
+                        <li>E-Mode、隔离模式等高级功能</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h4>7.1.2 资本效率的演进</h4>
+        <div class="example-box">
+            <h4>从池化到点对点：借贷协议的进化</h4>
+            <ol>
+                <li><strong>第一代 - 池化模型（Compound/Aave V1）</strong>
+                    <ul>
+                        <li>资本效率：~30-40%</li>
+                        <li>简单但低效的资金利用</li>
+                    </ul>
+                </li>
+                <li><strong>第二代 - 风险分层（Aave V2/V3）</strong>
+                    <ul>
+                        <li>E-Mode将稳定币LTV提升至97%</li>
+                        <li>隔离模式控制新资产风险</li>
+                    </ul>
+                </li>
+                <li><strong>第三代 - P2P匹配层（Morpho）</strong>
+                    <ul>
+                        <li>在Compound/Aave之上构建P2P匹配</li>
+                        <li>匹配成功时零利差，失败时回退到底层协议</li>
+                        <li>数学证明：Pareto改进（用户永远不会更差）</li>
+                    </ul>
+                </li>
+                <li><strong>第四代 - 无预言机借贷（Ajna）</strong>
+                    <ul>
+                        <li>通过荷兰拍卖发现价格</li>
+                        <li>消除预言机风险但牺牲资本效率</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h4>7.1.3 Compound协议架构</h4>
         <div class="code-block">
             <pre><code class="language-solidity">// cToken接口 - Compound的核心抽象
 interface ICToken {
@@ -16258,7 +16313,7 @@ contract CStablecoin is ICToken, ERC20 {
 }</code></pre>
         </div>
 
-        <h4>7.1.3 Aave V3架构创新</h4>
+        <h4>7.1.4 Aave V3架构创新</h4>
         <div class="code-block">
             <pre><code class="language-solidity">// Aave V3的高级功能
 contract AaveV3Pool {
@@ -16348,16 +16403,68 @@ contract AaveV3Pool {
 }</code></pre>
         </div>
 
+        <div class="info-box">
+            <h4>E-Mode的数学原理</h4>
+            <p><strong>核心假设：</strong>相关资产（如USDC、USDT、DAI）的价格相关性极高</p>
+            <div class="formula">
+                <p><strong>价格相关性矩阵：</strong></p>
+                <p>ρ(USDC, USDT) ≈ 0.99+</p>
+                <p>ρ(USDC, DAI) ≈ 0.98+</p>
+                <p>ρ(USDT, DAI) ≈ 0.97+</p>
+            </div>
+            <p><strong>风险参数优化：</strong></p>
+            <ul>
+                <li>普通模式LTV：75-80%</li>
+                <li>E-Mode LTV：97%（基于高相关性假设）</li>
+                <li>清算阈值：98%（仅2%缓冲区）</li>
+            </ul>
+            <p><strong>统计验证：</strong>使用历史数据计算VaR（Value at Risk）和CVaR（Conditional VaR）验证参数安全性</p>
+        </div>
+
+        <div class="example-box">
+            <h4>隔离模式的风险分区原理</h4>
+            <p><strong>风险分区（Risk Partitioning）：</strong>系统工程中的重要概念</p>
+            <ul>
+                <li><strong>新资产隔离：</strong>高风险资产只能借出特定稳定币</li>
+                <li><strong>债务上限：</strong>设置协议级别的最大敞口</li>
+                <li><strong>单向隔离：</strong>隔离模式用户不能使用其他资产作抵押</li>
+            </ul>
+            <p>数学模型：将风险空间R分解为相互独立的子空间{R₁, R₂, ..., Rₙ}，确保∀i≠j: Rᵢ ∩ Rⱼ = ∅</p>
+        </div>
+
         <h3>7.2 利率模型设计</h3>
         
-        <h4>7.2.1 基础利率模型</h4>
+        <h4>7.2.1 基础利率模型的数学原理</h4>
         <div class="formula">
-            <p><strong>利用率（Utilization Rate）</strong>：</p>
+            <p><strong>利用率（Utilization Rate）：</strong></p>
             <p>U = Borrows / (Cash + Borrows - Reserves)</p>
             
-            <p><strong>借款利率模型</strong>：</p>
-            <p>当 U ≤ U_optimal：R = R_0 + (U/U_optimal) × R_slope1</p>
-            <p>当 U > U_optimal：R = R_0 + R_slope1 + ((U-U_optimal)/(1-U_optimal)) × R_slope2</p>
+            <p><strong>分段线性利率函数（Piecewise Linear Function）：</strong></p>
+            <pre>
+Rate(U) = {
+    R_base + (U / U_optimal) × R_slope1,                    if U ≤ U_optimal
+    R_base + R_slope1 + ((U - U_optimal) / (1 - U_optimal)) × R_slope2,  if U > U_optimal
+}
+            </pre>
+            
+            <p><strong>参数经济学意义：</strong></p>
+            <ul>
+                <li><strong>R_base：</strong>基础利率，覆盖协议运营成本</li>
+                <li><strong>R_slope1：</strong>正常区间斜率，平衡供需</li>
+                <li><strong>R_slope2：</strong>高利用率惩罚斜率，防止流动性枯竭</li>
+                <li><strong>U_optimal：</strong>最优利用率（80-90%），平衡资本效率与流动性风险</li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <h4>控制论视角：利率作为负反馈系统</h4>
+            <p><strong>系统目标：</strong>维持利用率在U_optimal附近</p>
+            <p><strong>反馈机制：</strong></p>
+            <ul>
+                <li>当U > U_optimal：利率急剧上升→借款成本增加→借款人还款/存款人存入→U下降</li>
+                <li>当U < U_optimal：利率降低→借款变得便宜→借款增加→U上升</li>
+            </ul>
+            <p><strong>控制器类型：</strong>比例控制器（P-Controller），其中R_slope2 >> R_slope1实现非线性增益</p>
         </div>
 
         <div class="code-block">
@@ -16496,12 +16603,60 @@ contract StablecoinRateStrategy is IInterestRateStrategy {
 }</code></pre>
         </div>
 
-        <h3>7.3 闪电贷机制与安全</h3>
-        
-        <h4>7.3.1 闪电贷实现</h4>
+        <h4>7.2.3 GHO稳定币利率机制（2024年创新）</h4>
+        <div class="info-box">
+            <h4>GHO的Bucket机制</h4>
+            <p>Aave的GHO稳定币引入了革命性的"Bucket"概念，实现更复杂的供需控制：</p>
+            <ul>
+                <li><strong>Facilitator Buckets：</strong>不同实体（如Aave V3池）有独立的铸造上限</li>
+                <li><strong>动态利率调整：</strong>基于GHO市场价格偏离程度自动调整借款利率</li>
+                <li><strong>stkAAVE折扣：</strong>质押AAVE的用户享受利率折扣，增强代币价值捕获</li>
+            </ul>
+        </div>
+
         <div class="code-block">
-            <pre><code class="language-solidity">// EIP-3156 闪电贷标准实现
-contract FlashLoanProvider is IERC3156FlashLender {
+            <pre><code class="language-solidity">// GHO利率策略实现
+contract GhoInterestRateStrategy {
+    // 基于市场价格的动态调整
+    function calculateGhoRate(
+        uint256 ghoMarketPrice,  // 当前市场价格
+        uint256 targetPrice,     // 目标价格（1美元）
+        uint256 currentRate,     // 当前利率
+        uint256 bucketUtilization // Bucket利用率
+    ) public pure returns (uint256 newRate) {
+        // 价格偏离度计算
+        int256 priceDelta = int256(ghoMarketPrice) - int256(targetPrice);
+        int256 priceDeviation = (priceDelta * 1e18) / int256(targetPrice);
+        
+        // PID控制器调整利率
+        int256 rateAdjustment = (priceDeviation * KP) / 1e18;
+        
+        // Bucket利用率影响
+        if (bucketUtilization > OPTIMAL_UTILIZATION) {
+            uint256 utilizationPremium = 
+                (bucketUtilization - OPTIMAL_UTILIZATION) * UTILIZATION_SLOPE / 1e18;
+            rateAdjustment += int256(utilizationPremium);
+        }
+        
+        // 应用调整并限制范围
+        newRate = uint256(int256(currentRate) + rateAdjustment);
+        newRate = bound(newRate, MIN_RATE, MAX_RATE);
+    }
+}</code></pre>
+        </div>
+
+        <h3>7.3 闪电贷：DeFi的原子性保证</h3>
+        
+        <div class="concept">
+            <p><strong>闪电贷的本质：</strong>在单个交易内完成借款、使用、还款的原子操作</p>
+            <p><strong>核心价值：</strong>实现无需抵押的套利，维持市场效率</p>
+            <p><strong>技术保证：</strong>EVM的交易原子性 - 要么全部成功，要么全部回滚</p>
+        </div>
+        
+        <h4>7.3.1 闪电贷实现（含安全注释）</h4>
+        <div class="code-block">
+            <pre><code class="language-solidity">// EIP-3156 闪电贷标准实现 - 生产级安全考量
+contract FlashLoanProvider is IERC3156FlashLender, ReentrancyGuard {
     using SafeERC20 for IERC20;
     
     // 闪电贷费率（基点）
@@ -16510,28 +16665,40 @@ contract FlashLoanProvider is IERC3156FlashLender {
     
     mapping(address => bool) public supportedTokens;
     
-    // 闪电贷核心函数
+    // 防止重入攻击的状态变量
+    uint256 private constant NOT_ENTERED = 1;
+    uint256 private constant ENTERED = 2;
+    uint256 private _status;
+    
+    // 闪电贷核心函数 - 遵循 check-effects-interactions 模式
     function flashLoan(
         IERC3156FlashBorrower receiver,
         address token,
         uint256 amount,
         bytes calldata data
-    ) external override returns (bool) {
+    ) external override nonReentrant returns (bool) {
+        // 1. Checks - 验证输入
         require(supportedTokens[token], "Token not supported");
+        require(amount > 0, "Invalid amount");
         
         uint256 fee = _flashFee(amount);
         uint256 balanceBefore = IERC20(token).balanceOf(address(this));
+        require(balanceBefore >= amount, "Insufficient liquidity");
         
-        // 发送代币给借款人
+        // 2. Effects - 状态变更（此处无需变更状态）
+        
+        // 3. Interactions - 外部调用
+        // 发送代币给借款人 - 使用 SafeERC20 防止假币攻击
         IERC20(token).safeTransfer(address(receiver), amount);
         
-        // 执行回调
+        // 执行回调 - 关键安全点：借款人可执行任意代码
+        // 重入保护由 nonReentrant 修饰符提供
         require(
             receiver.onFlashLoan(msg.sender, token, amount, fee, data) == CALLBACK_SUCCESS,
             "Callback failed"
         );
         
-        // 收回本金和费用
+        // 验证还款 - 必须在回调后立即检查
         uint256 balanceAfter = IERC20(token).balanceOf(address(this));
         require(
             balanceAfter >= balanceBefore + fee,
@@ -16592,7 +16759,31 @@ contract FlashLoanProvider is IERC3156FlashLender {
 }</code></pre>
         </div>
 
-        <h4>7.3.2 闪电贷攻击防御</h4>
+        <h4>7.3.2 闪电贷攻击防御的深度分析</h4>
+        
+        <div class="info-box">
+            <h4>TWAP（时间加权平均价格）防御原理</h4>
+            <p><strong>核心机制：</strong>TWAP基于多个区块的价格计算，而闪电贷只能在单个区块内操纵价格</p>
+            <div class="formula">
+                <p>TWAP = Σ(Price_i × Time_i) / Σ(Time_i)</p>
+                <p>其中：Time_i 是价格 Price_i 持续的时间</p>
+            </div>
+            <p><strong>关键参数 - 窗口大小：</strong></p>
+            <ul>
+                <li>短窗口（5-15分钟）：响应快但易受攻击</li>
+                <li>长窗口（30分钟-1小时）：安全但响应慢</li>
+                <li>权衡：安全性 vs 价格新鲜度</li>
+            </ul>
+        </div>
+
+        <div class="example-box">
+            <h4>2024年新型防御机制</h4>
+            <ul>
+                <li><strong>Chainlink Data Streams：</strong>推式预言机，亚秒级更新，缩小攻击窗口</li>
+                <li><strong>Pyth Network：</strong>高频价格更新，支持置信区间</li>
+                <li><strong>Chronicle Protocol：</strong>基于阈值签名的去中心化预言机</li>
+            </ul>
+        </div>
         <div class="code-block">
             <pre><code class="language-solidity">// 防御闪电贷攻击的措施
 contract FlashLoanProtectedVault {
@@ -16960,15 +17151,348 @@ contract StablecoinLendingPool is
             </ul>
         </div>
 
+        <h3>7.4 风险管理与清算机制</h3>
+        
+        <h4>7.4.1 清算的核心机制</h4>
+        <div class="formula">
+            <h4>关键参数定义</h4>
+            <ul>
+                <li><strong>LTV (Loan-to-Value)：</strong>最大借款价值比 = 借款金额 / 抵押品价值</li>
+                <li><strong>清算阈值（Liquidation Threshold）：</strong>触发清算的抵押率</li>
+                <li><strong>清算罚金（Liquidation Penalty/Bonus）：</strong>清算者的激励</li>
+            </ul>
+            
+            <p><strong>健康因子（Health Factor）计算：</strong></p>
+            <pre>
+HF = (Σ Collateral_i × Price_i × LiquidationThreshold_i) / Total Debt Value
+
+当 HF < 1 时，头寸可被清算
+            </pre>
+        </div>
+
+        <div class="code-block">
+            <pre><code class="language-solidity">// 高级清算引擎实现
+contract AdvancedLiquidationEngine {
+    using SafeMath for uint256;
+    
+    struct LiquidationParams {
+        uint256 debtToCover;        // 需要清算的债务
+        uint256 maxCollateralToLiquidate;  // 最大可清算抵押品
+        uint256 userCollateralBalance;     // 用户抵押品余额
+        uint256 userDebtBalance;           // 用户债务余额
+        uint256 liquidationBonus;          // 清算奖励
+        uint256 liquidationProtocolFee;    // 协议费用
+        uint256 healthFactor;              // 健康因子
+    }
+    
+    // 部分清算实现 - 2024年最佳实践
+    function executeLiquidation(
+        address collateralAsset,
+        address debtAsset,
+        address user,
+        uint256 debtToCover,
+        bool receiveAToken
+    ) external nonReentrant {
+        LiquidationParams memory params = _calculateLiquidationParams(
+            collateralAsset,
+            debtAsset,
+            user,
+            debtToCover
+        );
+        
+        // 验证清算条件
+        require(params.healthFactor < HEALTH_FACTOR_LIQUIDATION_THRESHOLD, "Health factor not below threshold");
+        
+        // 计算实际清算金额
+        uint256 actualDebtToLiquidate = Math.min(
+            params.debtToCover,
+            params.maxCollateralToLiquidate.percentMul(LIQUIDATION_CLOSE_FACTOR_PERCENT)
+        );
+        
+        // 执行清算
+        _burnDebtTokens(debtAsset, user, actualDebtToLiquidate);
+        _transferCollateral(collateralAsset, user, msg.sender, 
+            actualDebtToLiquidate.mul(params.liquidationBonus).div(100)
+        );
+        
+        emit LiquidationCall(
+            collateralAsset,
+            debtAsset,
+            user,
+            actualDebtToLiquidate,
+            params.liquidationBonus,
+            msg.sender,
+            receiveAToken
+        );
+    }
+}</code></pre>
+        </div>
+
+        <h4>7.4.2 预言机风险：DeFi的阿喀琉斯之踵</h4>
+        
+        <div class="warning-box">
+            <h4>预言机类型对比</h4>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <th style="border: 1px solid #ddd; padding: 8px;">类型</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">延迟</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">成本</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">抗操纵性</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">适用场景</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Chainlink (Pull)</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">1-10分钟</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">中</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">高</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">主流资产</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Pyth (Push)</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">&lt;1秒</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">低</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">中</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">高频交易</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Uniswap V3 TWAP</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">实时</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">极低</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">依赖流动性</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">链上资产</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="info-box">
+            <h4>案例研究：2020年3月12日 MakerDAO黑色星期四</h4>
+            <ul>
+                <li><strong>事件：</strong>ETH价格在24小时内下跌50%</li>
+                <li><strong>问题：</strong>
+                    <ul>
+                        <li>预言机延迟导致清算不及时</li>
+                        <li>网络拥堵导致Keeper无法参与清算</li>
+                        <li>0 DAI拍卖导致400万美元损失</li>
+                    </ul>
+                </li>
+                <li><strong>改进措施：</strong>
+                    <ul>
+                        <li>引入清算2.0（英式拍卖）</li>
+                        <li>增加预言机数量和更新频率</li>
+                        <li>实施熔断机制</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h4>7.4.3 坏账处理与协议偿付能力</h4>
+        
+        <div class="concept">
+            <p><strong>坏账定义：</strong>当抵押品价值 < 债务价值时产生的协议损失</p>
+            <p><strong>处理机制对比：</strong></p>
+        </div>
+
+        <div class="example-box">
+            <h4>主流协议的坏账处理机制</h4>
+            <ol>
+                <li><strong>Aave安全模块（Safety Module）</strong>
+                    <ul>
+                        <li>用户质押AAVE代币获得收益</li>
+                        <li>发生坏账时，最多30%的质押资产被削减（Slashing）</li>
+                        <li>提供最后一道防线</li>
+                    </ul>
+                </li>
+                <li><strong>MakerDAO债务拍卖（Debt Auction）</strong>
+                    <ul>
+                        <li>系统坏账超过盈余缓冲时触发</li>
+                        <li>增发MKR代币换取DAI偿还坏账</li>
+                        <li>稀释MKR持有者权益作为风险承担</li>
+                    </ul>
+                </li>
+                <li><strong>Compound储备金（Reserves）</strong>
+                    <ul>
+                        <li>每个市场收取利息的一部分作为储备</li>
+                        <li>用于覆盖潜在损失</li>
+                        <li>由治理决定储备率</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h4>7.4.4 量化风险建模（AI科学家专题）</h4>
+        
+        <div class="info-box">
+            <h4>基于智能体的风险仿真</h4>
+            <p>Gauntlet、Chaos Labs等公司为DeFi协议提供的服务：</p>
+            <ul>
+                <li><strong>蒙特卡洛模拟：</strong>模拟数万种市场情景</li>
+                <li><strong>智能体建模：</strong>模拟不同类型参与者行为</li>
+                <li><strong>参数优化：</strong>使用机器学习优化风险参数</li>
+            </ul>
+        </div>
+
+        <div class="code-block">
+            <pre><code class="language-python"># 风险参数优化示例（Python）
+import numpy as np
+from scipy.optimize import minimize
+import pandas as pd
+
+class DeFiRiskOptimizer:
+    """
+    基于历史数据和市场模拟的风险参数优化器
+    """
+    def __init__(self, historical_data, protocol_params):
+        self.data = historical_data
+        self.params = protocol_params
+        
+    def simulate_liquidations(self, ltv, liquidation_threshold, volatility_scenario):
+        """模拟不同参数下的清算情况"""
+        simulated_prices = self.generate_price_paths(volatility_scenario)
+        liquidations = []
+        
+        for price_path in simulated_prices:
+            health_factors = self.calculate_health_factors(
+                price_path, ltv, liquidation_threshold
+            )
+            liquidation_events = (health_factors < 1.0).sum()
+            liquidations.append(liquidation_events)
+            
+        return np.array(liquidations)
+    
+    def objective_function(self, params):
+        """
+        优化目标：最大化资本效率，同时控制坏账风险
+        """
+        ltv, liquidation_threshold = params
+        
+        # 资本效率得分
+        capital_efficiency = ltv
+        
+        # 风险得分（坏账概率）
+        bad_debt_prob = self.calculate_bad_debt_probability(
+            ltv, liquidation_threshold
+        )
+        
+        # 综合目标函数
+        return -(capital_efficiency * (1 - bad_debt_prob))
+    
+    def optimize_parameters(self):
+        """使用约束优化找到最优参数"""
+        constraints = [
+            {'type': 'ineq', 'fun': lambda x: x[1] - x[0] - 0.05},  # 清算阈值 > LTV + 5%
+            {'type': 'ineq', 'fun': lambda x: 0.95 - x[0]},        # LTV < 95%
+            {'type': 'ineq', 'fun': lambda x: x[0] - 0.5},         # LTV > 50%
+        ]
+        
+        result = minimize(
+            self.objective_function,
+            x0=[0.75, 0.85],  # 初始值：LTV=75%, 清算阈值=85%
+            method='SLSQP',
+            constraints=constraints
+        )
+        
+        return result.x
+
+# 使用示例
+optimizer = DeFiRiskOptimizer(historical_data, protocol_params)
+optimal_ltv, optimal_threshold = optimizer.optimize_parameters()
+print(f"优化后的LTV: {optimal_ltv:.2%}")
+print(f"优化后的清算阈值: {optimal_threshold:.2%}")</code></pre>
+        </div>
+
+        <div class="example-box">
+            <h4>思考题：AI驱动的动态风险管理</h4>
+            <p>设计一个AI模型，根据以下输入实时调整协议的风险参数：</p>
+            <ul>
+                <li>市场波动性（实时和历史）</li>
+                <li>资产相关性矩阵</li>
+                <li>链上流动性深度</li>
+                <li>宏观经济指标</li>
+                <li>社交媒体情绪分析</li>
+            </ul>
+            <p>考虑：如何平衡模型复杂度与链上执行成本？如何确保模型的可解释性？</p>
+        </div>
+
+        <h3>7.5 稳定币在借贷协议中的特殊考虑</h3>
+        
+        <div class="info-box">
+            <h4>稳定币的独特风险特征</h4>
+            <ul>
+                <li><strong>脱锚风险（Depeg Risk）：</strong>
+                    <ul>
+                        <li>算法稳定币：高风险，可能完全崩溃（如UST）</li>
+                        <li>法币抵押稳定币：中低风险，但存在监管风险</li>
+                        <li>超额抵押稳定币：依赖于抵押品和清算机制</li>
+                    </ul>
+                </li>
+                <li><strong>流动性集中：</strong>稳定币往往是借贷需求最大的资产</li>
+                <li><strong>系统性风险传导：</strong>一个稳定币的问题可能影响整个生态</li>
+            </ul>
+        </div>
+
+        <div class="code-block">
+            <pre><code class="language-solidity">// 稳定币风险隔离机制
+contract StablecoinRiskIsolation {
+    // 稳定币特殊参数
+    mapping(address => StablecoinConfig) public stablecoinConfigs;
+    
+    struct StablecoinConfig {
+        uint256 supplyCap;           // 供应上限
+        uint256 borrowCap;           // 借款上限
+        uint256 maxExposure;         // 最大敞口（占总TVL百分比）
+        uint256 pegDeviationThreshold; // 脱锚阈值
+        address[] acceptedCollaterals; // 可接受的抵押品
+        bool emergencyPaused;        // 紧急暂停
+    }
+    
+    // 稳定币健康度监控
+    function checkStablecoinHealth(address stablecoin) public view returns (bool) {
+        uint256 currentPrice = oracle.getPrice(stablecoin);
+        uint256 pegDeviation = abs(int256(currentPrice) - int256(1e18)) * 100 / 1e18;
+        
+        if (pegDeviation > stablecoinConfigs[stablecoin].pegDeviationThreshold) {
+            return false; // 触发风险控制
+        }
+        
+        uint256 currentExposure = getProtocolExposure(stablecoin);
+        if (currentExposure > stablecoinConfigs[stablecoin].maxExposure) {
+            return false; // 敞口过大
+        }
+        
+        return true;
+    }
+    
+    // 自动风险响应
+    function autoRiskResponse(address stablecoin) external {
+        if (!checkStablecoinHealth(stablecoin)) {
+            // 1. 提高该稳定币的借款利率
+            _adjustInterestRate(stablecoin, 150); // +50%
+            
+            // 2. 降低LTV
+            _adjustLTV(stablecoin, 50); // -50%
+            
+            // 3. 如果严重脱锚，暂停借贷
+            uint256 currentPrice = oracle.getPrice(stablecoin);
+            if (currentPrice < 0.95e18 || currentPrice > 1.05e18) {
+                stablecoinConfigs[stablecoin].emergencyPaused = true;
+                emit EmergencyPause(stablecoin, currentPrice);
+            }
+        }
+    }
+}</code></pre>
+        </div>
+
         <h3>练习题</h3>
         
         <div class="exercise">
-            <h4>练习 7.1：实现动态利率调整</h4>
-            <p>设计一个根据市场条件自动调整的利率模型，要求：</p>
+            <h4>练习 7.1：实现高级闪电贷套利机器人（Foundry框架）</h4>
+            <p>使用Foundry框架实现一个能在Uniswap V2和Curve之间执行套利的闪电贷机器人。要求：</p>
             <ul>
-                <li>集成外部市场数据（如联邦基金利率）</li>
-                <li>实现PID控制器进行平滑调整</li>
-                <li>设置利率变化速度限制</li>
+                <li>实现价差检测逻辑</li>
+                <li>计算最优套利金额（考虑滑点和手续费）</li>
+                <li>实现原子性套利执行</li>
+                <li>添加利润验证和安全检查</li>
+                <li>包含完整的Foundry测试套件</li>
                 <li>考虑极端市场条件的断路器</li>
             </ul>
             
