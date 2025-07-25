@@ -79,6 +79,21 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             overflow-x: hidden;
             max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        /* Ensure code blocks don't overflow */
+        .chapter pre {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        
+        /* Ensure tables don't overflow */
+        .chapter table {
+            max-width: 100%;
+            overflow-x: auto;
+            display: block;
         }
 
         h2 {
@@ -690,6 +705,9 @@
                     </li>
                     <li class="nav-item">
                         <a href="#chapter11" class="nav-link">第十一章</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#chapter12" class="nav-link">第十二章</a>
                     </li>
                 </ul>
             </div>
@@ -20692,10 +20710,9 @@ class AnomalyDetector:
             <h5>重入攻击详解</h5>
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// 示例1：经典重入攻击
 contract VulnerableVault {
     mapping(address => uint256) public balances;
@@ -20807,10 +20824,9 @@ contract FullySecureVault is ReentrancyGuard {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// 案例1：UST/Luna 死亡螺旋（2022年5月）
 // 攻击向量：大规模UST抛售 → Luna增发 → 价格下跌 → 更多增发
 contract TerraUSDVulnerability {
@@ -20867,10 +20883,9 @@ contract PlatypusVulnerability {
         
         <div class="code-block">
             <div class="code-header">
-                <span class="code-language">solidity</span>
-                <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                Solidity 代码 <span class="toggle-icon">▼</span>
             </div>
-            <div class="code-content collapsed">
+            <div class="code-content" style="display: none;">
                 <pre><code class="language-solidity">// MEV三明治攻击示例
 contract VulnerableStablecoinSwap {
     IUniswapV2Router public router;
@@ -21029,10 +21044,9 @@ contract BatchAuctionSwap {
         
         <div class="code-block">
             <div class="code-header">
-                <span class="code-language">solidity</span>
-                <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                Solidity 代码 <span class="toggle-icon">▼</span>
             </div>
-            <div class="code-content collapsed">
+            <div class="code-content" style="display: none;">
                 <pre><code class="language-solidity">// EIP-712结构化数据签名
 contract SecurePermitStablecoin is ERC20, EIP712 {
     // EIP-2612 permit
@@ -21610,10 +21624,9 @@ contract CrossChainStablecoin is OFT {
             <h5>1. 最小权限原则（Principle of Least Privilege）</h5>
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// 正确的权限设计
 contract SecureStablecoin {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -21649,10 +21662,9 @@ contract SecureStablecoin {
             <h5>2. 防御性编程（Defensive Programming）</h5>
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">contract DefensiveStablecoin {
     using SafeMath for uint256;
     
@@ -21708,10 +21720,9 @@ contract SecureStablecoin {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// 使用 SMTChecker 和断言进行形式化验证
 contract FormallyVerifiedStablecoin {
     mapping(address => uint256) public balances;
@@ -21765,10 +21776,9 @@ contract Specification {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">contract CircuitBreakerStablecoin {
     // 多级断路器状态
     enum CircuitState { NORMAL, RESTRICTED, PAUSED, EMERGENCY }
@@ -21854,10 +21864,9 @@ contract Specification {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// 透明代理模式（OpenZeppelin标准）
 contract TransparentUpgradeableProxy {
     // EIP-1967 标准存储槽
@@ -22191,10 +22200,9 @@ contract RoleBasedStablecoin {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">javascript</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    JavaScript 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-javascript">// Foundry测试框架示例
 // test/StablecoinSecurity.t.sol
 pragma solidity ^0.8.19;
@@ -22298,10 +22306,9 @@ contract EchidnaTest {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">python</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Python 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-python"># 自动化安全扫描脚本
 import subprocess
 import json
@@ -22758,10 +22765,9 @@ class SecurityPipeline:
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">typescript</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    TypeScript 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-typescript">// 实时监控系统
 import { ethers } from 'ethers';
 import { WebhookClient } from 'discord.js';
@@ -23432,10 +23438,9 @@ interface ITokenReceiver {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">python</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Python 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-python"># 经济攻击收益模型
 import numpy as np
 from typing import Dict, Tuple
@@ -23566,10 +23571,9 @@ print(f"成功概率: {prob:.2%}")</code></pre>
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">python</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Python 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-python"># 信贷/债务攻击建模
 class CreditDebtAttack:
     """模拟针对MakerDAO类型系统的信贷攻击"""
@@ -23677,10 +23681,9 @@ print(f"MKR稀释: {impact['mkr_dilution']:.2%}")</code></pre>
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">python</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Python 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-python"># 长期资本消耗攻击模拟
 class LongTermDrainAttack:
     """模拟缓慢消耗协议资本的攻击策略"""
@@ -23794,10 +23797,9 @@ print(f"预计耗尽时间: {drain_analysis['depletion_days']:.0f} 天")</code><
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">python</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Python 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-python"># 死亡螺旋的严格数学建模与稳定性分析
 import numpy as np
 from scipy.optimize import fsolve
@@ -23943,10 +23945,9 @@ if simulation['collapse_time']:
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">python</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Python 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-python"># UST/LUNA死亡螺旋量化模型
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24122,10 +24123,9 @@ plt.show()</code></pre>
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">python</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Python 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-python"># 稳定币博弈论模型
 import numpy as np
 from scipy.optimize import minimize
@@ -24322,10 +24322,9 @@ print(f"预期攻击概率: {equilibrium['attack_probability']:.2%}")</code></pr
             <h5>实践示例：有漏洞的预言机合约</h5>
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// 有漏洞的预言机合约（仅供教学使用）
 contract VulnerableOracle {
     address public priceSource;  // 单一DEX作为价格源
@@ -24436,10 +24435,9 @@ contract OracleManipulationAttack {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// 复杂闪电贷攻击示例
 contract FlashLoanAttackVector {
     
@@ -24555,10 +24553,9 @@ contract PriceOracleDefense {
         
         <div class="code-block">
             <div class="code-header">
-                <span class="code-language">typescript</span>
-                <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                TypeScript 代码 <span class="toggle-icon">▼</span>
             </div>
-            <div class="code-content collapsed">
+            <div class="code-content" style="display: none;">
                 <pre><code class="language-typescript">// MEV-Boost架构下的攻击模型
 interface MEVBoostBundle {
     transactions: Transaction[];
@@ -24669,10 +24666,9 @@ class AdvancedMEVAttack {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// MEV保护机制
 contract MEVProtection {
     
@@ -24804,10 +24800,9 @@ contract MEVRedistribution {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// 意图基础的交易系统
 contract IntentBasedTrading {
     
@@ -24998,10 +24993,9 @@ contract IntentBasedTrading {
         <h5>攻击机制分析</h5>
         <div class="code-block">
             <div class="code-header">
-                <span class="code-language">python</span>
-                <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                Python 代码 <span class="toggle-icon">▼</span>
             </div>
-            <div class="code-content collapsed">
+            <div class="code-content" style="display: none;">
                 <pre><code class="language-python">class TimeBanditAttack:
     """时间强盗攻击模型"""
     
@@ -25099,10 +25093,9 @@ contract IntentBasedTrading {
         <h5>LRT风险层级分析</h5>
         <div class="code-block">
             <div class="code-header">
-                <span class="code-language">solidity</span>
-                <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                Solidity 代码 <span class="toggle-icon">▼</span>
             </div>
-            <div class="code-content collapsed">
+            <div class="code-content" style="display: none;">
                 <pre><code class="language-solidity">// LRT作为抵押品的风险管理合约
 contract LRTCollateralManager {
     
@@ -25224,10 +25217,9 @@ contract RiskContagionModel {
         <h5>LRT风险缓释策略</h5>
         <div class="code-block">
             <div class="code-header">
-                <span class="code-language">python</span>
-                <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                Python 代码 <span class="toggle-icon">▼</span>
             </div>
-            <div class="code-content collapsed">
+            <div class="code-content" style="display: none;">
                 <pre><code class="language-python">class LRTRiskMitigation:
     """LRT风险缓释策略实现"""
     
@@ -25359,10 +25351,9 @@ contract RiskContagionModel {
         <h5>跨链桥攻击向量分析</h5>
         <div class="code-block">
             <div class="code-header">
-                <span class="code-language">solidity</span>
-                <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                Solidity 代码 <span class="toggle-icon">▼</span>
             </div>
-            <div class="code-content collapsed">
+            <div class="code-content" style="display: none;">
                 <pre><code class="language-solidity">// 跨链桥风险管理系统
 contract CrossChainRiskManager {
     
@@ -25542,10 +25533,9 @@ contract MultiChainStablecoinOrchestrator {
         <h5>桥接风险缓释机制</h5>
         <div class="code-block">
             <div class="code-header">
-                <span class="code-language">python</span>
-                <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                Python 代码 <span class="toggle-icon">▼</span>
             </div>
-            <div class="code-content collapsed">
+            <div class="code-content" style="display: none;">
                 <pre><code class="language-python">class BridgeRiskMitigation:
     """跨链桥风险缓释策略"""
     
@@ -25729,10 +25719,9 @@ contract MultiChainStablecoinOrchestrator {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// 自适应防御系统
 contract AdaptiveDefenseSystem {
     
@@ -25874,10 +25863,9 @@ contract CircuitBreakerV2 {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// 1. crvUSD的LLAMMA（软清算）机制
 contract SoftLiquidationAMM {
     struct Position {
@@ -26042,10 +26030,9 @@ contract DynamicCollateralRatio {
         
         <div class="code-block">
             <div class="code-header">
-                <span class="code-language">python</span>
-                <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                Python 代码 <span class="toggle-icon">▼</span>
             </div>
-            <div class="code-content collapsed">
+            <div class="code-content" style="display: none;">
                 <pre><code class="language-python"># AI驱动的DeFi异常检测系统
 import numpy as np
 import pandas as pd
@@ -26303,10 +26290,9 @@ class FortaMonitoringAgent:
         <div class="practice-section">
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// 保险基金管理
 contract InsuranceFund {
     uint256 public fundBalance;
@@ -26502,10 +26488,9 @@ contract RiskSharingPool {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">python</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Python 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-python"># UST崩溃过程数学分析
 import numpy as np
 import matplotlib.pyplot as plt
@@ -26737,10 +26722,9 @@ for key, failure in failures.items():
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">typescript</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    TypeScript 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-typescript">// 危机响应系统
 interface CrisisLevel {
     level: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
@@ -27252,10 +27236,8 @@ contract BankRunDefenseSystem {
                 <li>批量交易执行</li>
                 <li>MEV利润回馈机制</li>
             </ul>
-            <div class="answer-toggle" onclick="toggleAnswer(this)">
-                <span class="toggle-icon">▶</span> 参考答案
-            </div>
-            <div class="answer collapsed">
+            <button class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案</button>
+            <div class="answer-content">
                 <pre><code class="language-solidity">// MEV防护交易系统完整实现
 contract MEVProtectedTradingSystem {
     using SafeERC20 for IERC20;
@@ -28107,11 +28089,8 @@ contract ComplianceCircuit {
             
             <h5>新一代证明系统对比</h5>
             <div class="code-block">
-                <div class="code-header">
-                    <span class="code-language">python</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
-                </div>
-                <div class="code-content collapsed">
+                <div class="code-header" onclick="toggleCode(this)">Python - 证明系统比较 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-python">class ZKProofSystems:
     """新一代零知识证明系统比较"""
     
@@ -28217,11 +28196,8 @@ contract ComplianceCircuit {
             <h4>11.1.3 实践：构建隐私保护的合规层</h4>
             
             <div class="code-block">
-                <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
-                </div>
-                <div class="code-content collapsed">
+                <div class="code-header" onclick="toggleCode(this)">Solidity - 选择性披露合规系统 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// 选择性披露合规系统
 contract SelectiveDisclosure {
     using ECDSA for bytes32;
@@ -29963,10 +29939,9 @@ proof = bridge.create_cross_chain_proof(msg, signatures)</code></pre>
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">python</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Python 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-python">class QuantumThreatAnalysis:
     """量子计算威胁评估模型"""
     
@@ -30110,10 +30085,9 @@ proof = bridge.create_cross_chain_proof(msg, signatures)</code></pre>
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// 后量子安全的稳定币合约
 contract PostQuantumStablecoin {
     
@@ -30277,10 +30251,9 @@ contract QuantumResistantKeyManagement {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">python</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Python 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-python">class AIGovernanceSystem:
     """AI驱动的稳定币治理系统"""
     
@@ -30485,10 +30458,9 @@ contract QuantumResistantKeyManagement {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// AI驱动的做市商合约
 contract AIMarketMaker {
     using SafeMath for uint256;
@@ -30724,10 +30696,9 @@ contract DecentralizedAIOracle {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">solidity</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Solidity 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-solidity">// CBDC-稳定币互操作协议
 contract CBDCBridge {
     
@@ -31012,10 +30983,9 @@ contract HybridStablecoin {
             
             <div class="code-block">
                 <div class="code-header">
-                    <span class="code-language">python</span>
-                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    Python 代码 <span class="toggle-icon">▼</span>
                 </div>
-                <div class="code-content collapsed">
+                <div class="code-content" style="display: none;">
                     <pre><code class="language-python">class FutureResearchDirections:
     """稳定币研究前沿探索"""
     
@@ -31584,9 +31554,27 @@ for episode in range(1000):
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
     <script>
-        function toggleAnswer(answerId) {
-            const answerElement = document.getElementById(answerId);
-            answerElement.classList.toggle('show');
+        function toggleAnswer(elementOrId) {
+            if (typeof elementOrId === 'string') {
+                // Old pattern with ID
+                const answerElement = document.getElementById(elementOrId);
+                answerElement.classList.toggle('show');
+            } else {
+                // New pattern with element reference
+                const button = elementOrId;
+                const answer = button.nextElementSibling;
+                if (answer.style.display === 'none' || answer.style.display === '') {
+                    answer.style.display = 'block';
+                    if (button.textContent.includes('▼')) {
+                        button.textContent = button.textContent.replace('▼', '▲');
+                    }
+                } else {
+                    answer.style.display = 'none';
+                    if (button.textContent.includes('▲')) {
+                        button.textContent = button.textContent.replace('▲', '▼');
+                    }
+                }
+            }
         }
         
         function toggleCode(header) {
@@ -31805,11 +31793,10 @@ for episode in range(1000):
                 
                 // Create new structure
                 block.innerHTML = `
-                    <div class="code-header">
-                        <span class="code-language">${language}</span>
-                        <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                    <div class="code-header" onclick="toggleCode(this)">
+                        ${language} 代码 <span class="toggle-icon">▼</span>
                     </div>
-                    <div class="code-content collapsed">
+                    <div class="code-content" style="display: none;">
                         <pre><code class="language-${language}">${codeText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
                     </div>
                 `;
