@@ -71,6 +71,131 @@
             </div>
         </div>
         
+        <!-- 章节关系脑图 -->
+        <div class="chapter">
+            <h2>章节关系脑图</h2>
+            <!-- Graphviz 渲染容器 -->
+            <div id="graphviz-mindmap" style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px; overflow-x: auto;">
+                <div style="min-width: 900px;">
+                    <!-- 图形将通过 JavaScript 渲染到这里 -->
+                </div>
+            </div>
+            
+            <div class="info-box" style="margin-top: 20px;">
+                <h4>📊 脑图解读</h4>
+                <ul>
+                    <li><strong>基础篇（蓝色）</strong>：建立概念基础，理解区块链和稳定币的基本原理</li>
+                    <li><strong>设计篇（绿色）</strong>：深入技术实现，掌握各种DeFi协议的集成方式</li>
+                    <li><strong>高级篇（橙色）</strong>：关注安全、风险和未来发展，提升到生产级别</li>
+                    <li><strong>核心关系</strong>：所有章节都围绕"稳定币智能合约"这个核心，逐层深入</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Graphviz 脚本和 D3-graphviz -->
+        <script src="https://unpkg.com/d3@7"></script>
+        <script src="https://unpkg.com/@hpcc-js/wasm@1/dist/index.min.js"></script>
+        <script src="https://unpkg.com/d3-graphviz@4"></script>
+        <script>
+            // Graphviz DOT 语言定义脑图
+            const dotSource = `
+            digraph G {
+                // 图形属性
+                rankdir=TB;
+                bgcolor="transparent";
+                node [shape=box, style="rounded,filled", fontname="Arial"];
+                edge [color="#94a3b8", penwidth=2];
+                
+                // 定义子图（分组）
+                subgraph cluster_foundation {
+                    label="基础篇";
+                    style=filled;
+                    fillcolor="#e0f2fe50";
+                    color="#0284c7";
+                    fontsize=16;
+                    fontcolor="#0284c7";
+                    
+                    intro [label="引言\\n历史与概念", fillcolor="#e0f2fe", color="#0284c7"];
+                    ch1 [label="第1章\\n区块链基础", fillcolor="#e0f2fe", color="#0284c7"];
+                    ch2 [label="第2章\\n分类与模型", fillcolor="#e0f2fe", color="#0284c7"];
+                    ch3 [label="第3章\\nERC-20标准", fillcolor="#e0f2fe", color="#0284c7"];
+                    
+                    intro -> ch1 -> ch2 -> ch3 [style=dashed, color="#0284c7"];
+                }
+                
+                subgraph cluster_design {
+                    label="设计篇";
+                    style=filled;
+                    fillcolor="#dcfce750";
+                    color="#10b981";
+                    fontsize=16;
+                    fontcolor="#10b981";
+                    
+                    ch4 [label="第4章\\n抵押型设计", fillcolor="#dcfce7", color="#10b981"];
+                    ch5 [label="第5章\\n数学模型", fillcolor="#dcfce7", color="#10b981"];
+                    ch6 [label="第6章\\nAMM集成", fillcolor="#dcfce7", color="#10b981"];
+                    ch7 [label="第7章\\n借贷协议", fillcolor="#dcfce7", color="#10b981"];
+                    ch8 [label="第8章\\n收益策略", fillcolor="#dcfce7", color="#10b981"];
+                    
+                    ch4 -> ch5 [style=dashed, color="#10b981"];
+                    ch6 -> ch7 [style=dashed, color="#10b981"];
+                    ch7 -> ch8 [style=dashed, color="#10b981"];
+                    ch6 -> ch8 [style=dashed, color="#10b981"];
+                }
+                
+                subgraph cluster_advanced {
+                    label="高级篇";
+                    style=filled;
+                    fillcolor="#fef3c750";
+                    color="#f59e0b";
+                    fontsize=16;
+                    fontcolor="#f59e0b";
+                    
+                    ch9 [label="第9章\\n合约安全", fillcolor="#fef3c7", color="#f59e0b"];
+                    ch10 [label="第10章\\n经济攻击", fillcolor="#fef3c7", color="#f59e0b"];
+                    ch11 [label="第11章\\n未来方向", fillcolor="#fef3c7", color="#f59e0b"];
+                    ch12 [label="第12章\\n生产部署", fillcolor="#fef3c7", color="#f59e0b"];
+                    ch13 [label="第13章\\n生态集成", fillcolor="#fef3c7", color="#f59e0b"];
+                    
+                    ch9 -> ch10 [style=dashed, color="#f59e0b"];
+                    ch9 -> ch12 [style=dashed, color="#f59e0b"];
+                    ch12 -> ch13 [style=dashed, color="#f59e0b"];
+                }
+                
+                // 中心节点
+                core [label="稳定币\\n智能合约", shape=circle, width=1.5, height=1.5, 
+                      style="filled,bold", fillcolor="#6366f1", 
+                      fontcolor="white", fontsize=16];
+                
+                // 主要连接线
+                ch3 -> core [color="#6366f1", penwidth=3];
+                ch4 -> core [color="#10b981", penwidth=3];
+                ch5 -> core [color="#10b981", penwidth=3];
+                ch6 -> core [color="#10b981", penwidth=3];
+                ch7 -> core [color="#10b981", penwidth=3];
+                ch8 -> core [color="#10b981", penwidth=3];
+                core -> ch9 [color="#f59e0b", penwidth=3];
+                core -> ch10 [color="#f59e0b", penwidth=3];
+                core -> ch11 [color="#f59e0b", penwidth=3];
+                core -> ch12 [color="#f59e0b", penwidth=3];
+                core -> ch13 [color="#f59e0b", penwidth=3];
+                
+                // 跨组依赖
+                ch3 -> ch4 [constraint=false, style=dotted, color="#64748b"];
+                ch5 -> ch10 [constraint=false, style=dotted, color="#64748b"];
+                ch8 -> ch11 [constraint=false, style=dotted, color="#64748b"];
+            }
+            `;
+            
+            // 渲染 Graphviz
+            d3.select("#graphviz-mindmap > div").graphviz()
+                .width(900)
+                .height(600)
+                .fit(true)
+                .zoom(false)
+                .renderDot(dotSource);
+        </script>
+        
         <!-- 章节概览 -->
         <div class="chapter">
             <h2>章节概览</h2>
@@ -78,28 +203,140 @@
             <div class="toc">
                 <h3>基础篇</h3>
                 <ul>
-                    <li><a href="intro.html">引言：稳定币的历史、概念与市场格局</a></li>
-                    <li><a href="chapter1.html">第1章：区块链基础与稳定币</a></li>
-                    <li><a href="chapter2.html">第2章：稳定币分类与经济模型</a></li>
-                    <li><a href="chapter3.html">第3章：ERC-20及扩展标准</a></li>
+                    <li><a href="intro.html">引言：稳定币的历史、概念与市场格局</a>
+                        <ul style="margin-left: 20px; font-size: 0.9em;">
+                            <li>• 基础概念厘清</li>
+                            <li>• 常见误区澄清</li>
+                            <li>• 稳定币发展简史</li>
+                            <li>• 核心概念回顾</li>
+                            <li>• 2024年市场格局</li>
+                        </ul>
+                    </li>
+                    <li><a href="chapter1.html">第1章：区块链基础与稳定币</a>
+                        <ul style="margin-left: 20px; font-size: 0.9em;">
+                            <li>• <a href="chapter1.html#consensus-impact">1.1 共识机制对稳定币设计的影响</a></li>
+                            <li>• <a href="chapter1.html#execution-models">1.2 智能合约执行模型跨链对比</a></li>
+                            <li>• <a href="chapter1.html#hello-stablecoin">1.3 实践：部署Hello Stablecoin</a></li>
+                            <li>• <a href="chapter1.html#gas-economics">1.4 Gas经济学与优化策略</a></li>
+                            <li>• <a href="chapter1.html#btc-relationship">1.5 稳定币与PoW、比特币的关系</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="chapter2.html">第2章：稳定币分类与经济模型</a>
+                        <ul style="margin-left: 20px; font-size: 0.9em;">
+                            <li>• <a href="chapter2.html#classification">2.1 稳定币分类体系</a></li>
+                            <li>• <a href="chapter2.html#economic-models">2.2 经济模型深度分析</a></li>
+                            <li>• <a href="chapter2.html#risk-analysis">2.3 风险分析与评估</a></li>
+                            <li>• <a href="chapter2.html#2024-updates">2.4 2024年最新发展</a></li>
+                            <li>• <a href="chapter2.html#ai-applications">2.5 AI/ML在稳定币中的应用</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="chapter3.html">第3章：ERC-20及扩展标准</a>
+                        <ul style="margin-left: 20px; font-size: 0.9em;">
+                            <li>• <a href="chapter3.html#erc20-deep">3.1 ERC-20标准深入剖析</a></li>
+                            <li>• <a href="chapter3.html#security-extensions">3.2 安全扩展与合规功能</a></li>
+                            <li>• <a href="chapter3.html#permit-gasless">3.3 Permit机制与无Gas交易</a></li>
+                            <li>• <a href="chapter3.html#cross-chain">3.4 跨链标准与互操作性</a></li>
+                            <li>• <a href="chapter3.html#upgradeable">3.5 可升级架构设计</a></li>
+                        </ul>
+                    </li>
                 </ul>
                 
                 <h3>设计篇</h3>
                 <ul>
-                    <li><a href="chapter4.html">第4章：抵押型稳定币设计</a></li>
-                    <li><a href="chapter5.html">第5章：数学模型与控制理论</a></li>
-                    <li><a href="chapter6.html">第6章：AMM集成</a></li>
-                    <li><a href="chapter7.html">第7章：借贷协议</a></li>
-                    <li><a href="chapter8.html">第8章：收益策略</a></li>
+                    <li><a href="chapter4.html">第4章：抵押型稳定币设计</a>
+                        <ul style="margin-left: 20px; font-size: 0.9em;">
+                            <li>• <a href="chapter4.html#cdp-system">4.1 CDP系统架构</a></li>
+                            <li>• <a href="chapter4.html#liquidation-engine">4.2 清算引擎设计</a></li>
+                            <li>• <a href="chapter4.html#oracle-integration">4.3 预言机集成与价格喂入</a></li>
+                            <li>• <a href="chapter4.html#risk-params">4.4 风险参数优化</a></li>
+                            <li>• <a href="chapter4.html#psm-rwa">4.5 PSM与RWA集成</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="chapter5.html">第5章：数学模型与控制理论</a>
+                        <ul style="margin-left: 20px; font-size: 0.9em;">
+                            <li>• <a href="chapter5.html#control-theory">5.1 控制理论在稳定币中的应用</a></li>
+                            <li>• <a href="chapter5.html#game-theory">5.2 博弈论与激励机制设计</a></li>
+                            <li>• <a href="chapter5.html#option-pricing">5.3 期权定价模型与抵押率</a></li>
+                            <li>• <a href="chapter5.html#simulation">5.4 仿真分析与压力测试</a></li>
+                            <li>• <a href="chapter5.html#risk-models">5.5 综合风险管理模型</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="chapter6.html">第6章：AMM集成</a>
+                        <ul style="margin-left: 20px; font-size: 0.9em;">
+                            <li>• <a href="chapter6.html#amm-basics">6.1 AMM基础与稳定币优化</a></li>
+                            <li>• <a href="chapter6.html#uniswap-integration">6.2 Uniswap V3集成策略</a></li>
+                            <li>• <a href="chapter6.html#curve-analysis">6.3 Curve深度分析</a></li>
+                            <li>• <a href="chapter6.html#advanced-strategies">6.4 高级优化策略</a></li>
+                            <li>• <a href="chapter6.html#2024-trends">6.5 2024年最新发展趋势</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="chapter7.html">第7章：借贷协议</a>
+                        <ul style="margin-left: 20px; font-size: 0.9em;">
+                            <li>• <a href="chapter7.html#lending-architecture">7.1 借贷协议基础架构</a></li>
+                            <li>• <a href="chapter7.html#interest-models">7.2 利率模型设计</a></li>
+                            <li>• <a href="chapter7.html#liquidation-mechanisms">7.3 清算机制深度剖析</a></li>
+                            <li>• <a href="chapter7.html#flash-loans">7.4 闪电贷与稳定币套利</a></li>
+                            <li>• <a href="chapter7.html#risk-management">7.5 风险管理与优化</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="chapter8.html">第8章：收益策略</a>
+                        <ul style="margin-left: 20px; font-size: 0.9em;">
+                            <li>• <a href="chapter8.html#yield-fundamentals">8.1 收益策略基础</a></li>
+                            <li>• <a href="chapter8.html#yield-aggregators">8.2 收益聚合器架构</a></li>
+                            <li>• <a href="chapter8.html#advanced-yield">8.3 高级收益优化</a></li>
+                            <li>• <a href="chapter8.html#risk-assessment">8.4 风险评估模型</a></li>
+                            <li>• <a href="chapter8.html#ai-defi-integration">8.5 AI与DeFi融合</a></li>
+                        </ul>
+                    </li>
                 </ul>
                 
                 <h3>高级篇</h3>
                 <ul>
-                    <li><a href="chapter9.html">第9章：智能合约安全</a></li>
-                    <li><a href="chapter10.html">第10章：经济攻击与防御</a></li>
-                    <li><a href="chapter11.html">第11章：未来方向与研究前沿</a></li>
-                    <li><a href="chapter12.html">第12章：生产部署与运维</a></li>
-                    <li><a href="chapter13.html">第13章：稳定币生态系统集成</a></li>
+                    <li><a href="chapter9.html">第9章：智能合约安全</a>
+                        <ul style="margin-left: 20px; font-size: 0.9em;">
+                            <li>• <a href="chapter9.html#security-threats">9.1 安全威胁全景</a></li>
+                            <li>• <a href="chapter9.html#stablecoin-risks">9.2 稳定币特定风险</a></li>
+                            <li>• <a href="chapter9.html#secure-development">9.3 安全开发生命周期</a></li>
+                            <li>• <a href="chapter9.html#advanced-patterns">9.4 高级安全模式</a></li>
+                            <li>• <a href="chapter9.html#audit-testing">9.5 安全审计与测试</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="chapter10.html">第10章：经济攻击与防御</a>
+                        <ul style="margin-left: 20px; font-size: 0.9em;">
+                            <li>• <a href="chapter10.html#economic-attack-models">10.1 经济攻击模型</a></li>
+                            <li>• <a href="chapter10.html#defi-specific-attacks">10.2 DeFi特定攻击</a></li>
+                            <li>• <a href="chapter10.html#defense-mechanisms">10.3 防御机制设计</a></li>
+                            <li>• <a href="chapter10.html#crisis-response">10.4 危机响应与恢复</a></li>
+                            <li>• <a href="chapter10.html#case-studies">10.5 案例研究</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="chapter11.html">第11章：未来方向与研究前沿</a>
+                        <ul style="margin-left: 20px; font-size: 0.9em;">
+                            <li>• <a href="chapter11.html#zkp-integration">11.1 零知识证明与隐私</a></li>
+                            <li>• <a href="chapter11.html#quantum-resistance">11.2 量子计算威胁</a></li>
+                            <li>• <a href="chapter11.html#ai-autonomous">11.3 AI驱动系统</a></li>
+                            <li>• <a href="chapter11.html#cbdc-integration">11.4 CBDC集成</a></li>
+                            <li>• <a href="chapter11.html#research-frontiers">11.5 研究前沿</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="chapter12.html">第12章：生产部署与运维</a>
+                        <ul style="margin-left: 20px; font-size: 0.9em;">
+                            <li>• <a href="chapter12.html#deployment-architecture">12.1 部署架构与基础设施</a></li>
+                            <li>• <a href="chapter12.html#monitoring-observability">12.2 监控与可观测性</a></li>
+                            <li>• <a href="chapter12.html#upgrade-strategies">12.3 升级策略与版本管理</a></li>
+                            <li>• <a href="chapter12.html#regulatory-compliance">12.4 监管合规与审计</a></li>
+                            <li>• <a href="chapter12.html#case-studies">12.5 案例研究与最佳实践</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="chapter13.html">第13章：稳定币生态系统集成</a>
+                        <ul style="margin-left: 20px; font-size: 0.9em;">
+                            <li>• <a href="chapter13.html#wallet-integration">13.1 钱包与用户界面集成</a></li>
+                            <li>• <a href="chapter13.html#payment-gateways">13.2 支付网关与商户集成</a></li>
+                            <li>• <a href="chapter13.html#cross-chain-bridges">13.3 跨链桥接与互操作</a></li>
+                            <li>• <a href="chapter13.html#defi-composability">13.4 DeFi可组合性</a></li>
+                            <li>• <a href="chapter13.html#future-ecosystem">13.5 未来生态展望</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
