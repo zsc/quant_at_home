@@ -57,6 +57,8 @@
         <div class="chapter">
 <h2>第二章：稳定币分类与经济模型</h2>
             
+            <p>稳定币的世界远比表面看起来复杂。从简单的法币托管到复杂的算法机制，从中心化信任到去中心化治理，每一种稳定币模型都代表着对"价值稳定"这一核心问题的不同解答。本章将系统地分析各类稳定币的经济模型，深入探讨它们的运作机制、风险特征和适用场景。通过研究USDT、USDC、DAI、UST等代表性项目的成败得失，您将学会评估稳定币的安全性和可持续性。特别是对UST崩盘的深度剖析，将帮助您理解算法稳定币的内在脆弱性和改进方向。</p>
+            
             <div class="intro-box">
                 <strong>本章概览：</strong>
                 <ul>
@@ -86,7 +88,9 @@
                 <h4>主要代表：USDC（USD Coin）</h4>
                 <h5>技术架构</h5>
                 <div class="code-block">
-// USDC核心合约简化版
+                    <div class="code-header" onclick="toggleCode(this)">USDC核心合约简化版 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-solidity">// USDC核心合约简化版
 contract FiatTokenV2_1 is FiatTokenV2 {
     // 关键角色
     address public masterMinter;    // 主铸币者
@@ -130,7 +134,8 @@ contract FiatTokenV2_1 is FiatTokenV2 {
         emit Burn(msg.sender, _amount);
         emit Transfer(msg.sender, address(0), _amount);
     }
-}
+}</code></pre>
+                    </div>
                 </div>
                 
                 <h5>储备资产构成（2024年数据）</h5>
@@ -274,7 +279,9 @@ contract FiatTokenV2_1 is FiatTokenV2 {
                 <h4>主要代表：DAI（MakerDAO）</h4>
                 <h5>系统架构</h5>
                 <div class="code-block">
-// Maker协议核心组件简化
+                    <div class="code-header" onclick="toggleCode(this)">Maker协议核心组件简化 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-solidity">// Maker协议核心组件简化
 contract Vat {  // 核心会计引擎
     // CDP（现称Vault）状态
     struct Ilk {  // 抵押品类型
@@ -369,7 +376,8 @@ contract Dog {  // Liquidation Engine 2.0
             kpr: kpr
         });
     }
-}
+}</code></pre>
+                    </div>
                 </div>
                 
                 <h5>支持的抵押品类型</h5>
@@ -423,7 +431,9 @@ contract Dog {  // Liquidation Engine 2.0
                 </ul>
                 
                 <div class="code-block">
-// Liquity核心机制：Trove（金库）操作
+                    <div class="code-header" onclick="toggleCode(this)">Liquity核心机制：Trove（金库）操作 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-solidity">// Liquity核心机制：Trove（金库）操作
 contract BorrowerOperations {
     // 开仓参数
     struct OpenTroveParams {
@@ -461,7 +471,8 @@ contract BorrowerOperations {
         
         emit TroveCreated(msg.sender, compositeDebt, params._collAmount);
     }
-}
+}</code></pre>
+                    </div>
                 </div>
                 
                 <h5>sUSD（Synthetix）</h5>
@@ -502,7 +513,9 @@ contract BorrowerOperations {
                 
                 <h5>机制设计</h5>
                 <div class="code-block">
-// Terra协议核心机制（简化版）
+                    <div class="code-header" onclick="toggleCode(this)">Terra协议核心机制（简化版） <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-solidity">// Terra协议核心机制（简化版）
 contract TerraStation {
     uint256 constant DECIMAL_PRECISION = 1e6;
     
@@ -550,7 +563,8 @@ contract AnchorProtocol {
         deposits[msg.sender] += amount + earned;
         lastUpdate[msg.sender] = block.timestamp;
     }
-}
+}</code></pre>
+                    </div>
                 </div>
                 
                 <h5>崩盘时间线详细分析（2022年5月）</h5>
@@ -601,7 +615,9 @@ contract AnchorProtocol {
                 
                 <h5>死亡螺旋的数学分析</h5>
                 <div class="code-block">
-# UST崩盘的动力学模型
+                    <div class="code-header" onclick="toggleCode(this)">UST崩盘的动力学模型 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-python"># UST崩盘的动力学模型
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -700,7 +716,8 @@ class USTDeathSpiral:
 # 模拟死亡螺旋
 simulator = USTDeathSpiral()
 results = simulator.simulate_spiral(ust_redemption_rate=0.05, time_steps=100)
-# simulator.plot_results(results)
+# simulator.plot_results(results)</code></pre>
+                    </div>
                 </div>
                 
                 <div class="warning">
@@ -890,7 +907,9 @@ pub fn open_position(
                 
                 <h5>控制论视角：为什么算法稳定币容易失控</h5>
                 <div class="code-block">
-# 控制系统分析：稳定币作为反馈控制系统
+                    <div class="code-header" onclick="toggleCode(this)">控制系统分析：稳定币作为反馈控制系统 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-python"># 控制系统分析：稳定币作为反馈控制系统
 class StablecoinControlSystem:
     """稳定币的控制论模型"""
     
@@ -920,7 +939,8 @@ class StablecoinControlSystem:
         """分析系统稳定性"""
         # 使用根轨迹、波特图等工具
         # 算法稳定币往往在相位裕度和增益裕度上表现差
-        pass
+        pass</code></pre>
+                    </div>
                 </div>
                 
                 <h4>部分算法稳定币：FRAX</h4>
@@ -929,7 +949,9 @@ class StablecoinControlSystem:
                 
                 <h5>核心创新：分数算法稳定币</h5>
                 <div class="code-block">
-// FRAX协议核心：动态抵押率
+                    <div class="code-header" onclick="toggleCode(this)">FRAX协议核心：动态抵押率 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-solidity">// FRAX协议核心：动态抵押率
 contract FRAXStablecoin {
     uint256 public global_collateral_ratio; // 全局抵押率（0-100%）
     
@@ -1009,7 +1031,8 @@ contract FraxAMOMinter {
         
         FRAX.mint(destination, frax_amount);
     }
-}
+}</code></pre>
+                    </div>
                 </div>
                 
                 <h5>FRAX生态系统</h5>
@@ -1064,7 +1087,9 @@ contract FraxAMOMinter {
                 <p>Ethena Protocol推出的USDe代表了稳定币设计的新范式：通过衍生品对冲而非抵押品来维持稳定。</p>
                 
                 <div class="code-block">
-// Ethena核心机制：Delta中性策略
+                    <div class="code-header" onclick="toggleCode(this)">Ethena核心机制：Delta中性策略 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-solidity">// Ethena核心机制：Delta中性策略
 contract EthenaProtocol {
     struct Position {
         uint256 stETHCollateral;     // 质押ETH现货
@@ -1118,7 +1143,8 @@ contract EthenaProtocol {
         // 4. 分配给sUSDe持有者
         sUsdeVault.depositYield(userYield);
     }
-}
+}</code></pre>
+                    </div>
                 </div>
                 
                 <h5>风险分析：与UST的对比</h5>
@@ -1156,7 +1182,9 @@ contract EthenaProtocol {
                 <p>Curve的稳定币采用创新的LLAMMA（Lending-Liquidating AMM Algorithm）机制，实现软清算。</p>
                 
                 <div class="code-block">
-// LLAMMA核心概念：连续清算
+                    <div class="code-header" onclick="toggleCode(this)">LLAMMA核心概念：连续清算 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-solidity">// LLAMMA核心概念：连续清算
 contract LLAMMA {
     struct Band {
         uint256 stablecoin_amount;  // 稳定币数量
@@ -1202,7 +1230,8 @@ contract LLAMMA {
             rebalance_band(band, p_oracle);
         }
     }
-}
+}</code></pre>
+                    </div>
                 </div>
                 
                 <h5>关键创新点</h5>
@@ -1232,7 +1261,9 @@ contract LLAMMA {
                 
                 <h5>跨链桥接模型</h5>
                 <div class="code-block">
-// 跨链稳定币标准接口
+                    <div class="code-header" onclick="toggleCode(this)">跨链稳定币标准接口 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-solidity">// 跨链稳定币标准接口
 interface ICrossChainStablecoin {
     // 锁定并桥接
     function bridgeOut(
@@ -1278,7 +1309,8 @@ contract LayerZeroStablecoin is OFT {  // Omnichain Fungible Token
             _sendAck(_srcChainId, _srcAddress, _nonce, _payload);
         }
     }
-}
+}</code></pre>
+                    </div>
                 </div>
                 
                 <h4>创新稳定机制</h4>
@@ -1305,7 +1337,9 @@ contract LayerZeroStablecoin is OFT {  // Omnichain Fungible Token
                 
                 <h4>风险预测与异常检测</h4>
                 <div class="code-block">
-# 使用LSTM预测稳定币脱锚风险
+                    <div class="code-header" onclick="toggleCode(this)">使用LSTM预测稳定币脱锚风险 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-python"># 使用LSTM预测稳定币脱锚风险
 import torch
 import torch.nn as nn
 import numpy as np
@@ -1419,12 +1453,15 @@ class StablecoinRLAgent:
                 self._update_policy(state, action, total_reward, next_state)
                 state = next_state
                 
-            print(f"Episode {episode}: Reward = {episode_reward:.2f}")
+            print(f"Episode {episode}: Reward = {episode_reward:.2f}")</code></pre>
+                    </div>
                 </div>
                 
                 <h4>博弈论分析：清算人激励机制</h4>
                 <div class="code-block">
-# 清算拍卖的博弈论模型
+                    <div class="code-header" onclick="toggleCode(this)">清算拍卖的博弈论模型 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-python"># 清算拍卖的博弈论模型
 class LiquidationAuction:
     """分析清算人（Keepers）的最优策略"""
     
@@ -1482,14 +1519,17 @@ class LiquidationAuction:
             time_steps.append(t)
             prices.append(current_price)
             
-        return {'failed': True, 'final_price': current_price}
+        return {'failed': True, 'final_price': current_price}</code></pre>
+                    </div>
                 </div>
                 
                 <h4>实际应用案例：MakerDAO的AutoLine</h4>
                 <p>MakerDAO使用自动化系统调整债务上限，这是AI在稳定币治理中的实际应用。</p>
                 
                 <div class="code-block">
-// Solidity实现：自动债务上限调整
+                    <div class="code-header" onclick="toggleCode(this)">Solidity实现：自动债务上限调整 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-solidity">// Solidity实现：自动债务上限调整
 contract AutoLine {
     struct CollateralConfig {
         uint256 line;      // 当前债务上限
@@ -1526,7 +1566,8 @@ contract AutoLine {
         
         return line;
     }
-}
+}</code></pre>
+                    </div>
                 </div>
             </div>
             
@@ -1537,7 +1578,9 @@ contract AutoLine {
                 
                 <h4>链上数据分析实战</h4>
                 <div class="code-block">
-# 使用Python分析稳定币锚定历史
+                    <div class="code-header" onclick="toggleCode(this)">使用Python分析稳定币锚定历史 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-python"># 使用Python分析稳定币锚定历史
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -1701,7 +1744,8 @@ class StablecoinMonitor:
     def send_alert(self, alert):
         """发送警报（实际应用中可以接入通知系统）"""
         print(f"⚠️ ALERT: {alert['coin']} at ${alert['price']:.4f} "
-              f"({alert['deviation']*100:.2f}% deviation) - {alert['severity']}")
+              f"({alert['deviation']*100:.2f}% deviation) - {alert['severity']}")</code></pre>
+                    </div>
                 </div>
                 
                 <h4>练习题</h4>
@@ -2127,7 +2171,9 @@ def assess_risks(position_size, credit_limit):
                     </div>
                     <p>完成以下合约，实现一个基本的法币抵押稳定币：</p>
                     <div class="code-block">
-contract SimpleStablecoin is ERC20, Ownable {
+                        <div class="code-header" onclick="toggleCode(this)">简单稳定币实现模板 <span class="toggle-icon">▼</span></div>
+                        <div class="code-content" style="display: none;">
+                            <pre><code class="language-solidity">contract SimpleStablecoin is ERC20, Ownable {
     // TODO: 实现以下功能
     // 1. 添加铸币者管理
     // 2. 实现铸币功能（需要权限控制）
@@ -2135,12 +2181,15 @@ contract SimpleStablecoin is ERC20, Ownable {
     // 4. 添加黑名单功能
     // 5. 实现暂停/恢复功能
     // 6. 添加事件日志
-}
+}</code></pre>
+                        </div>
                     </div>
                     <button class="answer-toggle" onclick="toggleAnswer('answer2_2')">查看答案</button>
                     <div id="answer2_2" class="answer-content">
                         <div class="code-block">
-contract SimpleStablecoin is ERC20, Ownable, Pausable {
+                            <div class="code-header" onclick="toggleCode(this)">完整的简单稳定币实现 <span class="toggle-icon">▼</span></div>
+                            <div class="code-content" style="display: none;">
+                                <pre><code class="language-solidity">contract SimpleStablecoin is ERC20, Ownable, Pausable {
     // 铸币者管理
     mapping(address => bool) public minters;
     mapping(address => uint256) public mintingAllowance;
@@ -2247,7 +2296,8 @@ contract SimpleStablecoin is ERC20, Ownable, Pausable {
     function unpause() external onlyOwner {
         _unpause();
     }
-}
+}</code></pre>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2390,7 +2440,9 @@ contract SimpleStablecoin is ERC20, Ownable, Pausable {
                         
                         <h6>实现草图</h6>
                         <div class="code-block">
-contract HybridStablecoin {
+                            <div class="code-header" onclick="toggleCode(this)">混合型稳定币合约示例 <span class="toggle-icon">▼</span></div>
+                            <div class="code-content" style="display: none;">
+                                <pre><code class="language-solidity">contract HybridStablecoin {
     // 储备类型
     struct Reserve {
         uint256 fiatBacked;      // USDC等
@@ -2420,7 +2472,8 @@ contract HybridStablecoin {
         _pause();
         emit EmergencyPauseActivated();
     }
-}
+}</code></pre>
+                            </div>
                         </div>
                     </div>
                 </div>
