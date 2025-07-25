@@ -5,7 +5,8 @@
 - ✅ 第一章：区块链基础与稳定币
 - ✅ 第二章：稳定币分类与经济模型
 - ✅ 第三章：ERC-20标准与扩展
-- ⏳ 第四章：抵押型稳定币设计（待开始）
+- ✅ 第四章：抵押型稳定币设计
+- ⏳ 第五章：数学模型与控制理论（待开始）
 - ⏳ 后续章节待完成
 
 # Blockchain Stablecoin Smart Contracts: From Theory to Practice
