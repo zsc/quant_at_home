@@ -1,0 +1,69 @@
+区块链稳定币智能合约教程 - 引言和第一章内容
+
+【引言：稳定币的历史、概念与市场格局】
+
+一、稳定币发展简史
+- 2014-2017早期探索：Tether (USDT)、BitUSD、DAI
+- 2018-2020快速扩张：合规稳定币崛起(USDC/PAX/GUSD)、DeFi夏天
+- 2021-2023动荡与监管：UST崩盘、监管法规出台
+
+二、核心概念
+- 稳定币三要素（不可能三角）：去中心化、资本效率、价格稳定
+- 抵押机制分类：法币抵押、加密货币超额抵押、算法调节、混合型
+- 关键机制：价格预言机、清算机制、稳定机制
+
+三、市场格局（2024年）
+- USDT $95B+ (45%)、USDC $25B+ (12%)、DAI $5B+ (2.5%)
+- 技术创新者：Frax、Curve (crvUSD)、Aave (GHO)
+
+四、全球监管现状
+- 美国：分散监管，多项法案提出
+- 欧盟：MiCA法规，EMT/ART分类
+- 中国：禁止加密货币，香港特区有监管框架
+- 日本：修订资金结算法，禁止算法稳定币
+- 新加坡：MAS监管框架
+
+【第一章：稳定币的区块链基础】
+
+一、共识机制对稳定币设计的影响
+- PoW vs PoS vs DPoS的特点对比
+- 最终性（finality）概念：概率性最终性 vs 确定性最终性
+- 对稳定币影响：交易确认时间、重组风险、结算速度
+
+二、智能合约执行模型跨链对比
+- 账户模型（以太坊）vs UTXO模型（比特币、Cardano）
+- 代码示例展示两种模型的差异
+
+三、实践：部署Hello Stablecoin
+环境搭建（Hardhat）+ 简单稳定币合约：
+```solidity
+contract HelloStablecoin is ERC20, Ownable {
+    uint8 private constant DECIMALS = 6;
+    
+    constructor() ERC20("Hello Stablecoin", "HELLO") {
+        _mint(msg.sender, 1000000 * 10**DECIMALS);
+    }
+    
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
+    }
+    
+    function burn(uint256 amount) public {
+        _burn(msg.sender, amount);
+    }
+}
+```
+
+四、Gas经济学与优化策略
+- 存储槽打包技术
+- EVM存储规则（SSTORE/SLOAD成本）
+- 优化示例代码
+
+五、练习题
+1. 共识机制分析：比较比特币+闪电、以太坊、Solana部署稳定币的优劣
+2. 扩展功能：实现pause、黑名单、转账费用功能
+3. Gas优化挑战：优化transfer函数Gas消耗
+4. 综合练习：设计支持10,000 TPS的跨链稳定币架构
+
+目标受众：资深程序员和AI科学家
+教程特点：技术深度较高，包含大量代码示例和实践练习，每个新术语都有简短解释
