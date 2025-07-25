@@ -23433,7 +23433,17 @@ interface ITokenReceiver {
                 <li><strong>级联清算（Cascading Liquidation）</strong>：连环清算引发的系统性风险</li>
             </ul>
             
-            <h5>3. 反身性理论与稳定币</h5>
+            <h5>3. 新型经济攻击模式</h5>
+            <p>除了传统攻击外，2024年出现了更加隐蔽和复杂的攻击模式：</p>
+            
+            <ul>
+                <li><strong>信贷/债务攻击（Credit/Debt Attack）</strong>：通过操纵债务上限、清算参数制造系统性风险</li>
+                <li><strong>长期资本消耗攻击（Long-term Capital Drain）</strong>：持续小额套利，缓慢消耗协议资本</li>
+                <li><strong>再质押风险攻击（Restaking Risk Attack）</strong>：利用LRT多层风险叠加的脆弱性</li>
+                <li><strong>跨链桥攻击（Bridge Attack）</strong>：攻击薄弱跨链桥，稀释稳定币价值</li>
+            </ul>
+            
+            <h5>4. 反身性理论与稳定币</h5>
             <p>反身性（Reflexivity）是索罗斯提出的核心概念，在稳定币系统中表现尤为明显。市场参与者的预期会影响市场价格，而价格变化又会强化或改变预期，形成自我强化的循环。</p>
             
             <div class="code-block">
@@ -23567,8 +23577,385 @@ print(f"成功概率: {prob:.2%}")</code></pre>
                 </div>
             </div>
             
-            <h5>4. UST/LUNA死亡螺旋量化模型</h5>
-            <p>以Terra生态系统崩溃为例，我们可以建立一个精确的数学模型来量化死亡螺旋的过程：</p>
+            <h4>10.1.2 信贷/债务攻击模型</h4>
+            <p>在超额抵押稳定币系统中，攻击者可以通过操纵债务参数来制造系统性风险：</p>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                </div>
+                <div class="code-content collapsed">
+                    <pre><code class="language-python"># 信贷/债务攻击建模
+class CreditDebtAttack:
+    """模拟针对MakerDAO类型系统的信贷攻击"""
+    
+    def __init__(self, protocol_params: dict):
+        self.debt_ceiling = protocol_params['debt_ceiling']
+        self.stability_fee = protocol_params['stability_fee']
+        self.liquidation_ratio = protocol_params['liquidation_ratio']
+        self.liquidation_penalty = protocol_params['liquidation_penalty']
+        self.governance_token_supply = protocol_params['governance_token_supply']
+        
+    def calculate_bad_debt_creation(self, 
+                                   collateral_volatility: float,
+                                   attacker_capital: float,
+                                   market_conditions: dict) -> dict:
+        """计算恶意创建坏账的成本与影响"""
+        
+        # 攻击者可以开设的最大债务头寸
+        max_debt_position = attacker_capital * self.liquidation_ratio
+        
+        # 在极端市场条件下的预期损失
+        extreme_drop = market_conditions['black_swan_probability'] * market_conditions['max_drawdown']
+        
+        # 制造坏账的预期成本
+        bad_debt_cost = max_debt_position * (extreme_drop - (1 - 1/self.liquidation_ratio))
+        
+        # 对系统的影响
+        system_impact = {
+            'bad_debt_amount': max(0, bad_debt_cost),
+            'debt_ceiling_utilization': max_debt_position / self.debt_ceiling,
+            'required_mkr_mint': bad_debt_cost / market_conditions['mkr_price'],  # 需要铸造的MKR
+            'mkr_dilution': bad_debt_cost / (market_conditions['mkr_price'] * self.governance_token_supply)
+        }
+        
+        return system_impact
+    
+    def simulate_debt_ceiling_manipulation(self, 
+                                         governance_control: float,
+                                         time_horizon: int) -> list:
+        """模拟通过治理操纵债务上限的攻击"""
+        results = []
+        current_ceiling = self.debt_ceiling
+        
+        for t in range(time_horizon):
+            # 治理提案通过概率
+            proposal_success = governance_control > 0.5  # 简化：超过50%控制权
+            
+            if proposal_success:
+                # 每次可以提高20%债务上限
+                current_ceiling *= 1.2
+                
+                # 系统风险指标
+                risk_score = self._calculate_systemic_risk(current_ceiling)
+                
+                results.append({
+                    'time': t,
+                    'debt_ceiling': current_ceiling,
+                    'risk_score': risk_score,
+                    'insolvency_probability': 1 - np.exp(-risk_score)
+                })
+        
+        return results
+    
+    def _calculate_systemic_risk(self, debt_ceiling: float) -> float:
+        """计算系统性风险评分"""
+        # 债务上限相对于抵押品总价值的比率
+        leverage_ratio = debt_ceiling / (debt_ceiling * self.liquidation_ratio)
+        
+        # 风险随杠杆指数增长
+        risk_score = leverage_ratio ** 2 * 0.1
+        
+        return min(risk_score, 1.0)
+
+# 使用示例
+maker_params = {
+    'debt_ceiling': 10_000_000_000,  # 100亿美元
+    'stability_fee': 0.05,  # 5%年化
+    'liquidation_ratio': 1.5,  # 150%
+    'liquidation_penalty': 0.13,  # 13%
+    'governance_token_supply': 1_000_000  # 100万MKR
+}
+
+attacker = CreditDebtAttack(maker_params)
+
+# 分析坏账攻击
+market_conditions = {
+    'black_swan_probability': 0.01,
+    'max_drawdown': 0.5,
+    'mkr_price': 2000
+}
+
+impact = attacker.calculate_bad_debt_creation(
+    collateral_volatility=0.8,
+    attacker_capital=50_000_000,  # 5000万美元
+    market_conditions=market_conditions
+)
+
+print(f"潜在坏账: ${impact['bad_debt_amount']:,.0f}")
+print(f"MKR稀释: {impact['mkr_dilution']:.2%}")</code></pre>
+                </div>
+            </div>
+            
+            <h4>10.1.3 长期资本消耗攻击</h4>
+            <p>这种攻击通过持续的小额套利缓慢消耗协议的资本储备：</p>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                </div>
+                <div class="code-content collapsed">
+                    <pre><code class="language-python"># 长期资本消耗攻击模拟
+class LongTermDrainAttack:
+    """模拟缓慢消耗协议资本的攻击策略"""
+    
+    def __init__(self, protocol: dict):
+        self.treasury_size = protocol['treasury_size']
+        self.daily_volume = protocol['daily_volume']
+        self.fee_structure = protocol['fee_structure']
+        self.arbitrage_opportunities = protocol['arbitrage_opportunities']
+        
+    def calculate_drain_rate(self, 
+                           attacker_sophistication: float,
+                           market_inefficiency: float) -> dict:
+        """计算资本消耗速率"""
+        
+        # 每日可捕获的套利机会
+        daily_arbitrage = (
+            self.daily_volume * 
+            market_inefficiency * 
+            attacker_sophistication * 
+            self.arbitrage_opportunities
+        )
+        
+        # 协议的防御能力（通过费用回收）
+        protocol_recovery = self.daily_volume * self.fee_structure['base_fee']
+        
+        # 净消耗率
+        net_drain = daily_arbitrage - protocol_recovery
+        
+        # 预计耗尽时间
+        if net_drain > 0:
+            depletion_time = self.treasury_size / net_drain
+        else:
+            depletion_time = float('inf')
+        
+        return {
+            'daily_drain': net_drain,
+            'drain_percentage': net_drain / self.treasury_size,
+            'depletion_days': depletion_time,
+            'annual_loss': net_drain * 365
+        }
+    
+    def simulate_adaptive_attack(self, days: int) -> list:
+        """模拟自适应的消耗攻击"""
+        results = []
+        remaining_treasury = self.treasury_size
+        
+        for day in range(days):
+            # 攻击者根据剩余资金调整策略
+            aggressiveness = 1 - (remaining_treasury / self.treasury_size)
+            
+            # 随着资金减少，套利机会增加（流动性降低）
+            market_inefficiency = 0.001 * (1 + aggressiveness * 2)
+            
+            drain = self.calculate_drain_rate(
+                attacker_sophistication=0.8,
+                market_inefficiency=market_inefficiency
+            )
+            
+            remaining_treasury -= drain['daily_drain']
+            
+            results.append({
+                'day': day,
+                'treasury': remaining_treasury,
+                'daily_drain': drain['daily_drain'],
+                'health_score': remaining_treasury / self.treasury_size
+            })
+            
+            if remaining_treasury <= 0:
+                break
+        
+        return results
+
+# 示例：分析Curve等协议的长期风险
+curve_protocol = {
+    'treasury_size': 50_000_000,  # 5000万美元
+    'daily_volume': 500_000_000,  # 5亿美元
+    'fee_structure': {'base_fee': 0.0004},  # 0.04%
+    'arbitrage_opportunities': 0.01  # 1%的交易存在套利机会
+}
+
+drain_attack = LongTermDrainAttack(curve_protocol)
+
+# 分析消耗率
+drain_analysis = drain_attack.calculate_drain_rate(
+    attacker_sophistication=0.7,  # 中等水平攻击者
+    market_inefficiency=0.002     # 0.2%市场非效率
+)
+
+print(f"每日资本消耗: ${drain_analysis['daily_drain']:,.0f}")
+print(f"预计耗尽时间: {drain_analysis['depletion_days']:.0f} 天")</code></pre>
+                </div>
+            </div>
+            
+            <h5>5. 死亡螺旋的数学形式化</h5>
+            <p>死亡螺旋不仅是一个定性概念，更可以通过差分方程系统严格建模。我们定义状态转移方程来捕获价格、储备和供应量之间的动态关系：</p>
+            
+            <div class="math-formula">
+                <p><strong>状态方程：</strong></p>
+                <ul>
+                    <li>P<sub>t</sub> = α · R<sub>t-1</sub> / S<sub>t-1</sub> + β · E[P<sub>t+1</sub>] - γ · (S<sub>t</sub> - S<sub>t-1</sub>)</li>
+                    <li>S<sub>t</sub> = S<sub>t-1</sub> + μ · (1 - P<sub>t</sub>) · S<sub>t-1</sub></li>
+                    <li>R<sub>t</sub> = R<sub>t-1</sub> - ρ · (1 - P<sub>t</sub>) · S<sub>t-1</sub></li>
+                </ul>
+                <p>其中：P<sub>t</sub> = 治理代币价格，R<sub>t</sub> = 储备金，S<sub>t</sub> = 稳定币供应量</p>
+                <p>参数：α = 基本面权重，β = 预期权重，γ = 供应冲击系数，μ = 铸币率，ρ = 赎回率</p>
+            </div>
+            
+            <h5>5. Lyapunov稳定性分析</h5>
+            <p>为了分析系统的稳定性，我们使用Lyapunov函数方法：</p>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">python</span>
+                    <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+                </div>
+                <div class="code-content collapsed">
+                    <pre><code class="language-python"># 死亡螺旋的严格数学建模与稳定性分析
+import numpy as np
+from scipy.optimize import fsolve
+from scipy.linalg import eigvals
+import matplotlib.pyplot as plt
+
+class StablecoinStabilityAnalysis:
+    """稳定币系统的稳定性分析框架"""
+    
+    def __init__(self, params: dict):
+        self.alpha = params['alpha']  # 基本面权重
+        self.beta = params['beta']    # 预期权重
+        self.gamma = params['gamma']  # 供应冲击系数
+        self.mu = params['mu']        # 铸币率
+        self.rho = params['rho']      # 赎回率
+        
+    def state_transition(self, state: np.ndarray, expectation: float) -> np.ndarray:
+        """
+        状态转移函数
+        state = [P_t, S_t, R_t]
+        """
+        P, S, R = state
+        
+        # 价格动态（包含反身性）
+        P_next = self.alpha * R / S + self.beta * expectation - self.gamma * self.mu * (1 - P) * S
+        
+        # 供应动态
+        S_next = S + self.mu * (1 - P) * S
+        
+        # 储备动态
+        R_next = R - self.rho * (1 - P) * S
+        
+        return np.array([P_next, S_next, R_next])
+    
+    def find_equilibrium(self, initial_guess: np.ndarray) -> np.ndarray:
+        """寻找系统平衡点"""
+        def equilibrium_condition(state):
+            P, S, R = state
+            next_state = self.state_transition(state, P)  # 理性预期：E[P_t+1] = P_t
+            return next_state - state
+        
+        equilibrium = fsolve(equilibrium_condition, initial_guess)
+        return equilibrium
+    
+    def linearize_around_equilibrium(self, equilibrium: np.ndarray) -> np.ndarray:
+        """在平衡点附近线性化，计算雅可比矩阵"""
+        P_eq, S_eq, R_eq = equilibrium
+        
+        # 雅可比矩阵
+        J = np.array([
+            [self.beta - self.gamma * self.mu * S_eq, 
+             -self.alpha * R_eq / S_eq**2 - self.gamma * self.mu * (1 - P_eq),
+             self.alpha / S_eq],
+            [self.mu * S_eq, 
+             self.mu * (1 - P_eq), 
+             0],
+            [-self.rho * S_eq, 
+             -self.rho * (1 - P_eq), 
+             1]
+        ])
+        
+        return J
+    
+    def check_lyapunov_stability(self, equilibrium: np.ndarray) -> dict:
+        """使用Lyapunov方法检查稳定性"""
+        J = self.linearize_around_equilibrium(equilibrium)
+        eigenvalues = eigvals(J)
+        
+        # 定义Lyapunov函数 V(x) = x^T P x
+        # 其中P是正定矩阵，满足Lyapunov方程：J^T P + P J = -Q
+        
+        stability_results = {
+            'eigenvalues': eigenvalues,
+            'max_real_part': np.max(np.real(eigenvalues)),
+            'is_stable': np.all(np.real(eigenvalues) < 0),
+            'stability_margin': -np.max(np.real(eigenvalues)) if np.all(np.real(eigenvalues) < 0) else 0
+        }
+        
+        return stability_results
+    
+    def simulate_death_spiral(self, initial_state: np.ndarray, 
+                            shock_magnitude: float, 
+                            time_steps: int = 100) -> dict:
+        """模拟死亡螺旋过程"""
+        states = np.zeros((time_steps, 3))
+        states[0] = initial_state
+        
+        # 施加初始冲击
+        states[0, 0] *= (1 - shock_magnitude)  # 价格冲击
+        
+        # 预期形成机制（自适应预期）
+        expectations = np.zeros(time_steps)
+        expectations[0] = states[0, 0]
+        
+        for t in range(1, time_steps):
+            # 更新预期（加权平均）
+            expectations[t] = 0.7 * states[t-1, 0] + 0.3 * expectations[t-1]
+            
+            # 状态转移
+            states[t] = self.state_transition(states[t-1], expectations[t])
+            
+            # 检查崩溃条件
+            if states[t, 0] < 0.1 or states[t, 2] < 0:  # 价格接近0或储备耗尽
+                states[t:] = states[t]  # 系统崩溃，状态不再变化
+                break
+        
+        return {
+            'states': states,
+            'expectations': expectations,
+            'collapse_time': t if t < time_steps - 1 else None
+        }
+
+# 参数校准（基于历史数据）
+params = {
+    'alpha': 0.6,   # 基本面权重
+    'beta': 0.3,    # 预期权重
+    'gamma': 0.05,  # 供应冲击系数
+    'mu': 0.1,      # 铸币率
+    'rho': 0.15     # 赎回率
+}
+
+# 创建分析实例
+analyzer = StablecoinStabilityAnalysis(params)
+
+# 寻找平衡点
+equilibrium = analyzer.find_equilibrium([1.0, 1000, 1000])
+print(f"系统平衡点: P={equilibrium[0]:.3f}, S={equilibrium[1]:.0f}, R={equilibrium[2]:.0f}")
+
+# 稳定性分析
+stability = analyzer.check_lyapunov_stability(equilibrium)
+print(f"系统稳定性: {'稳定' if stability['is_stable'] else '不稳定'}")
+print(f"稳定性裕度: {stability['stability_margin']:.4f}")
+
+# 模拟20%价格冲击
+simulation = analyzer.simulate_death_spiral(equilibrium, shock_magnitude=0.2)
+if simulation['collapse_time']:
+    print(f"系统在第{simulation['collapse_time']}期崩溃")</code></pre>
+                </div>
+            </div>
+            
+            <h5>6. UST/LUNA死亡螺旋案例的定量分析</h5>
+            <p>基于上述理论框架，我们可以精确重现Terra生态系统的崩溃过程：</p>
             
             <div class="code-block">
                 <div class="code-header">
@@ -24616,6 +25003,367 @@ contract IntentBasedTrading {
 }</code></pre>
                 </div>
             </div>
+        </div>
+        
+        <h4>10.2.4 时间强盗攻击（Time-bandit MEV）</h4>
+        
+        <div class="warning-box">
+            <p><strong>时间强盗攻击</strong>：区块生产者为了捕获过去的MEV而重组链的攻击方式。这种攻击展示了共识层安全与应用层安全的深度交互。</p>
+        </div>
+        
+        <h5>攻击机制分析</h5>
+        <div class="code-block">
+            <div class="code-header">
+                <span class="code-language">python</span>
+                <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+            </div>
+            <div class="code-content collapsed">
+                <pre><code class="language-python">class TimeBanditAttack:
+    """时间强盗攻击模型"""
+    
+    def __init__(self, chain_config: dict):
+        self.block_reward = chain_config['block_reward']
+        self.reorg_cost = chain_config['reorg_cost']
+        self.finality_depth = chain_config['finality_depth']
+        
+    def calculate_profitability(self, 
+                              historical_mev: list,
+                              reorg_depth: int) -> dict:
+        """计算重组攻击的收益性"""
+        
+        # 计算可捕获的MEV价值
+        capturable_mev = sum(historical_mev[-reorg_depth:])
+        
+        # 计算重组成本
+        reorg_costs = {
+            'lost_rewards': self.block_reward * reorg_depth,
+            'reputation_cost': self.estimate_reputation_damage(reorg_depth),
+            'opportunity_cost': self.calculate_opportunity_cost(reorg_depth)
+        }
+        
+        total_cost = sum(reorg_costs.values())
+        
+        # 考虑成功概率
+        success_probability = self.calculate_success_probability(reorg_depth)
+        
+        expected_profit = (capturable_mev * success_probability) - total_cost
+        
+        return {
+            'capturable_mev': capturable_mev,
+            'total_cost': total_cost,
+            'success_probability': success_probability,
+            'expected_profit': expected_profit,
+            'attack_feasible': expected_profit > 0
+        }
+    
+    def calculate_success_probability(self, reorg_depth: int) -> float:
+        """计算重组成功概率"""
+        # 随着深度增加，成功率指数下降
+        if reorg_depth >= self.finality_depth:
+            return 0.0
+        
+        # 基于网络参数的概率模型
+        base_probability = 0.9
+        decay_factor = 0.7
+        
+        return base_probability * (decay_factor ** reorg_depth)
+    
+    def analyze_stablecoin_vulnerability(self, 
+                                       stablecoin_protocol: dict) -> dict:
+        """分析稳定币对时间强盗攻击的脆弱性"""
+        
+        vulnerabilities = []
+        
+        # 检查清算机制
+        if stablecoin_protocol['liquidation_delay'] < self.finality_depth:
+            vulnerabilities.append({
+                'type': 'liquidation_reversal',
+                'severity': 'high',
+                'description': '清算可能被回滚，导致不良债务'
+            })
+        
+        # 检查预言机更新
+        if stablecoin_protocol['oracle_finality'] < self.finality_depth:
+            vulnerabilities.append({
+                'type': 'oracle_manipulation',
+                'severity': 'critical',
+                'description': '预言机价格更新可能被回滚'
+            })
+        
+        # 检查治理决策
+        if stablecoin_protocol['governance_delay'] < self.finality_depth * 2:
+            vulnerabilities.append({
+                'type': 'governance_attack',
+                'severity': 'medium',
+                'description': '治理决策可能被操纵'
+            })
+        
+        return {
+            'vulnerabilities': vulnerabilities,
+            'overall_risk': self.calculate_overall_risk(vulnerabilities)
+        }
+</code></pre>
+            </div>
+        </div>
+        
+        <h4>10.2.5 再质押风险（Restaking Risks）</h4>
+        
+        <div class="info-box">
+            <p><strong>🔥 2024年最重要的新兴风险</strong>：随着EigenLayer等再质押协议的兴起，稳定币开始接受流动性再质押代币（LRTs）作为抵押品，引入了前所未有的多层风险叠加。</p>
+        </div>
+        
+        <h5>LRT风险层级分析</h5>
+        <div class="code-block">
+            <div class="code-header">
+                <span class="code-language">solidity</span>
+                <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+            </div>
+            <div class="code-content collapsed">
+                <pre><code class="language-solidity">// LRT作为抵押品的风险管理合约
+contract LRTCollateralManager {
+    
+    struct LRTRiskProfile {
+        uint256 baseAssetRisk;      // 底层ETH质押风险
+        uint256 avssRisk;           // AVS罚没风险
+        uint256 protocolRisk;       // LRT协议风险
+        uint256 liquidityRisk;      // 流动性风险
+        uint256 correlationRisk;    // 相关性风险
+    }
+    
+    struct AVSExposure {
+        address avsAddress;
+        uint256 stakedAmount;
+        uint256 slashingRisk;
+        uint256 rewardVolatility;
+        bool hasHistoricalSlashing;
+    }
+    
+    mapping(address => LRTRiskProfile) public lrtRiskProfiles;
+    mapping(address => AVSExposure[]) public lrtAVSExposures;
+    
+    // 动态抵押率计算
+    function calculateDynamicCollateralRatio(
+        address lrtToken,
+        uint256 baseRatio
+    ) public view returns (uint256) {
+        LRTRiskProfile memory risk = lrtRiskProfiles[lrtToken];
+        
+        // 基础抵押率根据风险调整
+        uint256 riskMultiplier = calculateRiskMultiplier(risk);
+        
+        // 考虑AVS暴露
+        uint256 avsRiskPremium = calculateAVSRiskPremium(lrtToken);
+        
+        // 最终抵押率 = 基础率 * 风险乘数 + AVS风险溢价
+        return (baseRatio * riskMultiplier / 100) + avsRiskPremium;
+    }
+    
+    function calculateRiskMultiplier(
+        LRTRiskProfile memory risk
+    ) internal pure returns (uint256) {
+        // 复合风险计算
+        uint256 totalRisk = risk.baseAssetRisk +
+                           risk.avssRisk +
+                           risk.protocolRisk +
+                           risk.liquidityRisk;
+        
+        // 考虑风险相关性（非线性叠加）
+        uint256 correlationAdjustment = (totalRisk * risk.correlationRisk) / 10000;
+        
+        // 风险乘数：100 = 无额外风险，200 = 双倍抵押要求
+        return 100 + totalRisk + correlationAdjustment;
+    }
+    
+    // 监控AVS罚没事件
+    function handleAVSSlashing(
+        address lrtToken,
+        address avsAddress,
+        uint256 slashingAmount
+    ) external onlyOracle {
+        // 更新风险评分
+        lrtRiskProfiles[lrtToken].avssRisk += calculateSlashingImpact(
+            slashingAmount,
+            getTotalLRTValue(lrtToken)
+        );
+        
+        // 触发紧急抵押率调整
+        if (lrtRiskProfiles[lrtToken].avssRisk > CRITICAL_RISK_THRESHOLD) {
+            triggerEmergencyDeleveraging(lrtToken);
+        }
+        
+        emit AVSSlashingDetected(lrtToken, avsAddress, slashingAmount);
+    }
+}
+
+// 风险传染模型
+contract RiskContagionModel {
+    
+    struct SystemicRiskScenario {
+        string description;
+        uint256 probability;
+        uint256 impactSeverity;
+        address[] affectedProtocols;
+    }
+    
+    // 模拟LRT相关的系统性风险
+    function simulateContagion(
+        address triggerProtocol,
+        uint256 initialShock
+    ) external view returns (SystemicRiskScenario memory) {
+        // 构建协议依赖图
+        address[] memory dependentProtocols = getDependentProtocols(triggerProtocol);
+        
+        // 计算传染路径
+        uint256[] memory contagionImpacts = new uint256[](dependentProtocols.length);
+        
+        for (uint i = 0; i < dependentProtocols.length; i++) {
+            // 计算每个协议受到的冲击
+            contagionImpacts[i] = calculateContagionImpact(
+                initialShock,
+                getExposure(dependentProtocols[i], triggerProtocol),
+                getProtocolResilience(dependentProtocols[i])
+            );
+        }
+        
+        // 评估系统性风险
+        return SystemicRiskScenario({
+            description: "LRT mass slashing cascade",
+            probability: calculateCascadeProbability(contagionImpacts),
+            impactSeverity: sum(contagionImpacts),
+            affectedProtocols: dependentProtocols
+        });
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <h5>LRT风险缓释策略</h5>
+        <div class="code-block">
+            <div class="code-header">
+                <span class="code-language">python</span>
+                <button class="code-toggle" onclick="toggleCode(this)">展开</button>
+            </div>
+            <div class="code-content collapsed">
+                <pre><code class="language-python">class LRTRiskMitigation:
+    """LRT风险缓释策略实现"""
+    
+    def __init__(self):
+        self.risk_params = {
+            'max_lrt_concentration': 0.3,  # 最大LRT集中度
+            'avs_diversity_requirement': 5,  # 最小AVS分散度
+            'correlation_threshold': 0.7,   # 相关性阈值
+            'buffer_requirement': 0.2       # 额外缓冲要求
+        }
+    
+    def design_defensive_strategy(self, 
+                                stablecoin_protocol: dict) -> dict:
+        """设计针对LRT风险的防御策略"""
+        
+        strategies = {
+            'collateral_limits': self.set_lrt_exposure_limits(),
+            'dynamic_parameters': self.create_dynamic_risk_parameters(),
+            'monitoring_system': self.design_monitoring_framework(),
+            'emergency_procedures': self.define_emergency_responses()
+        }
+        
+        return strategies
+    
+    def set_lrt_exposure_limits(self) -> dict:
+        """设置LRT暴露限制"""
+        return {
+            'single_lrt_cap': '10% of total collateral',
+            'total_lrt_cap': '30% of total collateral',
+            'per_avs_exposure': '5% of total collateral',
+            'concentration_penalties': {
+                '0-10%': 0,
+                '10-20%': 5,  # 5%额外抵押要求
+                '20-30%': 15  # 15%额外抵押要求
+            }
+        }
+    
+    def create_dynamic_risk_parameters(self) -> dict:
+        """创建动态风险参数系统"""
+        return {
+            'oracle_requirements': {
+                'lrt_price_sources': 5,  # 需要5个价格源
+                'avs_performance_feed': True,
+                'slashing_event_feed': True
+            },
+            'liquidation_adjustments': {
+                'lrt_liquidation_bonus': '15%',  # 高于普通抵押品
+                'partial_liquidation_enabled': True,
+                'grace_period': '2 hours'
+            },
+            'interest_rate_model': {
+                'base_rate_adjustment': '+2%',
+                'utilization_curve_steepness': 1.5
+            }
+        }
+    
+    def design_monitoring_framework(self) -> dict:
+        """设计监控框架"""
+        return {
+            'real_time_monitors': [
+                'avs_performance_tracker',
+                'slashing_event_detector',
+                'liquidity_depth_monitor',
+                'correlation_analyzer'
+            ],
+            'alert_thresholds': {
+                'avs_underperformance': -10,
+                'liquidity_drop': -30,
+                'correlation_spike': 0.8
+            },
+            'automated_responses': {
+                'increase_collateral_ratio': 'correlation > 0.7',
+                'pause_lrt_deposits': 'slashing_detected',
+                'trigger_deleveraging': 'liquidity < threshold'
+            }
+        }
+    
+    def analyze_systemic_risk(self, market_state: dict) -> dict:
+        """分析LRT引入的系统性风险"""
+        
+        # 构建风险传染矩阵
+        contagion_matrix = self.build_contagion_matrix(
+            market_state['protocols'],
+            market_state['lrt_exposures']
+        )
+        
+        # 运行压力测试
+        stress_scenarios = [
+            {'name': 'Major AVS Slashing', 'shock': -30},
+            {'name': 'EigenLayer Exploit', 'shock': -50},
+            {'name': 'Correlated AVS Failure', 'shock': -40}
+        ]
+        
+        results = {}
+        for scenario in stress_scenarios:
+            impact = self.simulate_shock_propagation(
+                contagion_matrix,
+                scenario['shock']
+            )
+            results[scenario['name']] = {
+                'direct_impact': impact['direct'],
+                'contagion_effect': impact['contagion'],
+                'total_system_loss': impact['total'],
+                'protocols_at_risk': impact['at_risk_count']
+            }
+        
+        return results
+</code></pre>
+            </div>
+        </div>
+        
+        <div class="warning-box">
+            <h5>⚠️ LRT集成的关键风险点</h5>
+            <ul>
+                <li><strong>多层罚没风险：</strong>底层ETH + 多个AVS的复合罚没可能</li>
+                <li><strong>流动性幻觉：</strong>LRT在压力情况下可能失去流动性</li>
+                <li><strong>相关性风险：</strong>多个LRT可能因共同AVS暴露而同时贬值</li>
+                <li><strong>治理攻击面：</strong>通过操纵AVS治理间接攻击稳定币</li>
+                <li><strong>级联清算：</strong>一个AVS失败可能触发连锁清算</li>
+            </ul>
         </div>
 
         <h3 id="defense-mechanisms">10.3 防御机制设计</h3>
