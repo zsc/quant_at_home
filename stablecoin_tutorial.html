@@ -3984,6 +3984,160 @@ results = simulator.simulate_spiral(ust_redemption_rate=0.05, time_steps=100)
                     </ul>
                 </div>
                 
+                <h5>Mirror Protocol：UST的合成资产生态</h5>
+                <div class="info-box">
+                    <p><strong>Mirror Protocol</strong>是Terra生态的合成资产协议，允许用户使用UST铸造和交易美股、商品等传统资产的镜像代币。</p>
+                </div>
+                
+                <div class="theory-box">
+                    <h6>核心机制</h6>
+                    <ul>
+                        <li><strong>合成资产（mAssets）</strong>：
+                            <ul>
+                                <li>mAPPL、mTSLA、mAMZN等美股镜像</li>
+                                <li>mGLD（黄金）、mSLV（白银）等商品镜像</li>
+                                <li>价格通过Band Protocol预言机跟踪真实资产</li>
+                            </ul>
+                        </li>
+                        <li><strong>铸造机制</strong>：
+                            <ul>
+                                <li>超额抵押：通常需要150%的UST抵押率</li>
+                                <li>CDP模式：类似MakerDAO但用于合成资产</li>
+                                <li>清算机制：抵押率低于130%触发清算</li>
+                            </ul>
+                        </li>
+                        <li><strong>交易与流动性</strong>：
+                            <ul>
+                                <li>Terraswap AMM提供24/7交易</li>
+                                <li>LP提供者获得交易费和MIR代币奖励</li>
+                                <li>套利者维持mAsset与真实资产价格锚定</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header" onclick="toggleCode(this)">Mirror Protocol核心合约简化 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-rust">// Mirror Protocol 核心功能（Rust/CosmWasm简化版）
+pub struct MintPosition {
+    pub owner: Addr,
+    pub asset: Addr,
+    pub collateral_amount: Uint128,
+    pub asset_amount: Uint128,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+pub enum ExecuteMsg {
+    // 开仓铸造mAsset
+    OpenPosition {
+        collateral_amount: Uint128,
+        asset_info: AssetInfo,
+        collateral_ratio: Decimal,
+    },
+    // 增加抵押品
+    Deposit {
+        position_idx: Uint128,
+        collateral_amount: Uint128,
+    },
+    // 烧毁mAsset并提取抵押品
+    Burn {
+        position_idx: Uint128,
+        asset_amount: Uint128,
+    },
+    // 清算不足额头寸
+    Liquidate {
+        position_idx: Uint128,
+    },
+}
+
+pub fn open_position(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    collateral_amount: Uint128,
+    asset_info: AssetInfo,
+    collateral_ratio: Decimal,
+) -> Result<Response, ContractError> {
+    // 验证抵押率 >= 150%
+    if collateral_ratio < Decimal::percent(150) {
+        return Err(ContractError::CollateralRatioTooLow {});
+    }
+    
+    // 获取资产价格
+    let asset_price = query_oracle_price(&deps.querier, &asset_info)?;
+    let collateral_value = collateral_amount; // UST = $1
+    
+    // 计算可铸造的mAsset数量
+    let mintable_amount = collateral_value
+        .multiply_ratio(DECIMAL_PRECISION, asset_price)
+        .multiply_ratio(100u128, collateral_ratio * 100);
+    
+    // 转移UST抵押品
+    let transfer_msg = CosmosMsg::Wasm(WasmMsg::Execute {
+        contract_addr: UST_TOKEN.to_string(),
+        msg: to_binary(&Cw20ExecuteMsg::TransferFrom {
+            owner: info.sender.to_string(),
+            recipient: env.contract.address.to_string(),
+            amount: collateral_amount,
+        })?,
+        funds: vec![],
+    });
+    
+    // 铸造mAsset
+    let mint_msg = CosmosMsg::Wasm(WasmMsg::Execute {
+        contract_addr: asset_info.token_address.to_string(),
+        msg: to_binary(&Cw20ExecuteMsg::Mint {
+            recipient: info.sender.to_string(),
+            amount: mintable_amount,
+        })?,
+        funds: vec![],
+    });
+    
+    Ok(Response::new()
+        .add_message(transfer_msg)
+        .add_message(mint_msg)
+        .add_attribute("action", "open_position")
+        .add_attribute("collateral_amount", collateral_amount)
+        .add_attribute("mint_amount", mintable_amount))
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="warning">
+                    <h6>Mirror Protocol的风险与教训</h6>
+                    <ul>
+                        <li><strong>预言机依赖</strong>：
+                            <ul>
+                                <li>Band Protocol延迟和精度问题</li>
+                                <li>美股闭市期间的价格更新问题</li>
+                                <li>极端行情下的预言机失效风险</li>
+                            </ul>
+                        </li>
+                        <li><strong>流动性风险</strong>：
+                            <ul>
+                                <li>mAsset流动性远低于真实资产</li>
+                                <li>大额交易导致严重滑点</li>
+                                <li>UST崩盘时流动性枯竭</li>
+                            </ul>
+                        </li>
+                        <li><strong>监管风险</strong>：
+                            <ul>
+                                <li>未经授权复制传统资产价格</li>
+                                <li>可能被视为未注册证券</li>
+                                <li>2021年12月遭SEC调查</li>
+                            </ul>
+                        </li>
+                        <li><strong>系统性风险</strong>：
+                            <ul>
+                                <li>UST脱锚直接影响所有mAsset价值</li>
+                                <li>连锁清算导致死亡螺旋加速</li>
+                                <li>2022年5月Mirror TVL从$2B归零</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                
                 <h5>控制论视角：为什么算法稳定币容易失控</h5>
                 <div class="code-block">
 # 控制系统分析：稳定币作为反馈控制系统
@@ -4880,6 +5034,340 @@ AMM函数：x × y = k（在每个band内）
                             <li><strong>保险基金</strong>：建立协议级保险池吸收极端损失</li>
                         </ol>
                     </div>
+                </div>
+                
+                <h4>信用卡套现稳定币：创新与风险</h4>
+                
+                <div class="warning">
+                    <p><strong>⚠️ 风险警告</strong>：以下内容仅供学术研究，不构成投资建议。信用卡套现可能违反发卡行条款，请遵守当地法律法规。</p>
+                </div>
+                
+                <h5>核心机制：利用支付时间差</h5>
+                <div class="theory-box">
+                    <p><strong>基本原理</strong>：</p>
+                    <ul>
+                        <li><strong>时间套利</strong>：信用卡账单周期（30-50天）与加密货币实时结算的时间差</li>
+                        <li><strong>费率套利</strong>：信用卡手续费（2-3%）vs 稳定币收益（5-20% APY）</li>
+                        <li><strong>流动性桥接</strong>：将传统金融流动性引入DeFi</li>
+                    </ul>
+                </div>
+                
+                <h5>典型协议设计</h5>
+                <div class="code-block">
+                    <div class="code-header" onclick="toggleCode(this)">信用卡套利稳定币协议架构 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-solidity">// 信用卡套利稳定币协议（仅供研究）
+contract CreditCardArbitrageStablecoin {
+    struct CreditLine {
+        uint256 limit;              // 信用额度
+        uint256 utilization;        // 已使用额度
+        uint256 dueDate;           // 还款日期
+        uint256 apr;              // 年化利率
+        address paymentProcessor;   // 支付处理商
+        bool isActive;
+    }
+    
+    struct ArbitragePosition {
+        uint256 borrowAmount;       // 套现金额
+        uint256 stablecoinMinted;   // 铸造的稳定币
+        uint256 yieldEarned;        // 累计收益
+        uint256 openTime;          // 开仓时间
+        uint256 repaymentDue;      // 还款期限
+    }
+    
+    mapping(address => CreditLine[]) public creditLines;
+    mapping(address => ArbitragePosition[]) public positions;
+    
+    // 信用卡充值网关集成
+    mapping(address => bool) public approvedGateways;
+    
+    // 风险参数
+    uint256 public maxUtilizationRate = 7000; // 70%
+    uint256 public minBufferDays = 5;         // 最少5天缓冲期
+    uint256 public liquidationPenalty = 500;  // 5%
+    
+    function openArbitragePosition(
+        uint256 creditLineId,
+        uint256 amount,
+        address yieldProtocol
+    ) external returns (uint256) {
+        CreditLine storage line = creditLines[msg.sender][creditLineId];
+        require(line.isActive, "Credit line not active");
+        require(line.utilization + amount <= line.limit * maxUtilizationRate / 10000, 
+                "Exceeds utilization limit");
+        
+        // 1. 通过支付网关进行信用卡充值
+        IPaymentGateway(line.paymentProcessor).chargeCreditCard(
+            msg.sender,
+            amount
+        );
+        
+        // 2. 铸造等值稳定币
+        uint256 stablecoinAmount = amount * 97 / 100; // 扣除3%手续费
+        _mint(address(this), stablecoinAmount);
+        
+        // 3. 部署到收益协议
+        IERC20(address(this)).approve(yieldProtocol, stablecoinAmount);
+        IYieldProtocol(yieldProtocol).deposit(stablecoinAmount);
+        
+        // 4. 记录仓位
+        positions[msg.sender].push(ArbitragePosition({
+            borrowAmount: amount,
+            stablecoinMinted: stablecoinAmount,
+            yieldEarned: 0,
+            openTime: block.timestamp,
+            repaymentDue: line.dueDate - minBufferDays * 1 days
+        }));
+        
+        // 5. 更新信用额度使用情况
+        line.utilization += amount;
+        
+        emit PositionOpened(msg.sender, amount, stablecoinAmount);
+        return positions[msg.sender].length - 1;
+    }
+    
+    // 自动还款机制
+    function autoRepay(address user, uint256 positionId) external {
+        ArbitragePosition storage pos = positions[user][positionId];
+        require(block.timestamp >= pos.repaymentDue - 2 days, "Too early");
+        
+        // 1. 从收益协议提取本金+收益
+        uint256 totalAmount = pos.stablecoinMinted + pos.yieldEarned;
+        IYieldProtocol(yieldProtocol).withdraw(totalAmount);
+        
+        // 2. 兑换为法币并还款
+        uint256 fiatAmount = _convertToFiat(totalAmount);
+        IPaymentGateway(paymentProcessor).repayCredit(
+            user,
+            pos.borrowAmount
+        );
+        
+        // 3. 分配利润
+        uint256 profit = fiatAmount - pos.borrowAmount;
+        if (profit > 0) {
+            uint256 protocolFee = profit * 2000 / 10000; // 20%协议费
+            uint256 userProfit = profit - protocolFee;
+            _distributeProfit(user, userProfit);
+        }
+        
+        // 4. 清理仓位
+        _burn(address(this), pos.stablecoinMinted);
+        delete positions[user][positionId];
+    }
+    
+    // 紧急清算（信用卡被冻结等情况）
+    function emergencyLiquidation(address user, uint256 positionId) external {
+        require(msg.sender == keeper || msg.sender == user, "Unauthorized");
+        
+        ArbitragePosition storage pos = positions[user][positionId];
+        
+        // 立即清算所有收益仓位
+        uint256 recovered = _liquidateYieldPosition(pos);
+        
+        // 通过备用资金池还款
+        if (recovered < pos.borrowAmount) {
+            uint256 shortfall = pos.borrowAmount - recovered;
+            require(reservePool >= shortfall, "Insufficient reserves");
+            reservePool -= shortfall;
+        }
+        
+        // 记录损失并可能影响用户信用评分
+        _recordDefault(user, shortfall);
+    }
+}</code></pre>
+                    </div>
+                </div>
+                
+                <h5>风险分析与缓解措施</h5>
+                <div class="info-box">
+                    <h6>主要风险</h6>
+                    <table style="width: 100%; margin: 1rem 0;">
+                        <tr>
+                            <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">风险类型</th>
+                            <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">描述</th>
+                            <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">缓解措施</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">合规风险</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">违反信用卡使用条款、洗钱法规</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">KYC/AML、使用限额、合规网关</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">流动性风险</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">无法及时还款导致高额利息</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">自动还款、流动性缓冲池</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">技术风险</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">支付网关故障、智能合约漏洞</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">多网关冗余、保险基金</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">市场风险</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">收益率下降、稳定币脱锚</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">动态费率、多协议分散</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">交易对手风险</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">支付处理商跑路、冻结资金</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">多元化处理商、保证金</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <h5>数学模型：套利收益计算</h5>
+                <div class="code-block">
+                    <div class="code-header" onclick="toggleCode(this)">信用卡套利收益模型 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-python"># 信用卡套利收益计算模型
+import numpy as np
+from datetime import datetime, timedelta
+
+class CreditCardArbitrageModel:
+    """信用卡套利稳定币的收益和风险模型"""
+    
+    def __init__(self):
+        # 信用卡参数
+        self.credit_limit = 10000  # 信用额度
+        self.billing_cycle = 30    # 账单周期（天）
+        self.grace_period = 25     # 免息期（天）
+        self.cash_advance_fee = 0.03  # 取现手续费 3%
+        self.credit_apr = 0.1999  # 信用卡年化利率 19.99%
+        
+        # DeFi收益参数
+        self.stablecoin_apy = 0.08  # 稳定币年化收益 8%
+        self.protocol_fee = 0.002   # 协议手续费 0.2%
+        
+    def calculate_arbitrage_profit(self, amount, holding_days):
+        """计算套利利润
+        
+        Args:
+            amount: 套利金额
+            holding_days: 持仓天数
+            
+        Returns:
+            净利润和各项成本明细
+        """
+        # 成本计算
+        cash_advance_cost = amount * self.cash_advance_fee
+        
+        # 如果超过免息期，计算利息
+        interest_cost = 0
+        if holding_days > self.grace_period:
+            interest_days = holding_days - self.grace_period
+            daily_rate = self.credit_apr / 365
+            interest_cost = amount * daily_rate * interest_days
+        
+        # 收益计算
+        daily_yield = self.stablecoin_apy / 365
+        gross_yield = amount * daily_yield * holding_days
+        
+        # 协议费用
+        protocol_cost = amount * self.protocol_fee
+        
+        # 净利润
+        total_cost = cash_advance_cost + interest_cost + protocol_cost
+        net_profit = gross_yield - total_cost
+        
+        return {
+            'gross_yield': gross_yield,
+            'cash_advance_cost': cash_advance_cost,
+            'interest_cost': interest_cost,
+            'protocol_cost': protocol_cost,
+            'total_cost': total_cost,
+            'net_profit': net_profit,
+            'roi': net_profit / amount * 100,
+            'annualized_roi': (net_profit / amount) * (365 / holding_days) * 100
+        }
+    
+    def find_breakeven_apy(self, holding_days):
+        """计算盈亏平衡点的年化收益率"""
+        # 固定成本
+        fixed_cost_rate = self.cash_advance_fee + self.protocol_fee
+        
+        # 如果超过免息期，加入利息成本
+        if holding_days > self.grace_period:
+            interest_days = holding_days - self.grace_period
+            interest_rate = self.credit_apr * interest_days / 365
+            fixed_cost_rate += interest_rate
+        
+        # 盈亏平衡APY
+        breakeven_apy = fixed_cost_rate * 365 / holding_days
+        return breakeven_apy
+    
+    def simulate_monthly_cycles(self, num_months=12):
+        """模拟多个月的套利循环"""
+        results = []
+        total_profit = 0
+        
+        for month in range(num_months):
+            # 每月套利80%的信用额度
+            amount = self.credit_limit * 0.8
+            
+            # 假设每月持仓25天（留5天缓冲）
+            result = self.calculate_arbitrage_profit(amount, 25)
+            
+            results.append({
+                'month': month + 1,
+                'amount': amount,
+                'profit': result['net_profit'],
+                'roi': result['roi']
+            })
+            
+            total_profit += result['net_profit']
+        
+        return {
+            'monthly_results': results,
+            'total_profit': total_profit,
+            'average_monthly_profit': total_profit / num_months,
+            'annual_roi': (total_profit / (self.credit_limit * 0.8)) * 100
+        }
+
+# 风险评估
+def assess_risks(position_size, credit_limit):
+    """评估信用卡套利的风险指标"""
+    utilization_rate = position_size / credit_limit
+    
+    risk_score = 0
+    risk_factors = []
+    
+    # 使用率风险
+    if utilization_rate > 0.7:
+        risk_score += 30
+        risk_factors.append("高信用使用率影响信用评分")
+    
+    # 流动性风险
+    if position_size > 5000:
+        risk_score += 20
+        risk_factors.append("大额套现可能触发风控")
+    
+    # 监管风险
+    risk_score += 25  # 固有的合规风险
+    risk_factors.append("可能违反信用卡服务条款")
+    
+    return {
+        'risk_score': risk_score,
+        'risk_level': '高' if risk_score > 60 else '中' if risk_score > 30 else '低',
+        'risk_factors': risk_factors,
+        'recommendations': [
+            "分散使用多张信用卡",
+            "保持充足的还款准备金",
+            "设置自动还款避免逾期",
+            "定期监控收益率变化"
+        ]
+    }
+</code></pre>
+                    </div>
+                </div>
+                
+                <div class="warning">
+                    <h6>监管与合规考虑</h6>
+                    <ul>
+                        <li><strong>法律灰色地带</strong>：多数司法管辖区对加密货币与信用卡结合的监管不明确</li>
+                        <li><strong>反洗钱要求</strong>：大额、频繁的信用卡充值可能触发AML审查</li>
+                        <li><strong>税务影响</strong>：套利收益可能需要申报资本利得税</li>
+                        <li><strong>信用记录</strong>：不当使用可能影响个人信用评分</li>
+                    </ul>
                 </div>
                 
                 <div class="exercise">
@@ -17458,7 +17946,493 @@ contract AdvancedLiquidationEngine {
             </ol>
         </div>
 
-        <h4>7.4.4 量化风险建模（AI科学家专题）</h4>
+        <h4>7.4.4 预言机清算机制深度解析</h4>
+        
+        <div class="theory-section">
+            <h5>预言机在清算中的核心作用</h5>
+            <p>预言机是连接链上合约与真实世界价格的桥梁，其准确性和及时性直接决定了清算系统的有效性。</p>
+            
+            <div class="info-box">
+                <h6>清算流程中的预言机交互</h6>
+                <ol>
+                    <li><strong>价格获取</strong>：合约从预言机读取最新价格</li>
+                    <li><strong>健康度计算</strong>：基于预言机价格计算用户仓位健康度</li>
+                    <li><strong>清算触发</strong>：健康度低于阈值时允许清算</li>
+                    <li><strong>清算定价</strong>：使用预言机价格确定清算资产价值</li>
+                    <li><strong>滑点保护</strong>：通过多个预言机源防止价格操纵</li>
+                </ol>
+            </div>
+            
+            <h5>预言机攻击向量与防护</h5>
+            <div class="warning">
+                <h6>主要攻击方式</h6>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <th style="border: 1px solid #ddd; padding: 8px;">攻击类型</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">描述</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">防护措施</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">案例</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">闪电贷操纵</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">在单个交易内操纵DEX价格影响预言机</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">TWAP、多源聚合、延迟生效</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Harvest Finance ($24M)</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">三明治攻击</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">在清算交易前后操纵价格获利</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">MEV保护、私有内存池</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">多个小型协议</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">预言机延迟套利</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">利用链上/链下价格差异</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">快速更新、熔断机制</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Venus Protocol</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">多链攻击</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">在一条链操纵价格影响另一条链</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">独立预言机、跨链验证</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Multichain事件</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <h5>高级预言机架构设计</h5>
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">多层预言机聚合器实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// 高级预言机聚合器 - 用于清算系统
+contract AdvancedOracleAggregator {
+    using SafeMath for uint256;
+    
+    struct PriceData {
+        uint256 price;
+        uint256 timestamp;
+        uint256 confidence;  // 价格置信度 0-10000 (100%)
+        uint8 decimals;
+    }
+    
+    struct OracleSource {
+        address oracle;
+        uint256 weight;      // 权重
+        uint256 maxDeviation; // 最大偏差容忍度
+        bool isActive;
+        OracleType oracleType;
+    }
+    
+    enum OracleType {
+        CHAINLINK,
+        PYTH,
+        UNISWAP_TWAP,
+        BAND,
+        CUSTOM
+    }
+    
+    mapping(address => OracleSource[]) public assetOracles;
+    mapping(address => PriceData) public cachedPrices;
+    
+    uint256 public constant STALENESS_PERIOD = 3600; // 1小时
+    uint256 public constant MIN_SOURCES = 3;         // 最少3个源
+    uint256 public constant DEVIATION_THRESHOLD = 500; // 5%偏差阈值
+    
+    // 获取清算价格 - 保守估值
+    function getLiquidationPrice(address asset) external view returns (uint256) {
+        PriceData[] memory prices = _fetchAllPrices(asset);
+        require(prices.length >= MIN_SOURCES, "Insufficient oracle sources");
+        
+        // 检查价格时效性
+        _validateFreshness(prices);
+        
+        // 检测异常值
+        uint256[] memory validPrices = _filterOutliers(prices);
+        
+        // 使用加权中位数而非平均数（更抗操纵）
+        uint256 medianPrice = _calculateWeightedMedian(validPrices);
+        
+        // 对于清算，使用保守估值（减少5%）
+        return medianPrice.mul(9500).div(10000);
+    }
+    
+    // 检测价格异常
+    function _filterOutliers(PriceData[] memory prices) 
+        private 
+        pure 
+        returns (uint256[] memory) 
+    {
+        uint256 avgPrice = _calculateAverage(prices);
+        uint256[] memory validPrices = new uint256[](prices.length);
+        uint256 validCount = 0;
+        
+        for (uint i = 0; i < prices.length; i++) {
+            uint256 deviation = _calculateDeviation(prices[i].price, avgPrice);
+            
+            // 剔除偏差超过阈值的价格
+            if (deviation <= DEVIATION_THRESHOLD) {
+                validPrices[validCount] = prices[i].price;
+                validCount++;
+            }
+        }
+        
+        // 至少需要2/3的价格源有效
+        require(validCount >= prices.length.mul(2).div(3), "Too many outliers");
+        
+        return validPrices;
+    }
+    
+    // 紧急熔断机制
+    function emergencyPause(address asset) external onlyGuardian {
+        // 当检测到价格异常波动时暂停该资产的清算
+        emit OraclePaused(asset, block.timestamp);
+    }
+}
+
+// 清算引擎集成预言机
+contract OracleIntegratedLiquidationEngine {
+    IAdvancedOracleAggregator public oracleAggregator;
+    
+    struct LiquidationConfig {
+        uint256 liquidationThreshold;   // 清算阈值
+        uint256 liquidationPenalty;     // 清算罚金
+        uint256 minHealthFactor;        // 最小健康因子
+        uint256 priceBuffer;            // 价格缓冲（防止预言机小幅波动）
+    }
+    
+    mapping(address => LiquidationConfig) public configs;
+    
+    // 计算健康因子时的预言机使用
+    function calculateHealthFactor(address user, address[] memory assets) 
+        public 
+        view 
+        returns (uint256) 
+    {
+        uint256 totalCollateralValue = 0;
+        uint256 totalDebtValue = 0;
+        
+        for (uint i = 0; i < assets.length; i++) {
+            // 获取保守的清算价格
+            uint256 price = oracleAggregator.getLiquidationPrice(assets[i]);
+            
+            // 应用额外的价格缓冲
+            price = price.mul(10000 - configs[assets[i]].priceBuffer).div(10000);
+            
+            uint256 userBalance = getUserBalance(user, assets[i]);
+            
+            if (isCollateral[assets[i]]) {
+                totalCollateralValue = totalCollateralValue.add(
+                    userBalance.mul(price).div(10**assetDecimals[assets[i]])
+                );
+            } else {
+                totalDebtValue = totalDebtValue.add(
+                    userBalance.mul(price).div(10**assetDecimals[assets[i]])
+                );
+            }
+        }
+        
+        if (totalDebtValue == 0) return type(uint256).max;
+        
+        return totalCollateralValue.mul(100).div(totalDebtValue);
+    }
+    
+    // 防MEV清算执行
+    function executeLiquidationWithMEVProtection(
+        address targetUser,
+        address collateralAsset,
+        address debtAsset,
+        uint256 debtToCover
+    ) external {
+        // 1. 验证清算者资格（白名单/质押要求）
+        require(isApprovedLiquidator(msg.sender), "Not approved liquidator");
+        
+        // 2. 使用commit-reveal防止抢跑
+        bytes32 commitHash = keccak256(
+            abi.encodePacked(targetUser, collateralAsset, debtAsset, debtToCover, nonce)
+        );
+        require(liquidationCommits[commitHash] + REVEAL_DELAY < block.timestamp, 
+                "Reveal too early");
+        
+        // 3. 执行清算时再次验证价格
+        uint256 currentPrice = oracleAggregator.getLiquidationPrice(collateralAsset);
+        uint256 healthFactor = calculateHealthFactor(targetUser, getActiveAssets());
+        
+        require(healthFactor < configs[collateralAsset].liquidationThreshold, 
+                "Position healthy");
+        
+        // 4. 执行清算
+        _performLiquidation(targetUser, collateralAsset, debtAsset, debtToCover);
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h5>预言机故障应急响应</h5>
+            <div class="theory-box">
+                <h6>分级响应机制</h6>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <th style="border: 1px solid #ddd; padding: 8px;">故障等级</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">触发条件</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">自动响应</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">影响范围</th>
+                    </tr>
+                    <tr style="background: #fffbeb;">
+                        <td style="border: 1px solid #ddd; padding: 8px;">⚠️ 黄色警报</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">单个预言机延迟>5分钟</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">切换备用源</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">无影响</td>
+                    </tr>
+                    <tr style="background: #fef3c7;">
+                        <td style="border: 1px solid #ddd; padding: 8px;">🟠 橙色警报</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">价格偏差>5%或2个源失效</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">提高清算阈值5%</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">新开仓限制</td>
+                    </tr>
+                    <tr style="background: #fee2e2;">
+                        <td style="border: 1px solid #ddd; padding: 8px;">🔴 红色警报</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">价格偏差>10%或多数源失效</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">暂停清算15分钟</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">全面限制</td>
+                    </tr>
+                    <tr style="background: #1f2937; color: white;">
+                        <td style="border: 1px solid #ddd; padding: 8px;">⚫ 黑色警报</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">所有预言机失效</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">紧急关停模式</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">协议冻结</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <h5>实战案例：预言机清算优化</h5>
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">动态清算参数调整系统 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-python"># 基于市场条件的动态清算参数调整
+import numpy as np
+from typing import Dict, List, Tuple
+
+class DynamicLiquidationOptimizer:
+    """根据市场波动性和预言机状态动态调整清算参数"""
+    
+    def __init__(self):
+        self.base_params = {
+            'liquidation_threshold': 0.8,    # 80%基础清算阈值
+            'liquidation_penalty': 0.05,     # 5%基础清算罚金
+            'close_factor': 0.5,             # 50%最大清算比例
+            'price_buffer': 0.02             # 2%价格缓冲
+        }
+        
+        # 历史数据窗口
+        self.volatility_window = 24 * 7  # 7天
+        self.oracle_health_window = 1    # 1小时
+        
+    def calculate_market_risk_score(
+        self, 
+        price_history: List[float],
+        volume_history: List[float],
+        liquidation_history: List[Dict]
+    ) -> float:
+        """计算当前市场风险评分（0-100）"""
+        
+        # 1. 价格波动性评分（权重40%）
+        volatility = np.std(price_history) / np.mean(price_history)
+        volatility_score = min(volatility * 200, 40)  # 标准化到0-40
+        
+        # 2. 流动性评分（权重30%）
+        avg_volume = np.mean(volume_history)
+        recent_volume = np.mean(volume_history[-24:])  # 最近24小时
+        liquidity_score = 30 * (1 - min(recent_volume / avg_volume, 1))
+        
+        # 3. 清算压力评分（权重30%）
+        recent_liquidations = sum(1 for l in liquidation_history 
+                                 if l['timestamp'] > time.time() - 3600)
+        liquidation_score = min(recent_liquidations * 3, 30)
+        
+        return volatility_score + liquidity_score + liquidation_score
+    
+    def assess_oracle_reliability(
+        self,
+        oracle_responses: List[Dict]
+    ) -> Dict[str, float]:
+        """评估预言机可靠性"""
+        
+        reliability_metrics = {
+            'response_time': [],
+            'price_deviation': [],
+            'update_frequency': []
+        }
+        
+        for response in oracle_responses:
+            # 响应时间
+            reliability_metrics['response_time'].append(
+                response['response_time']
+            )
+            
+            # 价格偏差（与其他源比较）
+            reliability_metrics['price_deviation'].append(
+                response['deviation_from_median']
+            )
+            
+            # 更新频率
+            reliability_metrics['update_frequency'].append(
+                response['updates_per_hour']
+            )
+        
+        # 计算可靠性分数
+        reliability_score = (
+            (1 - np.mean(reliability_metrics['response_time']) / 1000) * 0.3 +
+            (1 - np.mean(reliability_metrics['price_deviation'])) * 0.5 +
+            min(np.mean(reliability_metrics['update_frequency']) / 60, 1) * 0.2
+        )
+        
+        return {
+            'score': reliability_score,
+            'metrics': reliability_metrics
+        }
+    
+    def optimize_liquidation_params(
+        self,
+        market_risk_score: float,
+        oracle_reliability: float
+    ) -> Dict[str, float]:
+        """基于风险评分优化清算参数"""
+        
+        # 风险调整因子
+        risk_multiplier = 1 + (market_risk_score / 100) * 0.5
+        oracle_multiplier = 2 - oracle_reliability  # 可靠性越低，参数越保守
+        
+        optimized_params = {
+            'liquidation_threshold': max(
+                self.base_params['liquidation_threshold'] / 
+                (risk_multiplier * oracle_multiplier),
+                0.5  # 最低50%
+            ),
+            'liquidation_penalty': min(
+                self.base_params['liquidation_penalty'] * 
+                (1 + market_risk_score / 200),
+                0.15  # 最高15%
+            ),
+            'close_factor': max(
+                self.base_params['close_factor'] / risk_multiplier,
+                0.25  # 最低25%
+            ),
+            'price_buffer': min(
+                self.base_params['price_buffer'] * 
+                (risk_multiplier * oracle_multiplier),
+                0.1  # 最高10%
+            )
+        }
+        
+        return optimized_params
+    
+    def simulate_liquidation_cascade(
+        self,
+        initial_liquidation: float,
+        market_depth: float,
+        correlation_matrix: np.ndarray
+    ) -> List[Dict]:
+        """模拟清算级联效应"""
+        
+        cascade_events = []
+        current_impact = initial_liquidation
+        
+        while current_impact > market_depth * 0.01:  # 影响超过1%深度
+            # 计算价格影响
+            price_impact = current_impact / market_depth
+            
+            # 计算连带清算
+            correlated_liquidations = 0
+            for i, correlation in enumerate(correlation_matrix):
+                threshold_breach = price_impact * correlation[0]
+                if threshold_breach > 0.2:  # 20%阈值
+                    correlated_liquidations += threshold_breach * market_depth
+            
+            cascade_events.append({
+                'round': len(cascade_events) + 1,
+                'liquidation_volume': current_impact,
+                'price_impact': price_impact,
+                'correlated_liquidations': correlated_liquidations
+            })
+            
+            current_impact = correlated_liquidations
+            
+            # 防止无限循环
+            if len(cascade_events) > 10:
+                break
+        
+        return cascade_events
+
+# 实时监控和预警系统
+class OracleMonitoringSystem:
+    """预言机健康度实时监控"""
+    
+    def __init__(self):
+        self.alert_thresholds = {
+            'price_deviation': 0.05,      # 5%偏差
+            'response_delay': 60,         # 60秒延迟
+            'consecutive_failures': 3,    # 连续3次失败
+            'stale_price_age': 300       # 5分钟陈旧
+        }
+        
+        self.alert_handlers = {
+            'low': self.handle_low_severity,
+            'medium': self.handle_medium_severity,
+            'high': self.handle_high_severity,
+            'critical': self.handle_critical
+        }
+    
+    def check_oracle_health(self, oracle_data: Dict) -> Dict:
+        """全面健康检查"""
+        health_report = {
+            'status': 'healthy',
+            'issues': [],
+            'severity': 'none',
+            'recommended_actions': []
+        }
+        
+        # 检查各项指标
+        checks = [
+            self.check_price_deviation(oracle_data),
+            self.check_response_time(oracle_data),
+            self.check_data_freshness(oracle_data),
+            self.check_consensus(oracle_data)
+        ]
+        
+        # 汇总问题
+        for check in checks:
+            if check['issue']:
+                health_report['issues'].append(check)
+                health_report['severity'] = max(
+                    health_report['severity'], 
+                    check['severity'],
+                    key=lambda x: ['none', 'low', 'medium', 'high', 'critical'].index(x)
+                )
+        
+        if health_report['severity'] != 'none':
+            health_report['status'] = 'unhealthy'
+            health_report['recommended_actions'] = self.generate_recommendations(
+                health_report['issues']
+            )
+        
+        return health_report
+</code></pre>
+                </div>
+            </div>
+            
+            <div class="warning">
+                <h6>⚠️ 关键教训：预言机设计原则</h6>
+                <ol>
+                    <li><strong>冗余性</strong>：永远不要依赖单一预言机源</li>
+                    <li><strong>时效性</strong>：设置合理的价格过期时间</li>
+                    <li><strong>异常检测</strong>：实施价格偏差和操纵检测</li>
+                    <li><strong>熔断机制</strong>：极端情况下的自动暂停</li>
+                    <li><strong>激励对齐</strong>：确保预言机提供者的长期激励</li>
+                </ol>
+            </div>
+        </div>
+        
+        <h4>7.4.5 量化风险建模（AI科学家专题）</h4>
         
         <div class="info-box">
             <h4>基于智能体的风险仿真</h4>
@@ -29647,6 +30621,7 @@ contract MEVProtectionSystem {
                         <th style="border: 1px solid #ddd; padding: 8px;">证明时间</th>
                         <th style="border: 1px solid #ddd; padding: 8px;">可信设置</th>
                         <th style="border: 1px solid #ddd; padding: 8px;">后量子安全</th>
+                        <th style="border: 1px solid #ddd; padding: 8px;">Gas成本</th>
                     </tr>
                     <tr>
                         <td style="border: 1px solid #ddd; padding: 8px;">Groth16</td>
@@ -29655,6 +30630,7 @@ contract MEVProtectionSystem {
                         <td style="border: 1px solid #ddd; padding: 8px;">~2s</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">需要</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">否</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">~300k</td>
                     </tr>
                     <tr>
                         <td style="border: 1px solid #ddd; padding: 8px;">PLONK</td>
@@ -29663,6 +30639,7 @@ contract MEVProtectionSystem {
                         <td style="border: 1px solid #ddd; padding: 8px;">~3s</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">通用</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">否</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">~350k</td>
                     </tr>
                     <tr>
                         <td style="border: 1px solid #ddd; padding: 8px;">STARKs</td>
@@ -29671,6 +30648,16 @@ contract MEVProtectionSystem {
                         <td style="border: 1px solid #ddd; padding: 8px;">~10s</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">无需</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">是</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">~5M</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Plonky2</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">~700 bytes</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">~5ms</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">~0.3s</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">无需</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">否</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">~400k</td>
                     </tr>
                     <tr>
                         <td style="border: 1px solid #ddd; padding: 8px;">Bulletproofs</td>
@@ -29679,6 +30666,7 @@ contract MEVProtectionSystem {
                         <td style="border: 1px solid #ddd; padding: 8px;">~30s</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">无需</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">否</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">~1M</td>
                     </tr>
                     <tr>
                         <td style="border: 1px solid #ddd; padding: 8px;">Halo2</td>
@@ -29687,8 +30675,18 @@ contract MEVProtectionSystem {
                         <td style="border: 1px solid #ddd; padding: 8px;">~5s</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">无需</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">否</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">~450k</td>
                     </tr>
                 </table>
+                
+                <div class="tip-box" style="margin-top: 1rem;">
+                    <p><strong>💡 稳定币应用考量</strong>：</p>
+                    <ul>
+                        <li><strong>高频交易场景</strong>：选择Groth16或Plonky2，优化证明时间和Gas成本</li>
+                        <li><strong>跨链兼容性</strong>：STARKs的透明设置更适合多链部署</li>
+                        <li><strong>递归证明</strong>：Halo2和Plonky2支持高效递归，适合批量交易聚合</li>
+                    </ul>
+                </div>
             </div>
             
             <h5>隐私稳定币的数学基础</h5>
