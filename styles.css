@@ -201,6 +201,15 @@ header h1 {
     border: 1px solid var(--border-color);
 }
 
+.intro-box ul {
+    margin-left: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.intro-box li {
+    margin: 0.25rem 0;
+}
+
 /* 示例框 */
 .example-box {
     background-color: #f0f9ff;
