@@ -1,3 +1,11 @@
+# 区块链稳定币智能合约：从理论到实践
+
+## 进度状态
+- ✅ 引言：稳定币的历史、概念与市场格局
+- ✅ 第一章：区块链基础与稳定币
+- 🚧 第二章：稳定币分类与经济模型（进行中）
+- ⏳ 后续章节待完成
+
 # Blockchain Stablecoin Smart Contracts: From Theory to Practice
 
 ## Part I: Foundations (Quick Ramp-up)
