@@ -3229,17 +3229,60 @@ contract FiatTokenV2_1 is FiatTokenV2 {
                     <ul>
                         <li><strong>中心化风险</strong>：单点故障，可能被冻结</li>
                         <li><strong>监管风险</strong>：受政府监管影响</li>
-                        <li><strong>交易对手风险</strong>：银行破产风险</li>
+                        <li><strong>交易对手风险</strong>：银行破产风险（如2023年3月硅谷银行倒闭导致USDC脱锚）</li>
                         <li><strong>透明度问题</strong>：需要信任第三方审计</li>
                     </ul>
                 </div>
                 
-                <h4>监管合规要求</h4>
+                <h4>2024年最新发展：PayPal USD (PYUSD)</h4>
+                <p>传统金融巨头进军稳定币市场的里程碑案例。</p>
+                
+                <h5>技术架构与合规性</h5>
                 <ul>
-                    <li><strong>KYC/AML</strong>：了解你的客户/反洗钱要求</li>
-                    <li><strong>资金传输许可</strong>：美国各州Money Transmitter License</li>
-                    <li><strong>定期审计</strong>：通常每月或每季度</li>
-                    <li><strong>储备披露</strong>：公开储备构成报告</li>
+                    <li><strong>发行方</strong>：Paxos Trust Company（受纽约州金融服务部NYDFS监管）</li>
+                    <li><strong>技术标准</strong>：ERC-20代币，部署在以太坊主网</li>
+                    <li><strong>独特之处</strong>：
+                        <ul>
+                            <li>PayPal生态内原生集成（3.8亿活跃用户）</li>
+                            <li>支持PayPal内部转账免手续费</li>
+                            <li>可在DeFi协议中使用（开放性）</li>
+                        </ul>
+                    </li>
+                    <li><strong>战略意义</strong>：
+                        <ul>
+                            <li>TradFi与DeFi的桥梁</li>
+                            <li>为其他支付公司提供参考模板</li>
+                            <li>推动稳定币主流化采用</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <h4>监管合规最新进展</h4>
+                
+                <h5>欧盟MiCA法规（2024年生效）</h5>
+                <ul>
+                    <li><strong>资产分类</strong>：
+                        <ul>
+                            <li>EMT（E-Money Token）：单一法币锚定</li>
+                            <li>ART（Asset-Referenced Token）：多资产锚定</li>
+                        </ul>
+                    </li>
+                    <li><strong>核心要求</strong>：
+                        <ul>
+                            <li>储备资产必须1:1支持，存放于受监管托管机构</li>
+                            <li>每日交易上限：EMT为2亿欧元</li>
+                            <li>白皮书必须获得监管批准</li>
+                            <li>算法稳定币受到严格限制</li>
+                        </ul>
+                    </li>
+                    <li><strong>影响</strong>：Circle已在法国申请许可，USDC将符合MiCA要求</li>
+                </ul>
+                
+                <h5>美国监管动态</h5>
+                <ul>
+                    <li><strong>Stablecoin TRUST Act</strong>：要求100%现金或短期国债储备</li>
+                    <li><strong>州级创新</strong>：怀俄明州SPDI（特殊目的存款机构）框架</li>
+                    <li><strong>联邦层面</strong>：SEC与CFTC管辖权之争仍在继续</li>
                 </ul>
             </div>
             
@@ -3541,48 +3584,220 @@ contract AnchorProtocol {
 }
                 </div>
                 
-                <h5>崩盘时间线（2022年5月）</h5>
+                <h5>崩盘时间线详细分析（2022年5月）</h5>
                 <table style="width: 100%; margin: 1rem 0;">
                     <tr>
-                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">日期</th>
-                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">事件</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">日期时间</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">关键事件</th>
                         <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">UST价格</th>
                         <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">LUNA价格</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">LUNA供应量</th>
                     </tr>
                     <tr>
-                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5月7日</td>
-                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">大额UST抛售开始</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5月7日 21:00</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">巨鲸在Curve 4pool抛售1.5亿UST</td>
                         <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$0.985</td>
                         <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$64</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">3.5亿</td>
                     </tr>
                     <tr>
-                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5月9日</td>
-                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">UST严重脱锚</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5月8日 14:00</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">LFG动用15亿美元BTC储备护盘</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$0.975</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$61</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">3.8亿</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5月9日 08:00</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">Anchor挤兑开始，TVL下降50%</td>
                         <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$0.65</td>
                         <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$30</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">11亿</td>
                     </tr>
                     <tr>
-                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5月10日</td>
-                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">死亡螺旋加速</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5月10日 16:00</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">Terra链暂停出块，死亡螺旋加速</td>
                         <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$0.30</td>
                         <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$1</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">1500亿</td>
                     </tr>
                     <tr>
-                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5月12日</td>
-                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">完全崩溃</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5月12日 23:00</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">LUNA超发至6.5万亿，完全崩溃</td>
                         <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$0.10</td>
                         <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$0.0001</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">6.5万亿</td>
                     </tr>
                 </table>
                 
+                <h5>死亡螺旋的数学分析</h5>
+                <div class="code-block">
+# UST崩盘的动力学模型
+import numpy as np
+import matplotlib.pyplot as plt
+
+class USTDeathSpiral:
+    """UST死亡螺旋的数学建模"""
+    
+    def __init__(self):
+        self.luna_supply = 350e6  # 初始LUNA供应量：3.5亿
+        self.luna_price = 64      # 初始LUNA价格：$64
+        self.ust_supply = 18e9    # UST供应量：180亿
+        self.ust_price = 1.0      # UST初始价格：$1
+        
+    def simulate_spiral(self, ust_redemption_rate, time_steps):
+        """模拟死亡螺旋过程
+        
+        参数:
+            ust_redemption_rate: 每时间步的UST赎回比例
+            time_steps: 模拟步数
+        """
+        history = {
+            'time': [], 'luna_price': [], 'luna_supply': [],
+            'ust_price': [], 'market_cap': []
+        }
+        
+        for t in range(time_steps):
+            # 记录当前状态
+            history['time'].append(t)
+            history['luna_price'].append(self.luna_price)
+            history['luna_supply'].append(self.luna_supply)
+            history['ust_price'].append(self.ust_price)
+            history['market_cap'].append(self.luna_price * self.luna_supply)
+            
+            # UST赎回量
+            ust_redeemed = self.ust_supply * ust_redemption_rate
+            
+            # 按当前LUNA价格铸造新LUNA
+            new_luna_minted = ust_redeemed / self.luna_price
+            self.luna_supply += new_luna_minted
+            
+            # 市场冲击：供应增加导致价格下跌
+            # 使用简化的价格弹性模型
+            supply_increase_pct = new_luna_minted / self.luna_supply
+            price_elasticity = -2.5  # 价格弹性系数
+            self.luna_price *= (1 + supply_increase_pct * price_elasticity)
+            
+            # UST价格跟随LUNA市值/UST供应量的比例
+            luna_market_cap = self.luna_price * self.luna_supply
+            implied_ust_backing = luna_market_cap / self.ust_supply
+            self.ust_price = min(1.0, implied_ust_backing)
+            
+            # 恐慌加速因子：UST脱锚越严重，赎回越快
+            if self.ust_price < 0.95:
+                ust_redemption_rate *= 1.5  # 恐慌加速
+                
+            # 防止价格为负
+            self.luna_price = max(0.0001, self.luna_price)
+            
+        return history
+    
+    def plot_results(self, history):
+        """可视化死亡螺旋过程"""
+        fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+        
+        # LUNA价格
+        axes[0, 0].plot(history['time'], history['luna_price'])
+        axes[0, 0].set_title('LUNA价格走势')
+        axes[0, 0].set_ylabel('价格 ($)')
+        axes[0, 0].set_yscale('log')
+        
+        # LUNA供应量
+        axes[0, 1].plot(history['time'], history['luna_supply'])
+        axes[0, 1].set_title('LUNA供应量（指数增长）')
+        axes[0, 1].set_ylabel('供应量')
+        axes[0, 1].set_yscale('log')
+        
+        # UST价格
+        axes[1, 0].plot(history['time'], history['ust_price'])
+        axes[1, 0].axhline(y=1.0, color='r', linestyle='--', label='锚定价格')
+        axes[1, 0].set_title('UST价格（脱锚过程）')
+        axes[1, 0].set_ylabel('价格 ($)')
+        axes[1, 0].legend()
+        
+        # LUNA市值
+        axes[1, 1].plot(history['time'], history['market_cap'])
+        axes[1, 1].set_title('LUNA总市值')
+        axes[1, 1].set_ylabel('市值 ($)')
+        axes[1, 1].set_yscale('log')
+        
+        for ax in axes.flat:
+            ax.set_xlabel('时间步')
+            ax.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        return fig
+
+# 模拟死亡螺旋
+simulator = USTDeathSpiral()
+results = simulator.simulate_spiral(ust_redemption_rate=0.05, time_steps=100)
+# simulator.plot_results(results)
+                </div>
+                
                 <div class="warning">
-                    <strong>UST崩盘的教训：</strong>
+                    <strong>深入分析：UST崩盘的根本原因</strong>
                     <ul>
-                        <li><strong>死亡螺旋</strong>：UST赎回→LUNA增发→LUNA价格下跌→信心崩溃→更多UST赎回</li>
-                        <li><strong>不可持续的收益率</strong>：Anchor的20%年化收益消耗储备</li>
-                        <li><strong>流动性不足</strong>：关键时刻无法维持锚定</li>
-                        <li><strong>过度杠杆</strong>：生态系统内循环借贷放大风险</li>
+                        <li><strong>内生抵押品的脆弱性</strong>：
+                            <ul>
+                                <li>LUNA既是UST的抵押品，又是吸收UST赎回压力的缓冲器</li>
+                                <li>这种自我引用创造了正反馈循环：价格下跌→信心丧失→更多赎回→更大跌幅</li>
+                            </ul>
+                        </li>
+                        <li><strong>不可持续的收益率</strong>：
+                            <ul>
+                                <li>Anchor Protocol的20% APY靠协议补贴维持</li>
+                                <li>储备资金在2022年3月已接近耗尽</li>
+                                <li>高收益掩盖了系统性风险，吸引了大量投机资金</li>
+                            </ul>
+                        </li>
+                        <li><strong>流动性陷阱</strong>：
+                            <ul>
+                                <li>Curve 4pool深度不足以承受大额抛售</li>
+                                <li>CEX/DEX价格差异被套利者利用，加速抛压</li>
+                            </ul>
+                        </li>
+                        <li><strong>治理失效</strong>：
+                            <ul>
+                                <li>Do Kwon拒绝社区提出的多项风险缓解提案</li>
+                                <li>LFG的BTC储备使用不透明，护盘策略失败</li>
+                            </ul>
+                        </li>
                     </ul>
+                </div>
+                
+                <h5>控制论视角：为什么算法稳定币容易失控</h5>
+                <div class="code-block">
+# 控制系统分析：稳定币作为反馈控制系统
+class StablecoinControlSystem:
+    """稳定币的控制论模型"""
+    
+    def __init__(self, mechanism_type):
+        self.mechanism_type = mechanism_type
+        
+    def transfer_function(self, s):
+        """系统传递函数 G(s)"""
+        if self.mechanism_type == "fiat_backed":
+            # 法币抵押：一阶系统，稳定
+            return 1 / (s + 1)
+            
+        elif self.mechanism_type == "crypto_backed":
+            # 加密抵押：二阶系统，有阻尼
+            omega_n = 0.5  # 自然频率
+            zeta = 0.7     # 阻尼比
+            return omega_n**2 / (s**2 + 2*zeta*omega_n*s + omega_n**2)
+            
+        elif self.mechanism_type == "algorithmic":
+            # 算法稳定币：可能不稳定的高阶系统
+            # 包含延迟和非线性反馈
+            delay = 0.1
+            gain = 2.0  # 高增益可能导致振荡
+            return gain * np.exp(-delay * s) / (s**3 + 2*s**2 + s + 0.5)
+    
+    def stability_analysis(self):
+        """分析系统稳定性"""
+        # 使用根轨迹、波特图等工具
+        # 算法稳定币往往在相位裕度和增益裕度上表现差
+        pass
                 </div>
                 
                 <h4>部分算法稳定币：FRAX</h4>
@@ -3719,6 +3934,98 @@ contract FraxAMOMinter {
                 <h3>2.4 混合模型与创新</h3>
                 
                 <p>随着稳定币生态的成熟，出现了结合多种机制优点的混合模型，以及针对特定用例的创新设计。</p>
+                
+                <h4>2024年最新创新：Ethena与合成美元</h4>
+                
+                <h5>USDe：Delta中性稳定币</h5>
+                <p>Ethena Protocol推出的USDe代表了稳定币设计的新范式：通过衍生品对冲而非抵押品来维持稳定。</p>
+                
+                <div class="code-block">
+// Ethena核心机制：Delta中性策略
+contract EthenaProtocol {
+    struct Position {
+        uint256 stETHCollateral;     // 质押ETH现货
+        int256 perpShortPosition;    // 永续合约空头
+        uint256 fundingEarned;       // 累计资金费收益
+        uint256 stakingRewards;      // 质押奖励
+    }
+    
+    // 铸造USDe的核心逻辑
+    function mintUSDe(uint256 ethAmount) external returns (uint256) {
+        // 1. 接收ETH并质押获得stETH
+        uint256 stETHAmount = stakingPool.stake{value: ethAmount}();
+        
+        // 2. 在衍生品交易所开立等值空头
+        int256 shortSize = -int256(ethAmount * getETHPrice());
+        perpExchange.openPosition(shortSize);
+        
+        // 3. 计算可铸造的USDe（扣除安全边际）
+        uint256 netValue = calculateNetValue(stETHAmount, shortSize);
+        uint256 usdeToMint = netValue * 90 / 100; // 10%安全边际
+        
+        // 4. 记录头寸
+        positions[msg.sender] = Position({
+            stETHCollateral: stETHAmount,
+            perpShortPosition: shortSize,
+            fundingEarned: 0,
+            stakingRewards: 0
+        });
+        
+        // 5. 铸造USDe
+        _mint(msg.sender, usdeToMint);
+        return usdeToMint;
+    }
+    
+    // 收益分配机制
+    function distributeYield() external {
+        uint256 totalYield = 0;
+        
+        // 1. 收集质押奖励（约4% APY）
+        uint256 stakingYield = stakingPool.claimRewards();
+        totalYield += stakingYield;
+        
+        // 2. 收集资金费（可变，牛市可达20%+ APY）
+        uint256 fundingYield = perpExchange.collectFunding();
+        totalYield += fundingYield;
+        
+        // 3. 扣除协议费用
+        uint256 protocolFee = totalYield * 10 / 100;
+        uint256 userYield = totalYield - protocolFee;
+        
+        // 4. 分配给sUSDe持有者
+        sUsdeVault.depositYield(userYield);
+    }
+}
+                </div>
+                
+                <h5>风险分析：与UST的对比</h5>
+                <table style="width: 100%; margin: 1rem 0;">
+                    <tr>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">风险类型</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">UST</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">USDe</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">抵押品风险</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">内生（LUNA），死亡螺旋</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">外生（ETH），但有质押风险</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">收益来源</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">不可持续的补贴</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">市场资金费+质押收益</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">主要风险</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">银行挤兑、信心崩溃</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">负资金费、交易所风险</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">脱锚保护</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">依赖套利者</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">保险基金+OTC赎回</td>
+                    </tr>
+                </table>
                 
                 <h4>混合抵押模型</h4>
                 
@@ -3868,12 +4175,244 @@ contract LayerZeroStablecoin is OFT {  // Omnichain Fungible Token
                 </ul>
             </div>
             
+            <div class="theory-section">
+                <h3>2.5 AI/机器学习在稳定币中的应用</h3>
+                
+                <p>随着DeFi系统复杂性增加，AI和机器学习技术在稳定币风险管理、参数优化和市场预测中扮演越来越重要的角色。</p>
+                
+                <h4>风险预测与异常检测</h4>
+                <div class="code-block">
+# 使用LSTM预测稳定币脱锚风险
+import torch
+import torch.nn as nn
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+
+class StablecoinRiskPredictor(nn.Module):
+    """基于LSTM的稳定币风险预测模型"""
+    
+    def __init__(self, input_features=10, hidden_size=64, num_layers=2):
+        super().__init__()
+        self.lstm = nn.LSTM(input_features, hidden_size, num_layers, 
+                           batch_first=True, dropout=0.2)
+        self.attention = nn.MultiheadAttention(hidden_size, num_heads=4)
+        self.fc = nn.Sequential(
+            nn.Linear(hidden_size, 32),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(32, 3)  # 输出：[正常, 警告, 危险]
+        )
+        
+    def forward(self, x, market_context=None):
+        # x shape: (batch, sequence_length, features)
+        lstm_out, (h_n, c_n) = self.lstm(x)
+        
+        # 自注意力机制捕捉长期依赖
+        attn_out, _ = self.attention(lstm_out, lstm_out, lstm_out)
+        
+        # 使用最后时间步的输出
+        risk_scores = self.fc(attn_out[:, -1, :])
+        return torch.softmax(risk_scores, dim=1)
+    
+    def extract_features(self, market_data):
+        """特征工程：提取风险相关特征"""
+        features = {
+            # 价格相关
+            'price_deviation': abs(market_data['price'] - 1.0),
+            'price_volatility': market_data['price'].rolling(24).std(),
+            'volume_spike': market_data['volume'] / market_data['volume'].rolling(168).mean(),
+            
+            # 链上指标
+            'mint_burn_ratio': market_data['mints'] / (market_data['burns'] + 1e-8),
+            'whale_concentration': market_data['top_10_holdings'] / market_data['total_supply'],
+            'velocity': market_data['transfer_volume'] / market_data['total_supply'],
+            
+            # DeFi集成
+            'liquidity_depth': market_data['amm_liquidity'],
+            'utilization_rate': market_data['borrowed'] / market_data['supplied'],
+            
+            # 市场情绪
+            'funding_rate': market_data['perp_funding'],
+            'cex_premium': market_data['cex_price'] - market_data['dex_price']
+        }
+        return features
+
+# 强化学习优化稳定币参数
+class StablecoinRLAgent:
+    """使用PPO算法优化稳定币参数"""
+    
+    def __init__(self, state_dim=20, action_dim=5):
+        self.policy_net = self._build_network(state_dim, action_dim)
+        self.value_net = self._build_network(state_dim, 1)
+        self.optimizer = torch.optim.Adam(
+            list(self.policy_net.parameters()) + 
+            list(self.value_net.parameters()), 
+            lr=3e-4
+        )
+        
+    def _build_network(self, input_dim, output_dim):
+        return nn.Sequential(
+            nn.Linear(input_dim, 128),
+            nn.ReLU(),
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Linear(64, output_dim)
+        )
+    
+    def get_action(self, state):
+        """根据当前状态决定参数调整
+        
+        动作空间:
+        - 调整抵押率要求
+        - 修改稳定费率
+        - 改变清算罚金
+        - 调节债务上限
+        - 修改预言机参数
+        """
+        state_tensor = torch.FloatTensor(state)
+        action_probs = torch.softmax(self.policy_net(state_tensor), dim=-1)
+        action = torch.multinomial(action_probs, 1).item()
+        return action
+    
+    def optimize_parameters(self, env, episodes=1000):
+        """通过与环境交互学习最优参数"""
+        for episode in range(episodes):
+            state = env.reset()
+            episode_reward = 0
+            
+            while not env.done:
+                action = self.get_action(state)
+                next_state, reward, done = env.step(action)
+                
+                # 奖励设计：平衡稳定性、资本效率和用户体验
+                stability_reward = -abs(env.price - 1.0) * 100
+                efficiency_reward = env.utilization_rate * 10
+                safety_reward = -env.liquidations * 50
+                
+                total_reward = stability_reward + efficiency_reward + safety_reward
+                episode_reward += total_reward
+                
+                # PPO更新（简化版）
+                self._update_policy(state, action, total_reward, next_state)
+                state = next_state
+                
+            print(f"Episode {episode}: Reward = {episode_reward:.2f}")
+                </div>
+                
+                <h4>博弈论分析：清算人激励机制</h4>
+                <div class="code-block">
+# 清算拍卖的博弈论模型
+class LiquidationAuction:
+    """分析清算人（Keepers）的最优策略"""
+    
+    def __init__(self, collateral_value, debt_value, num_keepers):
+        self.collateral_value = collateral_value
+        self.debt_value = debt_value
+        self.num_keepers = num_keepers
+        
+    def calculate_nash_equilibrium(self):
+        """计算纳什均衡出价策略
+        
+        假设：
+        - 第一价格密封拍卖
+        - 私有价值模型
+        - 对称均衡
+        """
+        # 在均衡状态下，每个keeper的最优出价
+        # b(v) = v - ∫[v_min to v] F(x)^(n-1) dx / F(v)^(n-1)
+        
+        # 简化：假设均匀分布的估值
+        expected_profit_margin = 1 / (self.num_keepers + 1)
+        equilibrium_bid = self.collateral_value * (1 - expected_profit_margin)
+        
+        return {
+            'equilibrium_bid': equilibrium_bid,
+            'expected_profit': self.collateral_value - equilibrium_bid,
+            'protocol_recovery': equilibrium_bid / self.debt_value
+        }
+    
+    def simulate_dutch_auction(self, start_price, decay_rate):
+        """荷兰式拍卖模拟（如Liquity）"""
+        time_steps = []
+        prices = []
+        
+        current_price = start_price
+        t = 0
+        
+        while current_price > self.debt_value * 0.9:  # 最低价格限制
+            # 每个keeper的参与概率
+            participation_prob = self._keeper_participation_probability(
+                current_price, t
+            )
+            
+            if np.random.random() < participation_prob:
+                return {
+                    'winning_price': current_price,
+                    'time_to_clear': t,
+                    'keeper_profit': self.collateral_value - current_price
+                }
+            
+            # 价格衰减
+            current_price *= (1 - decay_rate)
+            t += 1
+            
+            time_steps.append(t)
+            prices.append(current_price)
+            
+        return {'failed': True, 'final_price': current_price}
+                </div>
+                
+                <h4>实际应用案例：MakerDAO的AutoLine</h4>
+                <p>MakerDAO使用自动化系统调整债务上限，这是AI在稳定币治理中的实际应用。</p>
+                
+                <div class="code-block">
+// Solidity实现：自动债务上限调整
+contract AutoLine {
+    struct CollateralConfig {
+        uint256 line;      // 当前债务上限
+        uint256 gap;       // 每次增加量
+        uint256 ttl;       // 冷却时间
+        uint256 last;      // 上次调整时间
+        uint256 maxLine;   // 最大上限
+    }
+    
+    mapping(bytes32 => CollateralConfig) public configs;
+    
+    function exec(bytes32 ilk) external returns (uint256) {
+        CollateralConfig memory cfg = configs[ilk];
+        
+        // 获取当前使用情况
+        (uint256 Art, uint256 rate,, uint256 line,) = vat.ilks(ilk);
+        uint256 debt = Art * rate;
+        
+        // 如果使用率超过90%且未达到最大值，增加上限
+        if (debt > line * 90 / 100 && line < cfg.maxLine) {
+            // 检查冷却时间
+            require(block.timestamp > cfg.last + cfg.ttl, "AutoLine/cooldown");
+            
+            // 增加债务上限
+            uint256 newLine = Math.min(line + cfg.gap, cfg.maxLine);
+            vat.file(ilk, "line", newLine);
+            
+            // 更新时间戳
+            configs[ilk].last = block.timestamp;
+            
+            emit LineUpdate(ilk, line, newLine);
+            return newLine;
+        }
+        
+        return line;
+    }
+}
+                </div>
+            </div>
+            
             <div class="practice-section">
-                <h3>2.5 实践：分析历史锚定数据</h3>
+                <h3>2.6 实践：分析历史锚定数据与DeFi集成</h3>
                 
-                <p>通过分析真实的历史数据，深入理解不同稳定币的稳定性表现。</p>
+                <p>通过分析真实的历史数据和DeFi协议集成，深入理解稳定币在实际应用中的表现。</p>
                 
-                <h4>数据获取与分析</h4>
+                <h4>链上数据分析实战</h4>
                 <div class="code-block">
 # 使用Python分析稳定币锚定历史
 import pandas as pd
@@ -4046,46 +4585,80 @@ class StablecoinMonitor:
                 <div class="exercise">
                     <div class="exercise-header">
                         <span class="exercise-icon">📝</span>
-                        <h5>练习 2.1：稳定币分类理解</h5>
+                        <h5>练习 2.1：深度分析 - 清算机制对比</h5>
                     </div>
-                    <p>为以下场景选择最合适的稳定币类型，并说明理由：</p>
+                    <p>比较分析MakerDAO、Liquity和crvUSD的清算机制，从以下维度进行评估：</p>
                     <ol>
-                        <li>一家跨国公司需要进行大额跨境支付</li>
-                        <li>DeFi协议需要一个去中心化的计价单位</li>
-                        <li>风险偏好型投资者寻求高收益机会</li>
-                        <li>隐私意识强的用户进行日常交易</li>
+                        <li>资本效率（最低抵押率）</li>
+                        <li>清算过程对市场的影响</li>
+                        <li>清算人（Keeper）的激励设计</li>
+                        <li>在极端市场条件下的表现</li>
                     </ol>
+                    <p>要求：用数学模型量化分析每种机制的优劣，并提出改进建议。</p>
                     <button class="answer-toggle" onclick="toggleAnswer('answer2_1')">查看答案</button>
                     <div id="answer2_1" class="answer-content">
+                        <h6>清算机制对比分析</h6>
+                        
+                        <table style="width: 100%; margin: 1rem 0;">
+                            <tr>
+                                <th style="padding: 0.5rem; background: #f1f5f9;">特性</th>
+                                <th style="padding: 0.5rem; background: #f1f5f9;">MakerDAO</th>
+                                <th style="padding: 0.5rem; background: #f1f5f9;">Liquity</th>
+                                <th style="padding: 0.5rem; background: #f1f5f9;">crvUSD</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.5rem; border: 1px solid #e2e8f0;"><strong>最低抵押率</strong></td>
+                                <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">150%（ETH-A）</td>
+                                <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">110%</td>
+                                <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">~117%（动态）</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.5rem; border: 1px solid #e2e8f0;"><strong>清算类型</strong></td>
+                                <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">拍卖（Clipper）</td>
+                                <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">固定折扣</td>
+                                <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">连续清算（LLAMMA）</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.5rem; border: 1px solid #e2e8f0;"><strong>市场影响</strong></td>
+                                <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">中等（批量清算）</td>
+                                <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">高（瞬时清算）</td>
+                                <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">低（平滑转换）</td>
+                            </tr>
+                        </table>
+                        
+                        <h6>数学分析</h6>
+                        
+                        <p><strong>1. MakerDAO - 荷兰式拍卖模型：</strong></p>
+                        <pre>价格函数: P(t) = P₀ × (1 - λt)
+其中：P₀ = 初始价格（市场价×缓冲系数）
+     λ = 衰减率
+     t = 时间
+                        
+预期收益: E[R] = ∫₀ᵀ P(t) × f(t) dt
+其中：f(t) = keeper参与的概率密度函数</pre>
+                        
+                        <p><strong>2. Liquity - 固定折扣模型：</strong></p>
+                        <pre>清算价格 = 债务价值 × 0.995（0.5%奖励）
+稳定池激励 = 200 LUSD（gas补偿）
+
+博弈论分析：
+- Nash均衡：所有keeper同时监控
+- 最优策略：gas价格优化 + MEV利用</pre>
+                        
+                        <p><strong>3. crvUSD - LLAMMA连续清算：</strong></p>
+                        <pre>价格区间：[p_down, p_up]
+AMM函数：x × y = k（在每个band内）
+
+软清算优势量化：
+- 滑点减少：~90%（相比硬清算）
+- 资本效率提升：~35%（更低的安全边际需求）</pre>
+                        
+                        <h6>改进建议</h6>
                         <ol>
-                            <li><strong>法币抵押型（USDC/USDT）</strong>
-                                <ul>
-                                    <li>原因：流动性最好，被广泛接受</li>
-                                    <li>合规性强，适合企业使用</li>
-                                    <li>1:1赎回保证，风险可控</li>
-                                </ul>
-                            </li>
-                            <li><strong>加密抵押型（DAI）</strong>
-                                <ul>
-                                    <li>原因：去中心化，无需信任第三方</li>
-                                    <li>透明度高，所有操作链上可查</li>
-                                    <li>与DeFi协议可组合性强</li>
-                                </ul>
-                            </li>
-                            <li><strong>部分算法型（FRAX）或收益型稳定币协议</strong>
-                                <ul>
-                                    <li>原因：可能提供额外收益机会</li>
-                                    <li>参与治理获得代币奖励</li>
-                                    <li>但需承担相应的协议风险</li>
-                                </ul>
-                            </li>
-                            <li><strong>加密抵押型（如Monero上的稳定币）或混币后的DAI</strong>
-                                <ul>
-                                    <li>原因：链上原生，无KYC要求</li>
-                                    <li>可通过隐私协议增强匿名性</li>
-                                    <li>但要注意合规风险</li>
-                                </ul>
-                            </li>
+                            <li><strong>混合机制</strong>：结合LLAMMA的平滑性和Liquity的简单性</li>
+                            <li><strong>动态参数</strong>：基于市场波动率自动调整清算参数</li>
+                            <li><strong>MEV保护</strong>：使用commit-reveal或批量清算减少抢跑</li>
+                            <li><strong>保险基金</strong>：建立协议级保险池吸收极端损失</li>
                         </ol>
                     </div>
                 </div>
@@ -4457,6 +5030,1372 @@ contract HybridStablecoin {
                 </table>
             </div>
         </div>
+
+        <!-- 第三章：ERC-20标准与扩展 -->
+        <div class="chapter" id="chapter3">
+            <h2>第三章：ERC-20标准与扩展</h2>
+            
+            <div class="intro-box">
+                <strong>本章概览：</strong>
+                <ul>
+                    <li>深入理解ERC-20标准及其在稳定币中的应用</li>
+                    <li>探索代理模式和可升级合约架构</li>
+                    <li>跨链标准与互操作性解决方案</li>
+                    <li>实战：构建企业级可升级稳定币</li>
+                </ul>
+            </div>
+
+            <h3>3.1 标准代币接口深度解析</h3>
+            
+            <h4>3.1.1 ERC-20标准的演进历程</h4>
+            <p>ERC-20标准诞生于2015年11月，由Fabian Vogelsteller提出，成为以太坊生态系统中最成功的标准之一。让我们深入了解其技术细节和在稳定币中的特殊应用。</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">基础ERC-20接口定义 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+interface IERC20 {
+    // 查询代币总供应量
+    function totalSupply() external view returns (uint256);
+    
+    // 查询账户余额
+    function balanceOf(address account) external view returns (uint256);
+    
+    // 转账函数
+    function transfer(address to, uint256 amount) external returns (bool);
+    
+    // 查询授权额度
+    function allowance(address owner, address spender) external view returns (uint256);
+    
+    // 授权函数
+    function approve(address spender, uint256 amount) external returns (bool);
+    
+    // 授权转账
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+    
+    // 事件定义
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>3.1.2 稳定币特有的扩展功能</h4>
+            <p>稳定币在实现ERC-20标准的基础上，通常需要添加额外的功能以满足合规和运营需求：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">稳定币扩展功能实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">abstract contract StablecoinBase is ERC20, Pausable, AccessControl {
+    // 角色定义
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+    bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
+    
+    // 黑名单映射
+    mapping(address => bool) private _blacklisted;
+    
+    // 铸币限额管理
+    mapping(address => uint256) private _minterAllowances;
+    
+    // 事件
+    event Blacklisted(address indexed account);
+    event UnBlacklisted(address indexed account);
+    event MinterConfigured(address indexed minter, uint256 allowance);
+    event MinterRemoved(address indexed minter);
+    
+    // 修饰器：检查黑名单
+    modifier notBlacklisted(address account) {
+        require(!_blacklisted[account], "Account is blacklisted");
+        _;
+    }
+    
+    // 铸币功能（带限额控制）
+    function mint(address to, uint256 amount) 
+        external 
+        onlyRole(MINTER_ROLE) 
+        whenNotPaused 
+        notBlacklisted(to) 
+    {
+        require(amount <= _minterAllowances[msg.sender], "Exceeds minter allowance");
+        _minterAllowances[msg.sender] -= amount;
+        _mint(to, amount);
+    }
+    
+    // 销毁功能
+    function burn(uint256 amount) external whenNotPaused {
+        _burn(msg.sender, amount);
+    }
+    
+    // 黑名单管理
+    function blacklist(address account) external onlyRole(BLACKLISTER_ROLE) {
+        _blacklisted[account] = true;
+        emit Blacklisted(account);
+    }
+    
+    // 重写transfer以检查黑名单
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual override {
+        super._beforeTokenTransfer(from, to, amount);
+        require(!_blacklisted[from] && !_blacklisted[to], "Blacklisted address");
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>3.1.3 Gas优化技巧</h4>
+            <p>稳定币通常有高频交易需求，Gas优化至关重要：</p>
+            
+            <div class="tip">
+                💡 关键洞察：通过批量操作和存储优化，可以将Gas消耗降低30-50%。
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">Gas优化实现示例 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">contract GasOptimizedStablecoin is StablecoinBase {
+    // 使用packed结构体减少存储槽
+    struct UserInfo {
+        uint128 balance;      // 足够存储大部分余额
+        uint64 lastTransfer;  // 时间戳
+        bool isBlacklisted;   // 黑名单状态
+        bool isWhitelisted;   // 白名单状态（免Gas费）
+    }
+    
+    mapping(address => UserInfo) private _userInfo;
+    
+    // 批量转账（节省基础Gas开销）
+    function batchTransfer(
+        address[] calldata recipients,
+        uint256[] calldata amounts
+    ) external whenNotPaused {
+        require(recipients.length == amounts.length, "Length mismatch");
+        require(recipients.length <= 100, "Too many recipients");
+        
+        uint256 totalAmount;
+        for (uint256 i = 0; i < amounts.length; ) {
+            totalAmount += amounts[i];
+            unchecked { ++i; }
+        }
+        
+        require(_userInfo[msg.sender].balance >= totalAmount, "Insufficient balance");
+        
+        // 使用unchecked节省溢出检查Gas
+        unchecked {
+            _userInfo[msg.sender].balance -= uint128(totalAmount);
+        }
+        
+        for (uint256 i = 0; i < recipients.length; ) {
+            _userInfo[recipients[i]].balance += uint128(amounts[i]);
+            emit Transfer(msg.sender, recipients[i], amounts[i]);
+            unchecked { ++i; }
+        }
+    }
+    
+    // 使用assembly优化的余额查询
+    function balanceOf(address account) public view returns (uint256 balance) {
+        assembly {
+            // 直接读取存储槽
+            let slot := _userInfo.slot
+            let key := account
+            mstore(0x00, key)
+            mstore(0x20, slot)
+            let location := keccak256(0x00, 0x40)
+            balance := shr(128, sload(location))
+        }
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h3>3.2 可升级模式深度实践</h3>
+            
+            <h4>3.2.1 代理模式对比分析</h4>
+            <p>稳定币合约的可升级性是一个关键特性，让我们深入比较不同的升级模式：</p>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>升级模式</th>
+                    <th>Gas成本</th>
+                    <th>复杂度</th>
+                    <th>存储冲突风险</th>
+                    <th>适用场景</th>
+                </tr>
+                <tr>
+                    <td>透明代理（Transparent Proxy）</td>
+                    <td>~2300 Gas额外开销</td>
+                    <td>中等</td>
+                    <td>低</td>
+                    <td>USDC、USDT等主流稳定币</td>
+                </tr>
+                <tr>
+                    <td>UUPS（Universal Upgradeable Proxy）</td>
+                    <td>~1000 Gas额外开销</td>
+                    <td>高</td>
+                    <td>中</td>
+                    <td>Gas敏感的DeFi协议</td>
+                </tr>
+                <tr>
+                    <td>钻石标准（Diamond/EIP-2535）</td>
+                    <td>~2500 Gas额外开销</td>
+                    <td>很高</td>
+                    <td>很低</td>
+                    <td>复杂的模块化系统</td>
+                </tr>
+                <tr>
+                    <td>Beacon代理</td>
+                    <td>~2100 Gas额外开销</td>
+                    <td>中等</td>
+                    <td>低</td>
+                    <td>多实例部署场景</td>
+                </tr>
+            </table>
+            
+            <h4>3.2.2 UUPS模式实现</h4>
+            <p>UUPS模式将升级逻辑放在实现合约中，提供更好的Gas效率：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">UUPS可升级稳定币实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// 使用OpenZeppelin的UUPS实现
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
+contract StablecoinV1 is 
+    Initializable,
+    ERC20Upgradeable,
+    PausableUpgradeable,
+    OwnableUpgradeable,
+    UUPSUpgradeable 
+{
+    // 存储布局版本控制
+    uint256 private constant STORAGE_VERSION = 1;
+    
+    // 状态变量（注意顺序很重要）
+    mapping(address => bool) public blacklisted;
+    mapping(address => uint256) public minterAllowance;
+    address[] public minters;
+    
+    // 初始化函数（代替构造函数）
+    function initialize(
+        string memory name,
+        string memory symbol
+    ) public initializer {
+        __ERC20_init(name, symbol);
+        __Pausable_init();
+        __Ownable_init();
+        __UUPSUpgradeable_init();
+    }
+    
+    // 升级授权（只有owner可以升级）
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
+    
+    // 获取实现版本
+    function version() external pure returns (string memory) {
+        return "1.0.0";
+    }
+}
+
+// V2版本示例（添加新功能）
+contract StablecoinV2 is StablecoinV1 {
+    // 新增状态变量（只能在最后添加）
+    mapping(address => uint256) public dailyTransferLimit;
+    mapping(address => uint256) public dailyTransferAmount;
+    mapping(address => uint256) public lastTransferDay;
+    
+    // 新增功能：每日转账限额
+    function setDailyLimit(address user, uint256 limit) external onlyOwner {
+        dailyTransferLimit[user] = limit;
+    }
+    
+    // 重写transfer以实现限额检查
+    function transfer(address to, uint256 amount) 
+        public 
+        override 
+        returns (bool) 
+    {
+        _checkDailyLimit(msg.sender, amount);
+        return super.transfer(to, amount);
+    }
+    
+    function _checkDailyLimit(address user, uint256 amount) private {
+        uint256 today = block.timestamp / 1 days;
+        
+        if (lastTransferDay[user] < today) {
+            dailyTransferAmount[user] = 0;
+            lastTransferDay[user] = today;
+        }
+        
+        require(
+            dailyTransferAmount[user] + amount <= dailyTransferLimit[user],
+            "Daily limit exceeded"
+        );
+        
+        dailyTransferAmount[user] += amount;
+    }
+    
+    function version() external pure override returns (string memory) {
+        return "2.0.0";
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>3.2.3 存储冲突防护</h4>
+            <p>升级合约时最大的风险是存储冲突，这里是防护措施：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">存储间隙模式（Storage Gap） <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">abstract contract StablecoinStorageV1 {
+    // 状态变量
+    mapping(address => uint256) internal _balances;
+    mapping(address => mapping(address => uint256)) internal _allowances;
+    uint256 internal _totalSupply;
+    
+    // 存储间隙：预留升级空间
+    uint256[47] private __gap;  // 50 - 3 = 47
+}
+
+abstract contract StablecoinStorageV2 is StablecoinStorageV1 {
+    // 新增状态变量
+    mapping(address => bool) internal _frozen;
+    uint256 internal _maxSupply;
+    
+    // 更新存储间隙
+    uint256[45] private __gap;  // 47 - 2 = 45
+}
+
+// 使用非结构化存储（Unstructured Storage）
+contract DiamondStorage {
+    struct DiamondStorageStruct {
+        mapping(address => uint256) balances;
+        mapping(address => bool) blacklisted;
+        uint256 totalSupply;
+        address admin;
+    }
+    
+    function diamondStorage() 
+        internal 
+        pure 
+        returns (DiamondStorageStruct storage ds) 
+    {
+        bytes32 position = keccak256("diamond.standard.diamond.storage");
+        assembly {
+            ds.slot := position
+        }
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h3>3.3 跨链标准与实现</h3>
+            
+            <h4>3.3.1 主流跨链协议对比</h4>
+            <p>稳定币的跨链需求日益增长，让我们深入了解各种跨链解决方案：</p>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>跨链协议</th>
+                    <th>安全模型</th>
+                    <th>延迟</th>
+                    <th>支持链数</th>
+                    <th>去中心化程度</th>
+                </tr>
+                <tr>
+                    <td>LayerZero</td>
+                    <td>Oracle + Relayer</td>
+                    <td>几分钟</td>
+                    <td>40+</td>
+                    <td>中等</td>
+                </tr>
+                <tr>
+                    <td>Axelar</td>
+                    <td>PoS验证者集</td>
+                    <td>5-30分钟</td>
+                    <td>30+</td>
+                    <td>高</td>
+                </tr>
+                <tr>
+                    <td>Wormhole</td>
+                    <td>Guardian网络</td>
+                    <td>几分钟</td>
+                    <td>20+</td>
+                    <td>中等</td>
+                </tr>
+                <tr>
+                    <td>IBC (Cosmos)</td>
+                    <td>轻客户端</td>
+                    <td>几秒</td>
+                    <td>50+ (Cosmos生态)</td>
+                    <td>很高</td>
+                </tr>
+            </table>
+            
+            <h4>3.3.2 LayerZero集成实现</h4>
+            <p>LayerZero提供了灵活的跨链消息传递，适合稳定币的全链部署：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">LayerZero OFT稳定币实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">import "@layerzerolabs/solidity-examples/contracts/token/oft/v2/OFTV2.sol";
+
+contract OmniChainStablecoin is OFTV2, Pausable {
+    // 链ID到地址的映射（用于限额管理）
+    mapping(uint16 => address) public trustedRemotes;
+    
+    // 每条链的铸币限额
+    mapping(uint16 => uint256) public chainMintLimit;
+    mapping(uint16 => uint256) public chainMintAmount;
+    
+    // 跨链转账费用（基点）
+    uint256 public bridgeFee = 10; // 0.1%
+    address public feeCollector;
+    
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals,
+        address _lzEndpoint
+    ) OFTV2(_name, _symbol, _decimals, _lzEndpoint) {
+        feeCollector = msg.sender;
+    }
+    
+    // 设置可信远程合约
+    function setTrustedRemote(
+        uint16 _chainId,
+        bytes calldata _path
+    ) external onlyOwner {
+        trustedRemotes[_chainId] = address(bytes20(_path));
+        trustedRemote[_chainId] = _path;
+    }
+    
+    // 重写发送函数以实现费用收取
+    function _send(
+        address _from,
+        uint16 _dstChainId,
+        bytes32 _toAddress,
+        uint256 _amount,
+        address payable _refundAddress,
+        address _zroPaymentAddress,
+        bytes memory _adapterParams
+    ) internal override returns (uint256 amount) {
+        // 计算并收取跨链费用
+        uint256 fee = (_amount * bridgeFee) / 10000;
+        uint256 amountAfterFee = _amount - fee;
+        
+        if (fee > 0) {
+            _transfer(_from, feeCollector, fee);
+        }
+        
+        // 检查目标链限额
+        require(
+            chainMintAmount[_dstChainId] + amountAfterFee <= chainMintLimit[_dstChainId],
+            "Chain mint limit exceeded"
+        );
+        
+        chainMintAmount[_dstChainId] += amountAfterFee;
+        
+        return super._send(
+            _from,
+            _dstChainId,
+            _toAddress,
+            amountAfterFee,
+            _refundAddress,
+            _zroPaymentAddress,
+            _adapterParams
+        );
+    }
+    
+    // 估算跨链费用
+    function estimateSendFee(
+        uint16 _dstChainId,
+        bytes32 _toAddress,
+        uint256 _amount,
+        bool _useZro,
+        bytes calldata _adapterParams
+    ) public view override returns (uint256 nativeFee, uint256 zroFee) {
+        uint256 amountAfterFee = _amount - (_amount * bridgeFee) / 10000;
+        return super.estimateSendFee(
+            _dstChainId,
+            _toAddress,
+            amountAfterFee,
+            _useZro,
+            _adapterParams
+        );
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>3.3.3 IBC协议集成（Cosmos生态）</h4>
+            <p>IBC提供了最去中心化的跨链解决方案，特别适合Cosmos生态：</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">CosmWasm IBC稳定币合约 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-rust">use cosmwasm_std::{
+    entry_point, to_binary, Binary, Deps, DepsMut, 
+    Env, MessageInfo, Response, StdResult, Uint128,
+    IbcMsg, IbcTimeout, CosmosMsg,
+};
+use cw20::{Cw20Contract, Cw20ExecuteMsg};
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct IbcTransferMsg {
+    pub channel_id: String,
+    pub to_address: String,
+    pub amount: Uint128,
+    pub timeout: IbcTimeout,
+}
+
+#[entry_point]
+pub fn execute(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    msg: ExecuteMsg,
+) -> Result<Response, ContractError> {
+    match msg {
+        ExecuteMsg::IbcTransfer(transfer_msg) => {
+            execute_ibc_transfer(deps, env, info, transfer_msg)
+        }
+        _ => handle_cw20_execute(deps, env, info, msg),
+    }
+}
+
+fn execute_ibc_transfer(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    msg: IbcTransferMsg,
+) -> Result<Response, ContractError> {
+    // 检查余额
+    let balance = BALANCES.load(deps.storage, &info.sender)?;
+    if balance < msg.amount {
+        return Err(ContractError::InsufficientFunds {});
+    }
+    
+    // 扣除余额
+    BALANCES.update(
+        deps.storage,
+        &info.sender,
+        |balance| -> StdResult<_> {
+            Ok(balance.unwrap_or_default() - msg.amount)
+        },
+    )?;
+    
+    // 构建IBC消息
+    let ibc_msg = IbcMsg::Transfer {
+        channel_id: msg.channel_id,
+        to_address: msg.to_address,
+        amount: coin(msg.amount.u128(), "ustable"),
+        timeout: msg.timeout,
+    };
+    
+    Ok(Response::new()
+        .add_message(ibc_msg)
+        .add_attribute("action", "ibc_transfer")
+        .add_attribute("from", info.sender)
+        .add_attribute("amount", msg.amount))
+}
+
+// IBC包接收处理
+#[entry_point]
+pub fn ibc_packet_receive(
+    deps: DepsMut,
+    _env: Env,
+    msg: IbcPacketReceiveMsg,
+) -> Result<IbcReceiveResponse, Never> {
+    // 解析接收的数据
+    let packet: TransferPacket = from_slice(&msg.packet.data)?;
+    
+    // 铸造代币给接收者
+    BALANCES.update(
+        deps.storage,
+        &packet.receiver,
+        |balance| -> StdResult<_> {
+            Ok(balance.unwrap_or_default() + packet.amount)
+        },
+    )?;
+    
+    Ok(IbcReceiveResponse::new()
+        .set_ack(to_binary(&TransferAck::Success)?)
+        .add_attribute("action", "receive")
+        .add_attribute("receiver", packet.receiver)
+        .add_attribute("amount", packet.amount))
+}</code></pre>
+                </div>
+            </div>
+            
+            <h3>3.4 实践项目：构建企业级可升级稳定币</h3>
+            
+            <h4>3.4.1 项目需求分析</h4>
+            <p>我们将构建一个具备以下特性的企业级稳定币：</p>
+            <ul>
+                <li>符合监管要求的KYC/AML功能</li>
+                <li>可升级架构，支持功能迭代</li>
+                <li>多链部署，支持主流公链</li>
+                <li>完善的权限管理系统</li>
+                <li>紧急暂停和恢复机制</li>
+            </ul>
+            
+            <h4>3.4.2 完整实现</h4>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">企业级稳定币完整实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+
+contract EnterpriseStablecoin is 
+    Initializable,
+    ERC20Upgradeable,
+    PausableUpgradeable,
+    AccessControlUpgradeable,
+    UUPSUpgradeable 
+{
+    using ECDSA for bytes32;
+    
+    // 角色定义
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+    bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
+    bytes32 public constant KYC_ROLE = keccak256("KYC_ROLE");
+    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+    
+    // 状态变量
+    mapping(address => bool) public blacklisted;
+    mapping(address => bool) public kycApproved;
+    mapping(address => uint256) public minterAllowance;
+    mapping(address => uint256) public lastActivity;
+    
+    // 交易限制
+    uint256 public maxTransactionAmount;
+    uint256 public dailyTransferLimit;
+    mapping(address => uint256) public dailyTransferred;
+    mapping(address => uint256) public lastTransferDay;
+    
+    // 合规功能
+    bool public kycRequired;
+    uint256 public inactivityThreshold;
+    
+    // 签名nonce（防重放）
+    mapping(address => uint256) public nonces;
+    
+    // 事件
+    event Blacklisted(address indexed account);
+    event UnBlacklisted(address indexed account);
+    event KYCApproved(address indexed account);
+    event KYCRevoked(address indexed account);
+    event ComplianceConfigUpdated(bool kycRequired, uint256 inactivityThreshold);
+    
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+    
+    function initialize(
+        string memory name,
+        string memory symbol,
+        bool _kycRequired
+    ) public initializer {
+        __ERC20_init(name, symbol);
+        __Pausable_init();
+        __AccessControl_init();
+        __UUPSUpgradeable_init();
+        
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(PAUSER_ROLE, msg.sender);
+        _grantRole(MINTER_ROLE, msg.sender);
+        _grantRole(UPGRADER_ROLE, msg.sender);
+        
+        kycRequired = _kycRequired;
+        maxTransactionAmount = 1000000 * 10**decimals(); // 1M默认限额
+        dailyTransferLimit = 5000000 * 10**decimals();   // 5M每日限额
+        inactivityThreshold = 365 days;                  // 1年不活跃阈值
+    }
+    
+    // 铸币功能
+    function mint(address to, uint256 amount) 
+        external 
+        onlyRole(MINTER_ROLE)
+        whenNotPaused 
+    {
+        require(!blacklisted[to], "Recipient is blacklisted");
+        require(!kycRequired || kycApproved[to], "KYC not approved");
+        require(amount <= minterAllowance[msg.sender], "Exceeds allowance");
+        
+        minterAllowance[msg.sender] -= amount;
+        _mint(to, amount);
+        lastActivity[to] = block.timestamp;
+    }
+    
+    // 带签名的铸币（链下授权）
+    function mintWithSignature(
+        address to,
+        uint256 amount,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external whenNotPaused {
+        require(block.timestamp <= deadline, "Signature expired");
+        
+        bytes32 structHash = keccak256(
+            abi.encode(
+                keccak256("Mint(address to,uint256 amount,uint256 nonce,uint256 deadline)"),
+                to,
+                amount,
+                nonces[to]++,
+                deadline
+            )
+        );
+        
+        bytes32 hash = _hashTypedDataV4(structHash);
+        address signer = hash.recover(v, r, s);
+        
+        require(hasRole(MINTER_ROLE, signer), "Invalid signer");
+        require(!blacklisted[to], "Recipient is blacklisted");
+        require(!kycRequired || kycApproved[to], "KYC not approved");
+        
+        _mint(to, amount);
+        lastActivity[to] = block.timestamp;
+    }
+    
+    // 重写transfer函数
+    function _transfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override {
+        require(!blacklisted[from] && !blacklisted[to], "Blacklisted address");
+        require(!kycRequired || (kycApproved[from] && kycApproved[to]), "KYC required");
+        require(amount <= maxTransactionAmount, "Exceeds max transaction");
+        
+        // 检查每日限额
+        _checkDailyLimit(from, amount);
+        
+        super._transfer(from, to, amount);
+        
+        // 更新活动时间
+        lastActivity[from] = block.timestamp;
+        lastActivity[to] = block.timestamp;
+    }
+    
+    // 每日限额检查
+    function _checkDailyLimit(address user, uint256 amount) private {
+        uint256 today = block.timestamp / 1 days;
+        
+        if (lastTransferDay[user] < today) {
+            dailyTransferred[user] = 0;
+            lastTransferDay[user] = today;
+        }
+        
+        require(
+            dailyTransferred[user] + amount <= dailyTransferLimit,
+            "Daily limit exceeded"
+        );
+        
+        dailyTransferred[user] += amount;
+    }
+    
+    // 冻结不活跃账户的资金
+    function freezeInactiveAccount(address account) 
+        external 
+        onlyRole(BLACKLISTER_ROLE) 
+    {
+        require(
+            block.timestamp - lastActivity[account] > inactivityThreshold,
+            "Account still active"
+        );
+        blacklisted[account] = true;
+        emit Blacklisted(account);
+    }
+    
+    // 批量KYC审批
+    function batchApproveKYC(address[] calldata accounts) 
+        external 
+        onlyRole(KYC_ROLE) 
+    {
+        for (uint256 i = 0; i < accounts.length; i++) {
+            kycApproved[accounts[i]] = true;
+            emit KYCApproved(accounts[i]);
+        }
+    }
+    
+    // 紧急提取（仅限被黑名单地址）
+    function emergencyWithdraw(address blacklistedAccount, address to) 
+        external 
+        onlyRole(DEFAULT_ADMIN_ROLE) 
+    {
+        require(blacklisted[blacklistedAccount], "Account not blacklisted");
+        uint256 amount = balanceOf(blacklistedAccount);
+        _burn(blacklistedAccount, amount);
+        _mint(to, amount);
+    }
+    
+    // 升级授权
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyRole(UPGRADER_ROLE)
+        override
+    {}
+    
+    // 暂停功能
+    function pause() external onlyRole(PAUSER_ROLE) {
+        _pause();
+    }
+    
+    function unpause() external onlyRole(PAUSER_ROLE) {
+        _unpause();
+    }
+    
+    // 获取版本
+    function version() external pure returns (string memory) {
+        return "1.0.0";
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <h4>3.4.3 部署和测试脚本</h4>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">Hardhat部署和测试脚本 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-javascript">// deploy/01_deploy_stablecoin.js
+const { ethers, upgrades } = require("hardhat");
+
+module.exports = async ({ getNamedAccounts, deployments }) => {
+    const { deploy } = deployments;
+    const { deployer } = await getNamedAccounts();
+    
+    // 部署实现合约
+    const EnterpriseStablecoin = await ethers.getContractFactory(
+        "EnterpriseStablecoin"
+    );
+    
+    const proxy = await upgrades.deployProxy(
+        EnterpriseStablecoin,
+        ["USD Stablecoin", "USDS", true], // 启用KYC
+        { 
+            initializer: "initialize",
+            kind: "uups" 
+        }
+    );
+    
+    await proxy.deployed();
+    console.log("Proxy deployed to:", proxy.address);
+    
+    // 获取实现地址
+    const implementationAddress = await upgrades.erc1967.getImplementationAddress(
+        proxy.address
+    );
+    console.log("Implementation deployed to:", implementationAddress);
+    
+    // 配置角色
+    const MINTER_ROLE = ethers.utils.keccak256(
+        ethers.utils.toUtf8Bytes("MINTER_ROLE")
+    );
+    const KYC_ROLE = ethers.utils.keccak256(
+        ethers.utils.toUtf8Bytes("KYC_ROLE")
+    );
+    
+    // 设置铸币者
+    await proxy.grantRole(MINTER_ROLE, deployer);
+    await proxy.setMinterAllowance(deployer, ethers.utils.parseUnits("1000000", 6));
+    
+    // 保存部署信息
+    deployments.save("EnterpriseStablecoin", {
+        address: proxy.address,
+        implementation: implementationAddress,
+        abi: EnterpriseStablecoin.interface.format("json"),
+    });
+};
+
+// test/EnterpriseStablecoin.test.js
+const { expect } = require("chai");
+const { ethers, upgrades } = require("hardhat");
+
+describe("EnterpriseStablecoin", function () {
+    let stablecoin;
+    let owner, minter, user1, user2, blacklister;
+    let MINTER_ROLE, BLACKLISTER_ROLE, KYC_ROLE;
+    
+    beforeEach(async function () {
+        [owner, minter, user1, user2, blacklister] = await ethers.getSigners();
+        
+        const EnterpriseStablecoin = await ethers.getContractFactory(
+            "EnterpriseStablecoin"
+        );
+        stablecoin = await upgrades.deployProxy(
+            EnterpriseStablecoin,
+            ["Test USD", "TUSD", true],
+            { kind: "uups" }
+        );
+        
+        // 获取角色常量
+        MINTER_ROLE = await stablecoin.MINTER_ROLE();
+        BLACKLISTER_ROLE = await stablecoin.BLACKLISTER_ROLE();
+        KYC_ROLE = await stablecoin.KYC_ROLE();
+        
+        // 配置角色
+        await stablecoin.grantRole(MINTER_ROLE, minter.address);
+        await stablecoin.grantRole(BLACKLISTER_ROLE, blacklister.address);
+        await stablecoin.grantRole(KYC_ROLE, owner.address);
+    });
+    
+    describe("KYC功能", function () {
+        it("未通过KYC不能接收代币", async function () {
+            await stablecoin.setMinterAllowance(
+                minter.address, 
+                ethers.utils.parseUnits("1000", 6)
+            );
+            
+            await expect(
+                stablecoin.connect(minter).mint(
+                    user1.address, 
+                    ethers.utils.parseUnits("100", 6)
+                )
+            ).to.be.revertedWith("KYC not approved");
+        });
+        
+        it("通过KYC后可以正常交易", async function () {
+            // 批准KYC
+            await stablecoin.batchApproveKYC([user1.address, user2.address]);
+            
+            // 设置铸币额度
+            await stablecoin.setMinterAllowance(
+                minter.address, 
+                ethers.utils.parseUnits("1000", 6)
+            );
+            
+            // 铸币
+            await stablecoin.connect(minter).mint(
+                user1.address, 
+                ethers.utils.parseUnits("100", 6)
+            );
+            
+            // 转账
+            await stablecoin.connect(user1).transfer(
+                user2.address, 
+                ethers.utils.parseUnits("50", 6)
+            );
+            
+            expect(await stablecoin.balanceOf(user2.address))
+                .to.equal(ethers.utils.parseUnits("50", 6));
+        });
+    });
+    
+    describe("升级功能", function () {
+        it("可以升级到新版本", async function () {
+            const EnterpriseStablecoinV2 = await ethers.getContractFactory(
+                "EnterpriseStablecoinV2"
+            );
+            
+            const upgraded = await upgrades.upgradeProxy(
+                stablecoin.address,
+                EnterpriseStablecoinV2
+            );
+            
+            expect(await upgraded.version()).to.equal("2.0.0");
+        });
+    });
+});</code></pre>
+                </div>
+            </div>
+            
+            <h3>练习题</h3>
+            
+            <div class="exercise">
+                <h4>练习 3.1：ERC-20扩展实现</h4>
+                <p>实现一个支持以下功能的ERC-20扩展：</p>
+                <ul>
+                    <li>批量转账功能（单笔交易中向多个地址转账）</li>
+                    <li>转账备注功能（在链上记录转账备注信息）</li>
+                    <li>定时锁定功能（代币在指定时间后才能转移）</li>
+                </ul>
+                <p>要求：Gas优化，支持紧急暂停。</p>
+                
+                <div class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案 ▼</div>
+                <div class="answer" style="display: none;">
+                    <pre><code class="language-solidity">contract ExtendedERC20 is ERC20, Pausable, Ownable {
+    // 转账备注
+    mapping(bytes32 => string) public transferNotes;
+    
+    // 时间锁
+    struct TimeLock {
+        uint256 amount;
+        uint256 releaseTime;
+    }
+    mapping(address => TimeLock[]) public timeLocks;
+    
+    // 事件
+    event TransferWithNote(address indexed from, address indexed to, uint256 value, string note);
+    event TokensLocked(address indexed account, uint256 amount, uint256 releaseTime);
+    event TokensUnlocked(address indexed account, uint256 amount);
+    
+    // 批量转账
+    function batchTransfer(
+        address[] calldata recipients,
+        uint256[] calldata amounts
+    ) external whenNotPaused returns (bool) {
+        require(recipients.length == amounts.length, "Length mismatch");
+        require(recipients.length <= 100, "Too many recipients");
+        
+        uint256 totalAmount;
+        for (uint256 i = 0; i < amounts.length; ) {
+            totalAmount += amounts[i];
+            unchecked { ++i; }
+        }
+        
+        require(balanceOf(msg.sender) >= totalAmount, "Insufficient balance");
+        
+        for (uint256 i = 0; i < recipients.length; ) {
+            _transfer(msg.sender, recipients[i], amounts[i]);
+            unchecked { ++i; }
+        }
+        
+        return true;
+    }
+    
+    // 带备注的转账
+    function transferWithNote(
+        address to,
+        uint256 amount,
+        string calldata note
+    ) external whenNotPaused returns (bool) {
+        _transfer(msg.sender, to, amount);
+        
+        bytes32 txHash = keccak256(
+            abi.encodePacked(msg.sender, to, amount, block.timestamp)
+        );
+        transferNotes[txHash] = note;
+        
+        emit TransferWithNote(msg.sender, to, amount, note);
+        return true;
+    }
+    
+    // 锁定代币
+    function lockTokens(uint256 amount, uint256 lockDuration) external {
+        require(amount > 0, "Amount must be positive");
+        require(lockDuration > 0, "Duration must be positive");
+        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
+        
+        _transfer(msg.sender, address(this), amount);
+        
+        timeLocks[msg.sender].push(TimeLock({
+            amount: amount,
+            releaseTime: block.timestamp + lockDuration
+        }));
+        
+        emit TokensLocked(msg.sender, amount, block.timestamp + lockDuration);
+    }
+    
+    // 解锁代币
+    function unlockTokens() external {
+        TimeLock[] storage locks = timeLocks[msg.sender];
+        uint256 totalUnlocked;
+        
+        for (uint256 i = 0; i < locks.length; ) {
+            if (locks[i].releaseTime <= block.timestamp && locks[i].amount > 0) {
+                totalUnlocked += locks[i].amount;
+                locks[i].amount = 0;
+            }
+            unchecked { ++i; }
+        }
+        
+        require(totalUnlocked > 0, "No tokens to unlock");
+        _transfer(address(this), msg.sender, totalUnlocked);
+        
+        emit TokensUnlocked(msg.sender, totalUnlocked);
+    }
+    
+    // 查询锁定的代币
+    function getLockedBalance(address account) external view returns (uint256) {
+        TimeLock[] memory locks = timeLocks[account];
+        uint256 locked;
+        
+        for (uint256 i = 0; i < locks.length; i++) {
+            if (locks[i].releaseTime > block.timestamp) {
+                locked += locks[i].amount;
+            }
+        }
+        
+        return locked;
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <div class="exercise">
+                <h4>练习 3.2：跨链桥实现</h4>
+                <p>设计并实现一个简化的跨链桥，支持：</p>
+                <ul>
+                    <li>在源链锁定代币</li>
+                    <li>在目标链铸造包装代币</li>
+                    <li>实现简单的验证机制</li>
+                    <li>处理跨链失败的情况</li>
+                </ul>
+                
+                <div class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案 ▼</div>
+                <div class="answer" style="display: none;">
+                    <pre><code class="language-solidity">// 源链合约
+contract SourceBridge is Ownable, Pausable {
+    IERC20 public token;
+    mapping(bytes32 => bool) public processedTransfers;
+    uint256 public nonce;
+    
+    event TokensLocked(
+        address indexed from,
+        address indexed to,
+        uint256 amount,
+        uint256 targetChain,
+        uint256 nonce
+    );
+    
+    constructor(address _token) {
+        token = IERC20(_token);
+    }
+    
+    function lockTokens(
+        address targetAddress,
+        uint256 amount,
+        uint256 targetChain
+    ) external whenNotPaused {
+        require(amount > 0, "Amount must be positive");
+        require(token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+        
+        emit TokensLocked(msg.sender, targetAddress, amount, targetChain, ++nonce);
+    }
+    
+    function emergencyWithdraw() external onlyOwner {
+        uint256 balance = token.balanceOf(address(this));
+        require(token.transfer(owner(), balance), "Withdraw failed");
+    }
+}
+
+// 目标链合约
+contract TargetBridge is Ownable, Pausable {
+    mapping(address => bool) public validators;
+    mapping(bytes32 => uint256) public confirmations;
+    mapping(bytes32 => bool) public processedTransfers;
+    
+    uint256 public requiredConfirmations = 3;
+    WrappedToken public wrappedToken;
+    
+    event TokensMinted(address indexed to, uint256 amount, bytes32 transferId);
+    event TransferConfirmed(bytes32 transferId, address validator);
+    
+    constructor(string memory name, string memory symbol) {
+        wrappedToken = new WrappedToken(name, symbol);
+    }
+    
+    function addValidator(address validator) external onlyOwner {
+        validators[validator] = true;
+    }
+    
+    function confirmTransfer(
+        address to,
+        uint256 amount,
+        uint256 sourceChain,
+        uint256 nonce
+    ) external {
+        require(validators[msg.sender], "Not a validator");
+        
+        bytes32 transferId = keccak256(
+            abi.encodePacked(to, amount, sourceChain, nonce)
+        );
+        
+        require(!processedTransfers[transferId], "Already processed");
+        
+        confirmations[transferId]++;
+        emit TransferConfirmed(transferId, msg.sender);
+        
+        if (confirmations[transferId] >= requiredConfirmations) {
+            processedTransfers[transferId] = true;
+            wrappedToken.mint(to, amount);
+            emit TokensMinted(to, amount, transferId);
+        }
+    }
+}
+
+// 包装代币合约
+contract WrappedToken is ERC20, Ownable {
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}
+    
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
+    }
+    
+    function burn(uint256 amount) external {
+        _burn(msg.sender, amount);
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <div class="exercise">
+                <h4>练习 3.3：Gas优化挑战</h4>
+                <p>给定一个低效的ERC-20实现，将其Gas消耗优化至少30%：</p>
+                <pre><code class="language-solidity">// 低效实现
+contract InefficientToken is ERC20 {
+    mapping(address => bool) public whitelist;
+    uint256[] public transferHistory;
+    mapping(address => uint256[]) public userTransfers;
+    
+    function transfer(address to, uint256 amount) public override returns (bool) {
+        require(whitelist[msg.sender] || whitelist[to], "Not whitelisted");
+        
+        transferHistory.push(block.timestamp);
+        userTransfers[msg.sender].push(amount);
+        userTransfers[to].push(amount);
+        
+        return super.transfer(to, amount);
+    }
+}</code></pre>
+                
+                <div class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案 ▼</div>
+                <div class="answer" style="display: none;">
+                    <pre><code class="language-solidity">contract OptimizedToken is ERC20 {
+    // 使用bitmap替代mapping节省存储
+    mapping(uint256 => uint256) private whitelistBitmap;
+    
+    // 事件替代存储历史记录
+    event TransferRecorded(address indexed from, address indexed to, uint256 amount, uint256 timestamp);
+    
+    // 只存储必要的统计信息
+    mapping(address => uint256) public transferCount;
+    
+    function setWhitelist(address account, bool status) external onlyOwner {
+        uint256 index = uint256(uint160(account));
+        uint256 wordIndex = index / 256;
+        uint256 bitIndex = index % 256;
+        
+        if (status) {
+            whitelistBitmap[wordIndex] |= (1 << bitIndex);
+        } else {
+            whitelistBitmap[wordIndex] &= ~(1 << bitIndex);
+        }
+    }
+    
+    function isWhitelisted(address account) public view returns (bool) {
+        uint256 index = uint256(uint160(account));
+        uint256 wordIndex = index / 256;
+        uint256 bitIndex = index % 256;
+        uint256 word = whitelistBitmap[wordIndex];
+        return (word & (1 << bitIndex)) != 0;
+    }
+    
+    function transfer(address to, uint256 amount) public override returns (bool) {
+        // 使用局部变量缓存状态
+        bool senderWhitelisted = isWhitelisted(msg.sender);
+        bool recipientWhitelisted = isWhitelisted(to);
+        
+        require(senderWhitelisted || recipientWhitelisted, "Not whitelisted");
+        
+        // 使用事件记录历史，而不是存储
+        emit TransferRecorded(msg.sender, to, amount, block.timestamp);
+        
+        // 使用unchecked节省Gas
+        unchecked {
+            transferCount[msg.sender]++;
+            transferCount[to]++;
+        }
+        
+        return super.transfer(to, amount);
+    }
+    
+    // 批量检查白名单状态
+    function batchCheckWhitelist(address[] calldata accounts) 
+        external 
+        view 
+        returns (bool[] memory) 
+    {
+        bool[] memory results = new bool[](accounts.length);
+        for (uint256 i = 0; i < accounts.length; ) {
+            results[i] = isWhitelisted(accounts[i]);
+            unchecked { ++i; }
+        }
+        return results;
+    }
+}</code></pre>
+                    <p><strong>优化说明：</strong></p>
+                    <ul>
+                        <li>使用bitmap存储白名单，每个地址只需1bit而不是256bit</li>
+                        <li>用事件替代数组存储，节省大量存储Gas</li>
+                        <li>使用unchecked块避免不必要的溢出检查</li>
+                        <li>缓存存储读取结果，避免重复SLOAD</li>
+                        <li>移除不必要的动态数组操作</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <h3>本章小结</h3>
+            <div class="summary-box">
+                <h4>核心要点回顾：</h4>
+                <ul>
+                    <li><strong>ERC-20标准：</strong>稳定币的基础接口，需要扩展以支持合规功能</li>
+                    <li><strong>可升级架构：</strong>UUPS模式提供最佳Gas效率，适合高频交易场景</li>
+                    <li><strong>跨链互操作：</strong>LayerZero和IBC提供不同的安全性和去中心化权衡</li>
+                    <li><strong>Gas优化：</strong>通过存储打包、批量操作和事件日志可大幅降低成本</li>
+                    <li><strong>合规功能：</strong>KYC、AML、黑名单是企业级稳定币的必备功能</li>
+                </ul>
+                
+                <h4>下一步学习：</h4>
+                <p>在掌握了ERC-20标准和可升级架构后，下一章我们将深入探讨抵押型稳定币的设计，包括金库机制、清算引擎和预言机集成。</p>
+            </div>
+            
+            <h3>术语速查表</h3>
+            <table class="glossary-table">
+                <tr>
+                    <th>术语</th>
+                    <th>英文</th>
+                    <th>解释</th>
+                </tr>
+                <tr>
+                    <td>代理模式</td>
+                    <td>Proxy Pattern</td>
+                    <td>通过代理合约调用实现合约，实现可升级性</td>
+                </tr>
+                <tr>
+                    <td>存储槽</td>
+                    <td>Storage Slot</td>
+                    <td>EVM中的256位存储单位，每个槽消耗20000 Gas</td>
+                </tr>
+                <tr>
+                    <td>轻客户端</td>
+                    <td>Light Client</td>
+                    <td>只存储区块头的客户端，用于验证跨链消息</td>
+                </tr>
+                <tr>
+                    <td>包装代币</td>
+                    <td>Wrapped Token</td>
+                    <td>在目标链上代表源链资产的合成代币</td>
+                </tr>
+                <tr>
+                    <td>时间锁</td>
+                    <td>Timelock</td>
+                    <td>延迟执行机制，增加安全性和可预测性</td>
+                </tr>
+            </table>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
@@ -4465,6 +6404,7 @@ contract HybridStablecoin {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
     <script>
         function toggleAnswer(answerId) {
             const answerElement = document.getElementById(answerId);
