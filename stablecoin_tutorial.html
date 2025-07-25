@@ -310,17 +310,256 @@
         .theory-section ol ol ol {
             margin-left: 2rem;
         }
+        
+        /* 导航栏样式 */
+        nav {
+            background: #0f172a;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+        
+        .nav-title {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 2rem;
+        }
+        
+        .nav-item {
+            position: relative;
+        }
+        
+        .nav-link {
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 0.5rem 0;
+            transition: color 0.3s;
+            font-size: 0.95rem;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            color: white;
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-color);
+        }
+        
+        /* 移动端菜单按钮 */
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        
+        .nav-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            transition: 0.3s;
+        }
+        
+        /* 章节指示器 */
+        .chapter-indicator {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 200px;
+            z-index: 100;
+        }
+        
+        .chapter-indicator h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+        
+        .chapter-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.85rem;
+        }
+        
+        .chapter-list li {
+            padding: 0.3rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .chapter-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .chapter-list a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .chapter-list a:hover,
+        .chapter-list a.active {
+            color: var(--primary-color);
+        }
+        
+        /* 移动端响应式 */
+        @media (max-width: 768px) {
+            .nav-menu {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background: #0f172a;
+                flex-direction: column;
+                padding: 2rem;
+                gap: 1rem;
+                transition: left 0.3s;
+                overflow-y: auto;
+            }
+            
+            .nav-menu.active {
+                left: 0;
+            }
+            
+            .nav-toggle {
+                display: block;
+            }
+            
+            .nav-toggle.active span:nth-child(1) {
+                transform: rotate(-45deg) translate(-5px, 6px);
+            }
+            
+            .nav-toggle.active span:nth-child(2) {
+                opacity: 0;
+            }
+            
+            .nav-toggle.active span:nth-child(3) {
+                transform: rotate(45deg) translate(-5px, -6px);
+            }
+            
+            .chapter-indicator {
+                display: none;
+            }
+            
+            header {
+                margin-bottom: 0;
+            }
+            
+            .container {
+                padding-top: 10px;
+            }
+        }
+        
+        /* 平滑滚动 */
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+        
+        /* 调整header样式以配合导航栏 */
+        header {
+            margin-bottom: 0;
+        }
+        
+        /* 章节顶部间距 */
+        .chapter {
+            padding-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <header>
+    <!-- 导航栏 -->
+    <nav>
+        <div class="nav-container">
+            <div class="nav-content">
+                <a href="#top" class="nav-title">稳定币教程</a>
+                <button class="nav-toggle" onclick="toggleNav()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu" id="navMenu">
+                    <li class="nav-item">
+                        <a href="#intro" class="nav-link">引言</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#chapter1" class="nav-link">第一章</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#chapter2" class="nav-link">第二章</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#chapter3" class="nav-link">第三章</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#more" class="nav-link">更多</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 章节指示器 -->
+    <div class="chapter-indicator" id="chapterIndicator">
+        <h4>章节导航</h4>
+        <ul class="chapter-list">
+            <li><a href="#intro">引言</a></li>
+            <li><a href="#chapter1">1. 区块链基础</a></li>
+            <li><a href="#chapter2">2. 稳定币分类</a></li>
+            <li><a href="#chapter3">3. ERC-20标准</a></li>
+            <li><a href="#chapter4">4. 抵押机制</a></li>
+        </ul>
+    </div>
+    
+    <header id="top">
         <div class="container">
             <h1>区块链稳定币智能合约：从理论到实践</h1>
         </div>
     </header>
 
     <div class="container">
-        <div class="chapter">
+        <div class="chapter" id="intro">
             <h2>引言：稳定币的历史、概念与市场格局</h2>
             
             <div class="theory-section">
@@ -1306,7 +1545,7 @@ contract EUAdapter is IJurisdictionAdapter {
             </div>
         </div>
 
-        <div class="chapter">
+        <div class="chapter" id="chapter1">
             <h2>第一章：稳定币的区块链基础</h2>
             
             <div class="theory-section">
@@ -2855,6 +3094,1369 @@ contract L2OptimizedStablecoin {
                 </div>
             </div>
         </div>
+        
+        <!-- 第二章：稳定币分类与经济模型 -->
+        <div class="chapter" id="chapter2">
+            <h2>第二章：稳定币分类与经济模型</h2>
+            
+            <div class="theory-section">
+                <h3>2.1 法币抵押型稳定币（Fiat-Collateralized）</h3>
+                
+                <p>法币抵押型稳定币是最直观的稳定币模型，通过持有等值的法币储备来保证稳定币价值。这类稳定币是目前市场份额最大的类型。</p>
+                
+                <h4>核心机制</h4>
+                <div style="background: #f0f9ff; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                    <strong>1:1储备模型</strong>
+                    <ul>
+                        <li><strong>铸造（Mint）</strong>：用户存入$1法币 → 发行1个稳定币</li>
+                        <li><strong>赎回（Redeem）</strong>：用户销毁1个稳定币 → 取回$1法币</li>
+                        <li><strong>储备证明</strong>：定期审计确保100%储备率</li>
+                    </ul>
+                </div>
+                
+                <h4>主要代表：USDC（USD Coin）</h4>
+                <h5>技术架构</h5>
+                <div class="code-block">
+// USDC核心合约简化版
+contract FiatTokenV2_1 is FiatTokenV2 {
+    // 关键角色
+    address public masterMinter;    // 主铸币者
+    mapping(address => bool) public minters;    // 授权铸币者
+    mapping(address => uint256) public minterAllowed;    // 铸币配额
+    
+    // 铸币功能（仅授权铸币者）
+    function mint(address _to, uint256 _amount) 
+        external 
+        onlyMinters 
+        notBlacklisted(msg.sender) 
+        notBlacklisted(_to) 
+        returns (bool) {
+        require(_to != address(0), "Mint to zero address");
+        require(_amount > 0, "Mint amount not greater than 0");
+        
+        uint256 mintingAllowedAmount = minterAllowed[msg.sender];
+        require(_amount <= mintingAllowedAmount, "Mint amount exceeds allowed");
+        
+        totalSupply_ = totalSupply_.add(_amount);
+        balances[_to] = balances[_to].add(_amount);
+        minterAllowed[msg.sender] = mintingAllowedAmount.sub(_amount);
+        
+        emit Mint(msg.sender, _to, _amount);
+        emit Transfer(address(0), _to, _amount);
+        return true;
+    }
+    
+    // 销毁功能（任何持币者）
+    function burn(uint256 _amount) 
+        external 
+        whenNotPaused 
+        notBlacklisted(msg.sender) {
+        uint256 balance = balances[msg.sender];
+        require(_amount > 0, "Burn amount not greater than 0");
+        require(balance >= _amount, "Burn amount exceeds balance");
+        
+        totalSupply_ = totalSupply_.sub(_amount);
+        balances[msg.sender] = balance.sub(_amount);
+        
+        emit Burn(msg.sender, _amount);
+        emit Transfer(msg.sender, address(0), _amount);
+    }
+}
+                </div>
+                
+                <h5>储备资产构成（2024年数据）</h5>
+                <table style="width: 100%; margin: 1rem 0;">
+                    <tr>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">资产类型</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">比例</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">风险等级</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">现金存款</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">20%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">低</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">短期美国国债</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">80%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">极低</td>
+                    </tr>
+                </table>
+                
+                <h4>主要代表：USDT（Tether）</h4>
+                <h5>储备资产构成（2024年Q1）</h5>
+                <table style="width: 100%; margin: 1rem 0;">
+                    <tr>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">资产类型</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">金额（十亿美元）</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">比例</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">美国国债</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$90.9B</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">84.5%</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">隔夜逆回购</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$8.3B</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">7.7%</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">货币市场基金</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$5.3B</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">4.9%</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">比特币</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$3.2B</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">3.0%</td>
+                    </tr>
+                </table>
+                
+                <h4>优缺点分析</h4>
+                <div class="tip">
+                    <strong>优点：</strong>
+                    <ul>
+                        <li>简单直观，易于理解</li>
+                        <li>价格稳定性最高</li>
+                        <li>流动性充足</li>
+                        <li>适合大额交易和机构使用</li>
+                    </ul>
+                </div>
+                
+                <div class="warning">
+                    <strong>缺点与风险：</strong>
+                    <ul>
+                        <li><strong>中心化风险</strong>：单点故障，可能被冻结</li>
+                        <li><strong>监管风险</strong>：受政府监管影响</li>
+                        <li><strong>交易对手风险</strong>：银行破产风险</li>
+                        <li><strong>透明度问题</strong>：需要信任第三方审计</li>
+                    </ul>
+                </div>
+                
+                <h4>监管合规要求</h4>
+                <ul>
+                    <li><strong>KYC/AML</strong>：了解你的客户/反洗钱要求</li>
+                    <li><strong>资金传输许可</strong>：美国各州Money Transmitter License</li>
+                    <li><strong>定期审计</strong>：通常每月或每季度</li>
+                    <li><strong>储备披露</strong>：公开储备构成报告</li>
+                </ul>
+            </div>
+            
+            <div class="theory-section">
+                <h3>2.2 加密货币抵押型稳定币（Crypto-Collateralized）</h3>
+                
+                <p>加密货币抵押型稳定币通过超额抵押加密资产来维持价值稳定，是DeFi生态系统的核心组成部分。</p>
+                
+                <h4>核心概念：超额抵押</h4>
+                <div style="background: #f0fdf4; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                    <p><strong>为什么需要超额抵押？</strong></p>
+                    <ul>
+                        <li>加密资产价格波动大</li>
+                        <li>需要缓冲空间防止资不抵债</li>
+                        <li>激励及时还款和风险管理</li>
+                    </ul>
+                    <p><strong>典型抵押率：</strong>150% - 200%（借$100需要抵押$150-$200的资产）</p>
+                </div>
+                
+                <h4>主要代表：DAI（MakerDAO）</h4>
+                <h5>系统架构</h5>
+                <div class="code-block">
+// Maker协议核心组件简化
+contract Vat {  // 核心会计引擎
+    // CDP（现称Vault）状态
+    struct Ilk {  // 抵押品类型
+        uint256 Art;   // 总债务
+        uint256 rate;  // 累积稳定费率
+        uint256 spot;  // 价格（带安全边际）
+        uint256 line;  // 债务上限
+        uint256 dust;  // 最小债务额
+    }
+    
+    struct Urn {  // 用户金库
+        uint256 ink;   // 抵押品数量
+        uint256 art;   // 标准化债务
+    }
+    
+    mapping (bytes32 => Ilk) public ilks;  // 抵押品类型
+    mapping (bytes32 => mapping (address => Urn)) public urns;  // 用户金库
+    
+    // 开仓（抵押品锁定，DAI生成）
+    function frob(
+        bytes32 i,      // 抵押品类型
+        address u,      // 金库地址
+        address v,      // 抵押品来源
+        address w,      // DAI接收地址
+        int dink,       // 抵押品变化
+        int dart        // 债务变化
+    ) external {
+        Urn memory urn = urns[i][u];
+        Ilk memory ilk = ilks[i];
+        
+        urn.ink = add(urn.ink, dink);
+        urn.art = add(urn.art, dart);
+        ilk.Art = add(ilk.Art, dart);
+        
+        // 检查抵押率
+        uint dtab = mul(ilk.rate, dart);
+        uint tab = mul(ilk.rate, urn.art);
+        require(either(dart <= 0, both(
+            mul(ilk.Art, ilk.rate) <= ilk.line,  // 债务上限
+            tab <= mul(urn.ink, ilk.spot)        // 抵押率要求
+        )), "Vat/not-safe");
+        
+        require(either(dart <= 0, tab >= ilk.dust), "Vat/dust");
+        
+        urns[i][u] = urn;
+        ilks[i] = ilk;
+    }
+}
+
+// 清算模块
+contract Dog {  // Liquidation Engine 2.0
+    struct Ilk {
+        address clip;  // 拍卖合约地址
+        uint256 chop;  // 清算罚金
+        uint256 hole;  // 最大同时拍卖金额
+        uint256 dirt;  // 当前拍卖金额
+    }
+    
+    // 触发清算
+    function bark(
+        bytes32 ilk,    // 抵押品类型
+        address urn,    // 待清算金库
+        address kpr     // 清算人（获得奖励）
+    ) external returns (uint256 id) {
+        require(live == 1, "Dog/not-live");
+        
+        (uint256 ink, uint256 art) = vat.urns(ilk, urn);
+        Ilk memory milk = ilks[ilk];
+        uint256 dart = art;
+        
+        // 检查是否可清算
+        require(milk.chop > 0, "Dog/ilk-not-init");
+        uint256 room = sub(milk.hole, milk.dirt);
+        require(room > 0 && dart > 0, "Dog/liquidation-limit-hit");
+        
+        // 计算清算金额
+        uint256 dink = ink;
+        if (milk.hole != type(uint256).max) {
+            dart = min(dart, mul(room, WAD) / milk.rate / milk.chop);
+            dink = mul(ink, dart) / art;
+        }
+        
+        // 转移债务到拍卖模块
+        vat.grab(ilk, urn, address(this), address(vow), -int256(dink), -int256(dart));
+        
+        // 启动拍卖
+        uint256 due = mul(dart, milk.rate);
+        id = Clipper(milk.clip).kick({
+            tab: mul(due, milk.chop) / WAD,
+            lot: dink,
+            usr: urn,
+            kpr: kpr
+        });
+    }
+}
+                </div>
+                
+                <h5>支持的抵押品类型</h5>
+                <table style="width: 100%; margin: 1rem 0;">
+                    <tr>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">抵押品</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">最低抵押率</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">稳定费率（年化）</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">债务上限</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">ETH-A</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">145%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5.25%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">15B DAI</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">WBTC-A</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">145%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5.75%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">500M DAI</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">USDC-A</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">101%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">0%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">2B DAI</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">RWA（现实资产）</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">100%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">3-7%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">3B DAI</td>
+                    </tr>
+                </table>
+                
+                <h4>其他重要项目</h4>
+                
+                <h5>LUSD（Liquity）</h5>
+                <ul>
+                    <li><strong>单一抵押品</strong>：仅支持ETH</li>
+                    <li><strong>最低抵押率</strong>：110%（更资本高效）</li>
+                    <li><strong>无治理</strong>：参数固定，真正去中心化</li>
+                    <li><strong>一次性费用</strong>：0.5%借款费，无利息</li>
+                    <li><strong>稳定机制</strong>：
+                        <ul>
+                            <li>硬锚定：$1.10赎回上限，$0.95 LUSD/ETH流动性下限</li>
+                            <li>软锚定：套利激励</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <div class="code-block">
+// Liquity核心机制：Trove（金库）操作
+contract BorrowerOperations {
+    // 开仓参数
+    struct OpenTroveParams {
+        uint _maxFeePercentage;
+        uint _collAmount;
+        uint _LUSDAmount;
+        address _upperHint;
+        address _lowerHint;
+    }
+    
+    function openTrove(OpenTroveParams memory params) external payable {
+        require(params._collAmount == msg.value, "BorrowerOps: Coll != msg.value");
+        
+        // 计算复合债务（本金 + 200 LUSD gas补偿）
+        uint LUSDFee = _triggerBorrowingFee(params._LUSDAmount, params._maxFeePercentage);
+        uint netDebt = params._LUSDAmount;
+        uint compositeDebt = netDebt.add(LUSD_GAS_COMPENSATION);
+        
+        // 检查最低债务要求（2000 LUSD）
+        require(compositeDebt >= MIN_NET_DEBT, "BorrowerOps: Trove net debt < minimum");
+        
+        // 计算ICR（个人抵押率）
+        uint ICR = LiquityMath._computeCR(params._collAmount, compositeDebt, price);
+        require(ICR >= MCR, "BorrowerOps: ICR < MCR");  // MCR = 110%
+        
+        // 创建Trove
+        contractsCache.troveManager.openTrove(
+            msg.sender, 
+            params._collAmount, 
+            compositeDebt
+        );
+        
+        // 发送LUSD给借款人
+        contractsCache.lusdToken.mint(msg.sender, params._LUSDAmount);
+        
+        emit TroveCreated(msg.sender, compositeDebt, params._collAmount);
+    }
+}
+                </div>
+                
+                <h5>sUSD（Synthetix）</h5>
+                <ul>
+                    <li><strong>抵押品</strong>：SNX代币</li>
+                    <li><strong>抵押率</strong>：400%（非常保守）</li>
+                    <li><strong>特殊机制</strong>：债务池共担模式</li>
+                    <li><strong>用途</strong>：合成资产交易的基础货币</li>
+                </ul>
+                
+                <div class="warning">
+                    <strong>⚠️ 加密抵押型稳定币的独特风险：</strong>
+                    <ul>
+                        <li><strong>清算风险</strong>：市场剧烈波动时可能被清算</li>
+                        <li><strong>预言机风险</strong>：价格数据错误可能导致不当清算</li>
+                        <li><strong>智能合约风险</strong>：代码漏洞可能造成损失</li>
+                        <li><strong>扩展性限制</strong>：受抵押品市值限制</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="theory-section">
+                <h3>2.3 算法稳定币（Algorithmic Stablecoins）</h3>
+                
+                <p>算法稳定币试图通过算法和市场激励机制来维持价格稳定，不依赖抵押品或仅部分抵押。这是最具实验性和争议性的稳定币类型。</p>
+                
+                <h4>核心机制：供需调节</h4>
+                <div style="background: #fef3c7; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                    <strong>基本原理：</strong>
+                    <ul>
+                        <li><strong>价格 > $1</strong>：增加供应量，稀释价格</li>
+                        <li><strong>价格 < $1</strong>：减少供应量，提升价格</li>
+                        <li><strong>调节工具</strong>：铸币/销毁、债券、股份代币等</li>
+                    </ul>
+                </div>
+                
+                <h4>历史案例：UST（Terra USD）的兴衰</h4>
+                
+                <h5>机制设计</h5>
+                <div class="code-block">
+// Terra协议核心机制（简化版）
+contract TerraStation {
+    uint256 constant DECIMAL_PRECISION = 1e6;
+    
+    // 铸造UST（烧毁等值LUNA）
+    function mintUST(uint256 lunaAmount) external {
+        uint256 lunaPrice = getOraclePrice("LUNA");
+        uint256 ustToMint = (lunaAmount * lunaPrice) / DECIMAL_PRECISION;
+        
+        // 烧毁LUNA
+        LUNA.burnFrom(msg.sender, lunaAmount);
+        
+        // 铸造UST
+        UST.mint(msg.sender, ustToMint);
+        
+        emit Swap(msg.sender, "LUNA", "UST", lunaAmount, ustToMint);
+    }
+    
+    // 赎回LUNA（烧毁UST）
+    function redeemLUNA(uint256 ustAmount) external {
+        uint256 lunaPrice = getOraclePrice("LUNA");
+        uint256 lunaToMint = (ustAmount * DECIMAL_PRECISION) / lunaPrice;
+        
+        // 烧毁UST
+        UST.burnFrom(msg.sender, ustAmount);
+        
+        // 铸造LUNA
+        LUNA.mint(msg.sender, lunaToMint);
+        
+        emit Swap(msg.sender, "UST", "LUNA", ustAmount, lunaToMint);
+    }
+}
+
+// Anchor协议（提供20%年化收益）
+contract AnchorProtocol {
+    uint256 constant EARN_RATE = 20e16; // 20% APY
+    
+    mapping(address => uint256) public deposits;
+    mapping(address => uint256) public lastUpdate;
+    
+    function deposit(uint256 amount) external {
+        UST.transferFrom(msg.sender, address(this), amount);
+        
+        // 更新余额和利息
+        uint256 earned = calculateEarnings(msg.sender);
+        deposits[msg.sender] += amount + earned;
+        lastUpdate[msg.sender] = block.timestamp;
+    }
+}
+                </div>
+                
+                <h5>崩盘时间线（2022年5月）</h5>
+                <table style="width: 100%; margin: 1rem 0;">
+                    <tr>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">日期</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">事件</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">UST价格</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">LUNA价格</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5月7日</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">大额UST抛售开始</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$0.985</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$64</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5月9日</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">UST严重脱锚</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$0.65</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$30</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5月10日</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">死亡螺旋加速</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$0.30</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$1</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5月12日</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">完全崩溃</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$0.10</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$0.0001</td>
+                    </tr>
+                </table>
+                
+                <div class="warning">
+                    <strong>UST崩盘的教训：</strong>
+                    <ul>
+                        <li><strong>死亡螺旋</strong>：UST赎回→LUNA增发→LUNA价格下跌→信心崩溃→更多UST赎回</li>
+                        <li><strong>不可持续的收益率</strong>：Anchor的20%年化收益消耗储备</li>
+                        <li><strong>流动性不足</strong>：关键时刻无法维持锚定</li>
+                        <li><strong>过度杠杆</strong>：生态系统内循环借贷放大风险</li>
+                    </ul>
+                </div>
+                
+                <h4>部分算法稳定币：FRAX</h4>
+                
+                <p>FRAX采用部分抵押模式，根据市场条件动态调整抵押率，是算法稳定币的改进尝试。</p>
+                
+                <h5>核心创新：分数算法稳定币</h5>
+                <div class="code-block">
+// FRAX协议核心：动态抵押率
+contract FRAXStablecoin {
+    uint256 public global_collateral_ratio; // 全局抵押率（0-100%）
+    
+    // 铸造FRAX
+    function mintFrax(
+        uint256 collateral_amount,
+        uint256 fxs_amount,
+        uint256 slippage
+    ) external {
+        uint256 frax_price = getFRAXPrice();
+        uint256 fxs_price = getFXSPrice();
+        
+        // 计算可铸造的FRAX数量
+        uint256 c_value = collateral_amount * collateral_price / 1e6;
+        uint256 fxs_value = fxs_amount * fxs_price / 1e6;
+        
+        // 根据抵押率计算
+        uint256 calculated_frax = 0;
+        if(global_collateral_ratio == 1e6) { // 100%抵押
+            calculated_frax = c_value;
+        } else if(global_collateral_ratio == 0) { // 0%抵押（纯算法）
+            calculated_frax = fxs_value;
+        } else { // 部分抵押
+            uint256 c_portion = c_value * 1e6 / global_collateral_ratio;
+            calculated_frax = c_portion;
+        }
+        
+        // 检查滑点
+        require(calculated_frax >= frax_out_min, "Slippage limit");
+        
+        // 转移抵押品和烧毁FXS
+        if(collateral_amount > 0) {
+            collateral_token.transferFrom(msg.sender, address(this), collateral_amount);
+        }
+        if(fxs_amount > 0) {
+            FXS.burnFrom(msg.sender, fxs_amount);
+        }
+        
+        // 铸造FRAX
+        FRAX.mint(msg.sender, calculated_frax);
+    }
+    
+    // 动态调整抵押率
+    function refreshCollateralRatio() external {
+        uint256 frax_price = getFRAXPrice();
+        
+        if(frax_price > 1.01e6) { // FRAX > $1.01
+            // 降低抵押率（每次0.25%）
+            if(global_collateral_ratio > 0.25e6) {
+                global_collateral_ratio -= 0.25e6;
+            } else {
+                global_collateral_ratio = 0;
+            }
+        } else if(frax_price < 0.99e6) { // FRAX < $0.99
+            // 提高抵押率（每次0.25%）
+            if(global_collateral_ratio + 0.25e6 <= 1e6) {
+                global_collateral_ratio += 0.25e6;
+            } else {
+                global_collateral_ratio = 1e6;
+            }
+        }
+        
+        emit CollateralRatioRefreshed(global_collateral_ratio);
+    }
+}
+
+// AMO（算法市场操作）控制器
+contract FraxAMOMinter {
+    // AMO可以无抵押铸造FRAX用于特定用途
+    function mintFraxForAMO(address destination, uint256 frax_amount) external onlyAMO {
+        // 检查不会导致抵押不足
+        uint256 total_supply = FRAX.totalSupply();
+        uint256 global_collateral_value = getGlobalCollateralValue();
+        uint256 effective_collateral_ratio = global_collateral_value * 1e6 / (total_supply + frax_amount);
+        
+        require(effective_collateral_ratio >= global_collateral_ratio, "Collateral ratio violated");
+        
+        FRAX.mint(destination, frax_amount);
+    }
+}
+                </div>
+                
+                <h5>FRAX生态系统</h5>
+                <ul>
+                    <li><strong>FRAX</strong>：稳定币</li>
+                    <li><strong>FXS</strong>：股份/治理代币，吸收波动性</li>
+                    <li><strong>veFXS</strong>：锁定FXS获得治理权和收益</li>
+                    <li><strong>frxETH</strong>：以太坊流动性质押衍生品</li>
+                    <li><strong>FPI</strong>：锚定CPI的通胀调整稳定币</li>
+                </ul>
+                
+                <h4>其他算法稳定币尝试</h4>
+                
+                <h5>Basis Cash（已失败）</h5>
+                <ul>
+                    <li>三代币系统：BAC（稳定币）、BAS（股份）、BAB（债券）</li>
+                    <li>失败原因：死亡螺旋，缺乏真实需求</li>
+                </ul>
+                
+                <h5>Empty Set Dollar（已失败）</h5>
+                <ul>
+                    <li>单代币模型，结合稳定币和股份功能</li>
+                    <li>失败原因：机制过于复杂，难以维持锚定</li>
+                </ul>
+                
+                <h5>AMPL（Ampleforth）</h5>
+                <ul>
+                    <li><strong>弹性供应</strong>：通过rebase调整所有持有者余额</li>
+                    <li><strong>目标</strong>：追踪2019年CPI调整后的美元购买力</li>
+                    <li><strong>特点</strong>：不是传统意义的稳定币，更像"稳定购买力"</li>
+                </ul>
+                
+                <div class="tip">
+                    <strong>💡 算法稳定币的未来方向：</strong>
+                    <ul>
+                        <li>部分抵押模式（如FRAX）</li>
+                        <li>与RWA（现实世界资产）结合</li>
+                        <li>更复杂的稳定机制（如Gyroscope的储备池）</li>
+                        <li>跨链流动性聚合</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="theory-section">
+                <h3>2.4 混合模型与创新</h3>
+                
+                <p>随着稳定币生态的成熟，出现了结合多种机制优点的混合模型，以及针对特定用例的创新设计。</p>
+                
+                <h4>混合抵押模型</h4>
+                
+                <h5>crvUSD（Curve Finance）</h5>
+                <p>Curve的稳定币采用创新的LLAMMA（Lending-Liquidating AMM Algorithm）机制，实现软清算。</p>
+                
+                <div class="code-block">
+// LLAMMA核心概念：连续清算
+contract LLAMMA {
+    struct Band {
+        uint256 stablecoin_amount;  // 稳定币数量
+        uint256 collateral_amount;  // 抵押品数量
+    }
+    
+    mapping(int256 => Band) public bands;  // 价格区间
+    
+    // 软清算机制
+    function deposit_collateral(uint256 amount, uint256 debt, int256 n_bands) external {
+        uint256 amount_per_band = amount / uint256(n_bands);
+        int256 active_band = price_oracle.active_band();
+        
+        // 在多个价格区间分散抵押品
+        for(int256 i = 0; i < n_bands; i++) {
+            int256 band = active_band - i;
+            bands[band].collateral_amount += amount_per_band;
+        }
+        
+        // 铸造crvUSD
+        crvUSD.mint(msg.sender, debt);
+    }
+    
+    // 自动做市商功能
+    function exchange(int256 band) internal {
+        Band storage b = bands[band];
+        uint256 p_oracle = price_oracle.price();
+        uint256 p_band_up = get_p(band + 1);
+        uint256 p_band_down = get_p(band);
+        
+        if(p_oracle > p_band_up) {
+            // 卖出所有稳定币买入抵押品
+            uint256 collateral_to_buy = b.stablecoin_amount * 1e18 / p_oracle;
+            b.collateral_amount += collateral_to_buy;
+            b.stablecoin_amount = 0;
+        } else if(p_oracle < p_band_down) {
+            // 卖出所有抵押品买入稳定币
+            uint256 stablecoin_to_buy = b.collateral_amount * p_oracle / 1e18;
+            b.stablecoin_amount += stablecoin_to_buy;
+            b.collateral_amount = 0;
+        } else {
+            // 部分转换（AMM逻辑）
+            rebalance_band(band, p_oracle);
+        }
+    }
+}
+                </div>
+                
+                <h5>关键创新点</h5>
+                <ul>
+                    <li><strong>连续清算</strong>：避免瞬间大额清算造成的滑点</li>
+                    <li><strong>AMM集成</strong>：清算过程即是做市过程</li>
+                    <li><strong>自动再平衡</strong>：根据价格自动调整抵押品/债务比例</li>
+                    <li><strong>无需清算人</strong>：系统自动处理风险头寸</li>
+                </ul>
+                
+                <h4>特定用途稳定币</h4>
+                
+                <h5>GHO（Aave）</h5>
+                <ul>
+                    <li><strong>原生集成</strong>：与Aave借贷协议深度整合</li>
+                    <li><strong>利率折扣</strong>：stkAAVE持有者享受借款利率优惠</li>
+                    <li><strong>Facilitator模式</strong>：多个授权实体可铸造GHO</li>
+                </ul>
+                
+                <h5>DOLA（Inverse Finance）</h5>
+                <ul>
+                    <li><strong>跨链原生</strong>：通过债务桥实现跨链</li>
+                    <li><strong>Fed模式</strong>：协议控制的流动性管理</li>
+                </ul>
+                
+                <h4>跨链稳定币</h4>
+                
+                <h5>跨链桥接模型</h5>
+                <div class="code-block">
+// 跨链稳定币标准接口
+interface ICrossChainStablecoin {
+    // 锁定并桥接
+    function bridgeOut(
+        uint256 amount,
+        uint256 toChainId,
+        address toAddress
+    ) external;
+    
+    // 接收跨链铸造
+    function bridgeIn(
+        uint256 amount,
+        address toAddress,
+        bytes32 txHash
+    ) external onlyBridge;
+}
+
+// LayerZero实现示例
+contract LayerZeroStablecoin is OFT {  // Omnichain Fungible Token
+    function sendFrom(
+        address _from,
+        uint16 _dstChainId,
+        bytes calldata _toAddress,
+        uint256 _amount,
+        address payable _refundAddress,
+        address _zroPaymentAddress,
+        bytes calldata _adapterParams
+    ) public payable virtual override {
+        _send(_from, _dstChainId, _toAddress, _amount, _refundAddress, _zroPaymentAddress, _adapterParams);
+    }
+    
+    function _nonblockingLzReceive(
+        uint16 _srcChainId,
+        bytes memory _srcAddress,
+        uint64 _nonce,
+        bytes memory _payload
+    ) internal virtual override {
+        uint16 packetType;
+        assembly {
+            packetType := mload(add(_payload, 32))
+        }
+        
+        if (packetType == PT_SEND) {
+            _sendAck(_srcChainId, _srcAddress, _nonce, _payload);
+        }
+    }
+}
+                </div>
+                
+                <h4>创新稳定机制</h4>
+                
+                <h5>Gyroscope Protocol</h5>
+                <ul>
+                    <li><strong>储备池分层</strong>：多层次风险隔离</li>
+                    <li><strong>动态定价</strong>：基于储备健康度的赎回定价</li>
+                    <li><strong>E-CLP</strong>：椭圆集中流动性池</li>
+                </ul>
+                
+                <h5>Reserve Protocol (RSR/RSV)</h5>
+                <ul>
+                    <li><strong>资产篮子</strong>：多样化抵押品降低风险</li>
+                    <li><strong>保险机制</strong>：RSR作为最后的资本缓冲</li>
+                    <li><strong>可配置</strong>：任何人可创建新的稳定币配置</li>
+                </ul>
+            </div>
+            
+            <div class="practice-section">
+                <h3>2.5 实践：分析历史锚定数据</h3>
+                
+                <p>通过分析真实的历史数据，深入理解不同稳定币的稳定性表现。</p>
+                
+                <h4>数据获取与分析</h4>
+                <div class="code-block">
+# 使用Python分析稳定币锚定历史
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+import matplotlib.pyplot as plt
+
+# 稳定币价格偏离分析
+class StablecoinAnalyzer:
+    def __init__(self):
+        self.stablecoins = ['USDT', 'USDC', 'DAI', 'FRAX', 'LUSD']
+        
+    def calculate_peg_deviation(self, prices):
+        """计算锚定偏离度"""
+        deviations = abs(prices - 1.0)
+        return {
+            'mean_deviation': deviations.mean(),
+            'max_deviation': deviations.max(),
+            'volatility': prices.std(),
+            'days_off_peg': (deviations > 0.01).sum()  # 偏离1%的天数
+        }
+    
+    def analyze_depeg_events(self, prices, threshold=0.03):
+        """分析脱锚事件"""
+        depeg_mask = abs(prices - 1.0) > threshold
+        depeg_events = []
+        
+        i = 0
+        while i < len(prices):
+            if depeg_mask.iloc[i]:
+                start = i
+                while i < len(prices) and depeg_mask.iloc[i]:
+                    i += 1
+                end = i - 1
+                
+                depeg_events.append({
+                    'start_date': prices.index[start],
+                    'end_date': prices.index[end],
+                    'duration_days': end - start + 1,
+                    'max_deviation': abs(prices.iloc[start:end+1] - 1.0).max(),
+                    'min_price': prices.iloc[start:end+1].min(),
+                    'max_price': prices.iloc[start:end+1].max()
+                })
+            else:
+                i += 1
+                
+        return depeg_events
+    
+    def correlation_analysis(self, price_data):
+        """分析稳定币之间的相关性"""
+        correlations = price_data.corr()
+        
+        # 危机期间的相关性（2022年5月UST崩盘期间）
+        crisis_start = '2022-05-07'
+        crisis_end = '2022-05-15'
+        crisis_data = price_data[crisis_start:crisis_end]
+        crisis_corr = crisis_data.corr()
+        
+        return {
+            'normal_correlation': correlations,
+            'crisis_correlation': crisis_corr
+        }
+
+# 可视化分析
+def plot_stablecoin_comparison(data):
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    
+    # 1. 价格历史
+    ax1 = axes[0, 0]
+    for coin in data.columns:
+        ax1.plot(data.index, data[coin], label=coin, alpha=0.7)
+    ax1.axhline(y=1.0, color='black', linestyle='--', alpha=0.5)
+    ax1.set_title('稳定币价格历史')
+    ax1.set_ylabel('价格 (USD)')
+    ax1.legend()
+    ax1.grid(True, alpha=0.3)
+    
+    # 2. 偏离度分布
+    ax2 = axes[0, 1]
+    deviations = abs(data - 1.0)
+    deviations.plot(kind='box', ax=ax2)
+    ax2.set_title('锚定偏离度分布')
+    ax2.set_ylabel('偏离度')
+    
+    # 3. 滚动波动率
+    ax3 = axes[1, 0]
+    rolling_vol = data.rolling(window=30).std()
+    for coin in rolling_vol.columns:
+        ax3.plot(rolling_vol.index, rolling_vol[coin], label=coin)
+    ax3.set_title('30天滚动波动率')
+    ax3.set_ylabel('波动率')
+    ax3.legend()
+    ax3.grid(True, alpha=0.3)
+    
+    # 4. 脱锚事件统计
+    ax4 = axes[1, 1]
+    depeg_counts = {}
+    for coin in data.columns:
+        analyzer = StablecoinAnalyzer()
+        events = analyzer.analyze_depeg_events(data[coin])
+        depeg_counts[coin] = len(events)
+    
+    ax4.bar(depeg_counts.keys(), depeg_counts.values())
+    ax4.set_title('脱锚事件次数（>3%偏离）')
+    ax4.set_ylabel('事件数量')
+    
+    plt.tight_layout()
+    plt.show()
+
+# 风险指标计算
+def calculate_risk_metrics(prices):
+    """计算稳定币风险指标"""
+    metrics = {}
+    
+    # 1. 最大回撤
+    cummax = prices.cummax()
+    drawdown = (prices - cummax) / cummax
+    metrics['max_drawdown'] = drawdown.min()
+    
+    # 2. 恢复时间
+    recovery_times = []
+    for i in range(len(prices)):
+        if prices.iloc[i] < 0.99:  # 脱锚
+            for j in range(i+1, len(prices)):
+                if prices.iloc[j] >= 0.995:  # 恢复
+                    recovery_times.append(j - i)
+                    break
+    
+    metrics['avg_recovery_time'] = np.mean(recovery_times) if recovery_times else 0
+    
+    # 3. 下行风险（仅计算负偏离）
+    negative_deviations = prices[prices < 1.0] - 1.0
+    metrics['downside_volatility'] = negative_deviations.std()
+    
+    # 4. 尾部风险（VaR和CVaR）
+    returns = prices.pct_change().dropna()
+    metrics['var_95'] = np.percentile(returns, 5)
+    metrics['cvar_95'] = returns[returns <= metrics['var_95']].mean()
+    
+    return metrics
+
+# 实时监控示例
+class StablecoinMonitor:
+    def __init__(self, alert_threshold=0.02):
+        self.alert_threshold = alert_threshold
+        self.alerts = []
+        
+    def check_peg(self, current_prices):
+        """检查当前锚定状态"""
+        for coin, price in current_prices.items():
+            deviation = abs(price - 1.0)
+            if deviation > self.alert_threshold:
+                alert = {
+                    'timestamp': datetime.now(),
+                    'coin': coin,
+                    'price': price,
+                    'deviation': deviation,
+                    'severity': 'HIGH' if deviation > 0.05 else 'MEDIUM'
+                }
+                self.alerts.append(alert)
+                self.send_alert(alert)
+                
+    def send_alert(self, alert):
+        """发送警报（实际应用中可以接入通知系统）"""
+        print(f"⚠️ ALERT: {alert['coin']} at ${alert['price']:.4f} "
+              f"({alert['deviation']*100:.2f}% deviation) - {alert['severity']}")
+                </div>
+                
+                <h4>练习题</h4>
+                <div class="exercise">
+                    <div class="exercise-header">
+                        <span class="exercise-icon">📝</span>
+                        <h5>练习 2.1：稳定币分类理解</h5>
+                    </div>
+                    <p>为以下场景选择最合适的稳定币类型，并说明理由：</p>
+                    <ol>
+                        <li>一家跨国公司需要进行大额跨境支付</li>
+                        <li>DeFi协议需要一个去中心化的计价单位</li>
+                        <li>风险偏好型投资者寻求高收益机会</li>
+                        <li>隐私意识强的用户进行日常交易</li>
+                    </ol>
+                    <button class="answer-toggle" onclick="toggleAnswer('answer2_1')">查看答案</button>
+                    <div id="answer2_1" class="answer-content">
+                        <ol>
+                            <li><strong>法币抵押型（USDC/USDT）</strong>
+                                <ul>
+                                    <li>原因：流动性最好，被广泛接受</li>
+                                    <li>合规性强，适合企业使用</li>
+                                    <li>1:1赎回保证，风险可控</li>
+                                </ul>
+                            </li>
+                            <li><strong>加密抵押型（DAI）</strong>
+                                <ul>
+                                    <li>原因：去中心化，无需信任第三方</li>
+                                    <li>透明度高，所有操作链上可查</li>
+                                    <li>与DeFi协议可组合性强</li>
+                                </ul>
+                            </li>
+                            <li><strong>部分算法型（FRAX）或收益型稳定币协议</strong>
+                                <ul>
+                                    <li>原因：可能提供额外收益机会</li>
+                                    <li>参与治理获得代币奖励</li>
+                                    <li>但需承担相应的协议风险</li>
+                                </ul>
+                            </li>
+                            <li><strong>加密抵押型（如Monero上的稳定币）或混币后的DAI</strong>
+                                <ul>
+                                    <li>原因：链上原生，无KYC要求</li>
+                                    <li>可通过隐私协议增强匿名性</li>
+                                    <li>但要注意合规风险</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="exercise">
+                    <div class="exercise-header">
+                        <span class="exercise-icon">💻</span>
+                        <h5>练习 2.2：实现简单的法币抵押稳定币</h5>
+                    </div>
+                    <p>完成以下合约，实现一个基本的法币抵押稳定币：</p>
+                    <div class="code-block">
+contract SimpleStablecoin is ERC20, Ownable {
+    // TODO: 实现以下功能
+    // 1. 添加铸币者管理
+    // 2. 实现铸币功能（需要权限控制）
+    // 3. 实现销毁功能（任何人可销毁自己的代币）
+    // 4. 添加黑名单功能
+    // 5. 实现暂停/恢复功能
+    // 6. 添加事件日志
+}
+                    </div>
+                    <button class="answer-toggle" onclick="toggleAnswer('answer2_2')">查看答案</button>
+                    <div id="answer2_2" class="answer-content">
+                        <div class="code-block">
+contract SimpleStablecoin is ERC20, Ownable, Pausable {
+    // 铸币者管理
+    mapping(address => bool) public minters;
+    mapping(address => uint256) public mintingAllowance;
+    
+    // 黑名单
+    mapping(address => bool) public blacklisted;
+    
+    // 事件
+    event MinterConfigured(address indexed minter, uint256 allowance);
+    event MinterRemoved(address indexed minter);
+    event Mint(address indexed minter, address indexed to, uint256 amount);
+    event Burn(address indexed burner, uint256 amount);
+    event Blacklisted(address indexed account);
+    event UnBlacklisted(address indexed account);
+    
+    // 修饰器
+    modifier onlyMinters() {
+        require(minters[msg.sender], "Not a minter");
+        _;
+    }
+    
+    modifier notBlacklisted(address account) {
+        require(!blacklisted[account], "Account is blacklisted");
+        _;
+    }
+    
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}
+    
+    // 铸币者管理
+    function configureMinter(address minter, uint256 allowance) external onlyOwner {
+        minters[minter] = true;
+        mintingAllowance[minter] = allowance;
+        emit MinterConfigured(minter, allowance);
+    }
+    
+    function removeMinter(address minter) external onlyOwner {
+        minters[minter] = false;
+        mintingAllowance[minter] = 0;
+        emit MinterRemoved(minter);
+    }
+    
+    // 铸币功能
+    function mint(address to, uint256 amount) 
+        external 
+        onlyMinters 
+        whenNotPaused
+        notBlacklisted(msg.sender)
+        notBlacklisted(to)
+        returns (bool) 
+    {
+        require(to != address(0), "Mint to zero address");
+        require(amount > 0, "Amount must be greater than 0");
+        require(amount <= mintingAllowance[msg.sender], "Exceeds minting allowance");
+        
+        mintingAllowance[msg.sender] -= amount;
+        _mint(to, amount);
+        
+        emit Mint(msg.sender, to, amount);
+        return true;
+    }
+    
+    // 销毁功能
+    function burn(uint256 amount) 
+        external 
+        whenNotPaused
+        notBlacklisted(msg.sender)
+    {
+        require(amount > 0, "Amount must be greater than 0");
+        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
+        
+        _burn(msg.sender, amount);
+        emit Burn(msg.sender, amount);
+    }
+    
+    // 黑名单管理
+    function blacklist(address account) external onlyOwner {
+        blacklisted[account] = true;
+        emit Blacklisted(account);
+    }
+    
+    function unBlacklist(address account) external onlyOwner {
+        blacklisted[account] = false;
+        emit UnBlacklisted(account);
+    }
+    
+    // 重写transfer函数以检查黑名单
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override {
+        super._beforeTokenTransfer(from, to, amount);
+        
+        require(!blacklisted[from], "Sender is blacklisted");
+        require(!blacklisted[to], "Recipient is blacklisted");
+        require(!paused(), "Token transfers are paused");
+    }
+    
+    // 暂停功能（继承自Pausable）
+    function pause() external onlyOwner {
+        _pause();
+    }
+    
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="exercise">
+                    <div class="exercise-header">
+                        <span class="exercise-icon">🔍</span>
+                        <h5>练习 2.3：分析UST崩盘机制</h5>
+                    </div>
+                    <p>UST使用以下公式维持锚定：</p>
+                    <pre>1 UST = $1 worth of LUNA (可相互转换)</pre>
+                    <p>假设初始状态：LUNA价格$60，UST供应量100亿，LUNA供应量5亿</p>
+                    <p>问题：</p>
+                    <ol>
+                        <li>如果有20亿UST被赎回成LUNA，LUNA供应量会增加多少？</li>
+                        <li>假设市场只能吸收10%的新增LUNA供应而不影响价格，实际LUNA价格会跌到多少？</li>
+                        <li>在新价格下，剩余80亿UST的抵押品价值是多少？</li>
+                        <li>这会引发什么连锁反应？</li>
+                    </ol>
+                    <button class="answer-toggle" onclick="toggleAnswer('answer2_3')">查看答案</button>
+                    <div id="answer2_3" class="answer-content">
+                        <ol>
+                            <li><strong>LUNA供应量增加计算：</strong>
+                                <ul>
+                                    <li>20亿UST ÷ $60/LUNA = 3333万LUNA</li>
+                                    <li>新LUNA供应量 = 5亿 + 0.33亿 = 5.33亿</li>
+                                    <li>供应量增加了6.67%</li>
+                                </ul>
+                            </li>
+                            <li><strong>价格影响分析：</strong>
+                                <ul>
+                                    <li>如果市场深度只能吸收10%的新供应</li>
+                                    <li>实际抛压 = 90% × 3333万 = 3000万LUNA</li>
+                                    <li>假设价格弹性为-2（供应增1%，价格跌2%）</li>
+                                    <li>价格跌幅 = 6% × 2 = 12%</li>
+                                    <li>新LUNA价格 ≈ $60 × 0.88 = $52.8</li>
+                                </ul>
+                            </li>
+                            <li><strong>抵押品价值：</strong>
+                                <ul>
+                                    <li>LUNA总市值 = 5.33亿 × $52.8 = 281亿美元</li>
+                                    <li>UST市值需求 = 80亿美元</li>
+                                    <li>理论上足够，但信心已受损</li>
+                                </ul>
+                            </li>
+                            <li><strong>死亡螺旋：</strong>
+                                <ul>
+                                    <li>价格下跌→更多UST持有者恐慌赎回</li>
+                                    <li>更多赎回→更多LUNA增发→价格进一步下跌</li>
+                                    <li>Anchor协议挤兑加速UST抛售</li>
+                                    <li>LUNA价格崩溃→UST完全失去支撑</li>
+                                    <li>最终：LUNA接近归零，UST严重脱锚</li>
+                                </ul>
+                            </li>
+                        </ol>
+                        <p><strong>关键教训：</strong>纯算法稳定币在极端市场条件下极其脆弱，死亡螺旋一旦开始很难停止。</p>
+                    </div>
+                </div>
+                
+                <div class="exercise">
+                    <div class="exercise-header">
+                        <span class="exercise-icon">⚡</span>
+                        <h5>练习 2.4：设计改进的稳定币机制</h5>
+                    </div>
+                    <p>基于本章学习的内容，设计一个结合多种机制优点的新型稳定币。要求：</p>
+                    <ol>
+                        <li>描述核心稳定机制</li>
+                        <li>说明如何避免死亡螺旋</li>
+                        <li>设计应急机制</li>
+                        <li>考虑监管合规</li>
+                    </ol>
+                    <button class="answer-toggle" onclick="toggleAnswer('answer2_4')">查看答案</button>
+                    <div id="answer2_4" class="answer-content">
+                        <h5>混合稳定币设计方案</h5>
+                        
+                        <h6>1. 核心稳定机制（三层防御）</h6>
+                        <ul>
+                            <li><strong>第一层：部分法币储备（40%）</strong>
+                                <ul>
+                                    <li>USDC/美国国债作为硬底</li>
+                                    <li>提供基础信心和流动性</li>
+                                </ul>
+                            </li>
+                            <li><strong>第二层：加密资产超额抵押（40%）</strong>
+                                <ul>
+                                    <li>ETH/BTC等主流资产</li>
+                                    <li>150%最低抵押率</li>
+                                    <li>软清算机制（类似crvUSD）</li>
+                                </ul>
+                            </li>
+                            <li><strong>第三层：算法调节（20%）</strong>
+                                <ul>
+                                    <li>协议控制的资金（PCV）</li>
+                                    <li>动态调节供应量</li>
+                                    <li>但不超过总供应的20%</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        
+                        <h6>2. 避免死亡螺旋的机制</h6>
+                        <ul>
+                            <li><strong>熔断机制</strong>：24小时内赎回量超过10%时暂停大额赎回</li>
+                            <li><strong>时间锁</strong>：大额赎回需要7天等待期</li>
+                            <li><strong>费率调节</strong>：市场压力时提高赎回费用（最高5%）</li>
+                            <li><strong>储备比率下限</strong>：法币储备不得低于30%</li>
+                        </ul>
+                        
+                        <h6>3. 应急机制</h6>
+                        <ul>
+                            <li><strong>保险基金</strong>：协议收入的50%进入保险基金</li>
+                            <li><strong>紧急暂停</strong>：多签控制的紧急暂停功能</li>
+                            <li><strong>渐进式清算</strong>：避免大规模同时清算</li>
+                            <li><strong>备用稳定模块（BSM）</strong>：
+                                <pre>如果价格 < $0.95：激活1:1 USDC兑换（有限额）
+如果价格 > $1.05：激活1:1 USDC铸造（有限额）</pre>
+                            </li>
+                        </ul>
+                        
+                        <h6>4. 监管合规设计</h6>
+                        <ul>
+                            <li><strong>可选KYC层</strong>：
+                                <ul>
+                                    <li>基础功能无需KYC（DeFi友好）</li>
+                                    <li>大额交易和法币出入金需要KYC</li>
+                                </ul>
+                            </li>
+                            <li><strong>透明度</strong>：
+                                <ul>
+                                    <li>实时链上储备证明</li>
+                                    <li>月度第三方审计</li>
+                                </ul>
+                            </li>
+                            <li><strong>管辖权考虑</strong>：
+                                <ul>
+                                    <li>基金会设立在瑞士/新加坡</li>
+                                    <li>遵守当地稳定币法规</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        
+                        <h6>实现草图</h6>
+                        <div class="code-block">
+contract HybridStablecoin {
+    // 储备类型
+    struct Reserve {
+        uint256 fiatBacked;      // USDC等
+        uint256 cryptoBacked;    // ETH等的美元价值
+        uint256 algorithmic;     // 协议控制价值
+    }
+    
+    // 稳定机制
+    function mint(uint256 amount, uint256 collateralType) external {
+        if (collateralType == FIAT) {
+            // 1:1 铸造
+            require(USDC.transferFrom(msg.sender, reserves, amount));
+        } else if (collateralType == CRYPTO) {
+            // 超额抵押铸造
+            uint256 requiredCollateral = amount * 150 / 100;
+            // ... 抵押逻辑
+        } else {
+            // 算法铸造（有限额）
+            require(algorithmicSupply + amount <= maxAlgorithmicSupply);
+            // ... 算法逻辑
+        }
+    }
+    
+    // 紧急机制
+    function emergencyPause() external onlyGuardian {
+        require(getPrice() < 0.90 || systemHealthScore() < 50);
+        _pause();
+        emit EmergencyPauseActivated();
+    }
+}
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>本章小结</h3>
+                <div class="tip">
+                    <strong>关键要点：</strong>
+                    <ul>
+                        <li><strong>法币抵押型</strong>：最稳定但中心化，适合大额交易和合规需求</li>
+                        <li><strong>加密抵押型</strong>：去中心化但资本效率低，是DeFi的基石</li>
+                        <li><strong>算法稳定币</strong>：资本效率高但风险大，纯算法模式已被证明不可行</li>
+                        <li><strong>混合模型</strong>：结合多种机制，是未来发展方向</li>
+                        <li><strong>风险意识</strong>：每种模型都有其特定风险，没有完美的稳定币</li>
+                    </ul>
+                </div>
+                
+                <h3>术语速查</h3>
+                <table style="width: 100%; margin: 1rem 0;">
+                    <tr>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">术语</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">英文</th>
+                        <th style="text-align: left; padding: 0.5rem; background: #f1f5f9;">含义</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">锚定</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">Peg</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">稳定币维持1:1美元价值</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">铸造/销毁</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">Mint/Burn</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">创建/销毁稳定币的过程</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">抵押率</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">Collateral Ratio</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">抵押品价值/债务价值</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">清算</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">Liquidation</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">抵押不足时强制平仓</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">死亡螺旋</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">Death Spiral</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">价格下跌引发的恶性循环</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">软清算</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">Soft Liquidation</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">渐进式清算，减少市场冲击</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">协议控制价值</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">PCV</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">协议直接拥有的资产</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">算法市场操作</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">AMO</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">协议自动化市场干预</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
@@ -2862,6 +4464,7 @@ contract L2OptimizedStablecoin {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
     <script>
         function toggleAnswer(answerId) {
             const answerElement = document.getElementById(answerId);
@@ -2881,6 +4484,44 @@ contract L2OptimizedStablecoin {
             }
         }
         
+        // 导航栏切换
+        function toggleNav() {
+            const navMenu = document.getElementById('navMenu');
+            const navToggle = document.querySelector('.nav-toggle');
+            navMenu.classList.toggle('active');
+            navToggle.classList.toggle('active');
+        }
+        
+        // 监听滚动，更新活动导航项
+        function updateActiveNav() {
+            const sections = document.querySelectorAll('.chapter');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const chapterLinks = document.querySelectorAll('.chapter-list a');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+            
+            chapterLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
         // Initialize all code blocks
         document.addEventListener('DOMContentLoaded', function() {
             // Convert existing code blocks to new structure
@@ -2898,6 +4539,8 @@ contract L2OptimizedStablecoin {
                     language = 'solidity';
                 } else if (codeText.includes('npm ') || codeText.includes('npx ')) {
                     language = 'bash';
+                } else if (codeText.includes('import pandas') || codeText.includes('def ')) {
+                    language = 'python';
                 }
                 
                 // Create new structure
@@ -2914,6 +4557,21 @@ contract L2OptimizedStablecoin {
             
             // Apply syntax highlighting
             Prism.highlightAll();
+            
+            // 添加滚动监听
+            window.addEventListener('scroll', updateActiveNav);
+            updateActiveNav();
+            
+            // 点击导航链接后关闭移动端菜单
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    const navMenu = document.getElementById('navMenu');
+                    const navToggle = document.querySelector('.nav-toggle');
+                    navMenu.classList.remove('active');
+                    navToggle.classList.remove('active');
+                });
+            });
         });
     </script>
 </body>
