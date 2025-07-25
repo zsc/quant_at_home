@@ -13454,25 +13454,161 @@ contract DeathSpiralPrevention {
 
         <h3>6.1 AMM基础原理与稳定币特性</h3>
         
-        <h4>6.1.1 恒定乘积做市商（CPMM）模型</h4>
-        <p>Uniswap开创的x*y=k模型是最基础的AMM模型。虽然简单，但对稳定币交易来说效率较低：</p>
+        <h4>6.1.1 从恒定乘积到恒定和：理论张力的建立</h4>
+        <p>要理解稳定币AMM的设计哲学，我们需要从两个极端模型开始：</p>
         
         <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
-            <p><strong>恒定乘积公式：</strong></p>
+            <h5>1. 恒定乘积模型（Constant Product）</h5>
             <p style="text-align: center; font-size: 1.2em;">x · y = k</p>
-            <p>其中：</p>
             <ul>
-                <li>x = 代币A的储备量</li>
-                <li>y = 代币B的储备量</li>
-                <li>k = 常数（流动性不变时）</li>
+                <li><strong>优点：</strong>永远有流动性，价格可以从0到∞</li>
+                <li><strong>缺点：</strong>即使是稳定币之间的小额交易也有显著滑点</li>
+                <li><strong>资本效率：</strong>极低 - 99%的流动性备用在0.9以下或1.1以上的价格区间</li>
             </ul>
-            <p><strong>价格公式：</strong>P = y/x</p>
-            <p><strong>滑点问题：</strong>对于稳定币对，即使是小额交易也会产生不必要的滑点</p>
+            
+            <h5>2. 恒定和模型（Constant Sum）</h5>
+            <p style="text-align: center; font-size: 1.2em;">x + y = k</p>
+            <ul>
+                <li><strong>优点：</strong>零滑点，完美的1:1兑换</li>
+                <li><strong>缺点：</strong>会完全耗尽其中一种资产，无法应对价格偏离</li>
+                <li><strong>致命缺陷：</strong>一旦出现微小的价格差异，套利者会瞬间清空"好"资产</li>
+            </ul>
+        </div>
+        
+        <div class="info-box">
+            <h5>🎯 核心设计挑战</h5>
+            <p><strong>稳定币AMM的本质是在两个极端之间寻找平衡：</strong></p>
+            <ul>
+                <li>我们想要恒定和模型的<strong>低滑点</strong>（在锚定价格附近）</li>
+                <li>我们需要恒定乘积模型的<strong>无限流动性</strong>（防止池子被抽干）</li>
+            </ul>
+            <p>这个理论张力推动了从Uniswap V3到Curve StableSwap的所有创新。</p>
         </div>
         
         <h4>6.1.2 稳定币AMM的特殊需求</h4>
         <div class="tip">
-            💡 <strong>关键洞察：</strong>稳定币之间的交易应该接近1:1，传统AMM在这种场景下资本效率极低。我们需要专门的曲线来优化稳定资产交易。
+            💡 <strong>稳定币交易的三大核心需求：</strong>
+            <ol>
+                <li><strong>极低滑点区间：</strong>在0.999-1.001范围内，滑点应接近零</li>
+                <li><strong>高资本效率：</strong>80%+的流动性应集中在±1%的价格范围内</li>
+                <li><strong>脱锚韧性：</strong>当稳定币脱锚时，协议应平滑过渡而非突然崩溃</li>
+            </ol>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">量化分析：不同AMM模型的效率对比 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-python"># 稳定币AMM效率对比分析
+import numpy as np
+import matplotlib.pyplot as plt
+
+class AMMComparison:
+    def __init__(self):
+        self.k = 1000000  # 初始流动性
+        
+    def constant_product_price(self, x):
+        """恒定乘积: x*y = k"""
+        return self.k / x
+    
+    def constant_sum_price(self, x):
+        """恒定和: x+y = k (价格始终为1)"""
+        return 1.0 if x < self.k else float('inf')
+    
+    def stableswap_price(self, x, A=100):
+        """简化的StableSwap价格函数"""
+        # 这是一个近似，实际计算更复杂
+        n = 2  # 两种资产
+        y = self.k - x  # 近似
+        
+        # 在平衡点附近表现像恒定和
+        # 在极端情况下表现像恒定乘积
+        balance_point = self.k / n
+        deviation = abs(x - balance_point) / balance_point
+        
+        # 混合权重
+        sum_weight = A / (A + deviation * 100)
+        product_weight = 1 - sum_weight
+        
+        # 混合价格
+        sum_price = 1.0
+        product_price = self.constant_product_price(x)
+        
+        return sum_weight * sum_price + product_weight * product_price
+    
+    def calculate_slippage(self, model, trade_size, initial_x=500000):
+        """计算不同交易规模的滑点"""
+        if model == 'product':
+            y_before = self.constant_product_price(initial_x)
+            y_after = self.constant_product_price(initial_x + trade_size)
+            # 实际获得的y
+            y_received = initial_x * y_before - (initial_x + trade_size) * y_after
+        elif model == 'sum':
+            y_received = trade_size  # 1:1兑换
+        else:  # stableswap
+            # 简化计算
+            price_impact = self.stableswap_price(initial_x + trade_size) - 1
+            y_received = trade_size * (1 - abs(price_impact))
+            
+        ideal_output = trade_size  # 理想的1:1兑换
+        slippage = (ideal_output - y_received) / ideal_output * 100
+        
+        return max(0, slippage)
+    
+    def visualize_comparison(self):
+        """可视化不同模型的表现"""
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+        
+        # 1. 价格曲线对比
+        x_range = np.linspace(100000, 900000, 1000)
+        
+        # 恒定乘积价格
+        cp_prices = [self.constant_product_price(x) for x in x_range]
+        # StableSwap价格 (不同A值)
+        ss_prices_low = [self.stableswap_price(x, A=10) for x in x_range]
+        ss_prices_med = [self.stableswap_price(x, A=100) for x in x_range]
+        ss_prices_high = [self.stableswap_price(x, A=1000) for x in x_range]
+        
+        ax1.plot(x_range/500000, cp_prices, label='Constant Product', linewidth=2)
+        ax1.plot(x_range/500000, ss_prices_low, label='StableSwap (A=10)', linewidth=2)
+        ax1.plot(x_range/500000, ss_prices_med, label='StableSwap (A=100)', linewidth=2)
+        ax1.plot(x_range/500000, ss_prices_high, label='StableSwap (A=1000)', linewidth=2)
+        ax1.axhline(y=1, color='black', linestyle='--', alpha=0.5, label='Constant Sum')
+        
+        ax1.set_xlabel('Pool Balance (x/balance_point)')
+        ax1.set_ylabel('Price (y/x)')
+        ax1.set_title('Price Curves Comparison')
+        ax1.legend()
+        ax1.grid(True, alpha=0.3)
+        ax1.set_ylim(0, 3)
+        
+        # 2. 滑点分析
+        trade_sizes = np.logspace(2, 5, 50)  # 100到100,000
+        
+        cp_slippages = [self.calculate_slippage('product', size) for size in trade_sizes]
+        ss_slippages = [self.calculate_slippage('stableswap', size) for size in trade_sizes]
+        
+        ax2.loglog(trade_sizes, cp_slippages, label='Constant Product', linewidth=2)
+        ax2.loglog(trade_sizes, ss_slippages, label='StableSwap (A=100)', linewidth=2)
+        
+        ax2.set_xlabel('Trade Size')
+        ax2.set_ylabel('Slippage (%)')
+        ax2.set_title('Slippage vs Trade Size')
+        ax2.legend()
+        ax2.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        return fig
+
+# 运行分析
+analyzer = AMMComparison()
+analyzer.visualize_comparison()
+
+# 计算具体数值
+print("$10,000 交易的滑点对比:")
+print(f"Constant Product: {analyzer.calculate_slippage('product', 10000):.3f}%")
+print(f"StableSwap: {analyzer.calculate_slippage('stableswap', 10000):.3f}%")
+print(f"Constant Sum: {analyzer.calculate_slippage('sum', 10000):.3f}%")</code></pre>
+            </div>
         </div>
         
         <div class="code-block">
@@ -13535,7 +13671,18 @@ interface IStableSwap {
         <h3>6.2 Uniswap V2/V3集成策略</h3>
         
         <h4>6.2.1 Uniswap V2稳定币池分析</h4>
-        <p>虽然Uniswap V2不是为稳定币优化的，但由于其简单性和广泛采用，许多稳定币对仍在V2上交易：</p>
+        <p>虽然Uniswap V2不是为稳定币优化的，但由于其简单性和广泛采用，许多稳定币对仍在V2上交易。让我们量化其低效性：</p>
+        
+        <div class="info-box">
+            <h5>📊 V2资本效率的量化分析</h5>
+            <p>以USDC/DAI池为例（假设均衡状态各有$50M）：</p>
+            <ul>
+                <li>价格在0.99-1.01之间的流动性：仅占总流动性的<strong>2%</strong></li>
+                <li>价格在0.95-1.05之间的流动性：约占<strong>10%</strong></li>
+                <li>剩余90%的流动性备用在几乎不可能触及的价格区间</li>
+            </ul>
+            <p><strong>结果：</strong>$100M的TVL中，只有$2M在日常交易中被有效利用</p>
+        </div>
         
         <div class="code-block">
             <div class="code-header" onclick="toggleCode(this)">Uniswap V2稳定币对实现 <span class="toggle-icon">▼</span></div>
@@ -13649,15 +13796,47 @@ interface IStableSwap {
         </div>
         
         <h4>6.2.2 Uniswap V3集中流动性优化</h4>
-        <p>Uniswap V3的集中流动性特性使其更适合稳定币交易，因为LP可以将流动性集中在1:1附近：</p>
+        <p>Uniswap V3的集中流动性是一把双刃剑 - 它极大提升了资本效率，但也引入了新的风险维度：</p>
         
         <div class="tip-box">
-            <strong>📊 集中流动性优势：</strong>
+            <strong>📊 集中流动性的收益与风险：</strong>
+            <table style="width: 100%; margin-top: 1rem;">
+                <tr style="background: #f0f4f8;">
+                    <th style="padding: 0.5rem; border: 1px solid #ddd;">维度</th>
+                    <th style="padding: 0.5rem; border: 1px solid #ddd;">优势</th>
+                    <th style="padding: 0.5rem; border: 1px solid #ddd;">风险</th>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">资本效率</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">提升10-100倍</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">需要主动管理</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">无常损失</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">范围内收益更高</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">脱锚时IL放大5-10倍</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">费用收益</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">集中获取90%+费用</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">价格离开范围收益为0</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Gas成本</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">单次操作高效</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">频繁再平衡成本高</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="info-box">
+            <h5>⚠️ 稳定币脱锚时的V3风险分析</h5>
+            <p>假设USDC/DAI池，LP在[0.999, 1.001]范围提供流动性：</p>
             <ul>
-                <li>资本效率提升：相同流动性下滑点降低10-100倍</li>
-                <li>费用收益增加：集中的流动性获得更多交易费</li>
-                <li>精确的价格范围：可以设置0.999-1.001的狭窄区间</li>
-                <li>动态费率：可根据市场条件选择0.01%、0.05%或0.3%费率</li>
+                <li>正常情况：捕获95%+的交易费用，IL接近0</li>
+                <li>DAI脱锚至0.998：整个仓位100%转换为DAI（贬值资产）</li>
+                <li>损失计算：相比持有50/50，损失放大至原来的<strong>50倍</strong></li>
+                <li>恢复困难：即使价格恢复，也需要主动再平衡才能恢复原始比例</li>
             </ul>
         </div>
         
@@ -13836,25 +14015,251 @@ interface IStableSwap {
 
         <h3>6.3 Curve StableSwap深度解析</h3>
         
-        <h4>6.3.1 StableSwap不变量</h4>
-        <p>Curve的StableSwap算法是专门为稳定资产设计的AMM，其核心是一个混合了恒定和与恒定积的不变量：</p>
+        <h4>6.3.1 StableSwap不变量的数学推导</h4>
+        <p>Curve的天才之处在于创造了一个在恒定和与恒定积之间优雅过渡的混合不变量：</p>
         
         <div style="background: #e0e7ff; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
-            <p><strong>StableSwap不变量：</strong></p>
-            <p style="text-align: center; font-size: 1.2em;">
+            <h5>从第一性原理推导StableSwap公式</h5>
+            <p><strong>1. 起点：两个极端的混合</strong></p>
+            <p>恒定和：Σx<sub>i</sub> = D（零滑点但会耗尽）</p>
+            <p>恒定积：Π(x<sub>i</sub>/n) = (D/n)<sup>n</sup>（无限流动性但高滑点）</p>
+            
+            <p><strong>2. 混合不变量：</strong></p>
+            <p style="text-align: center; font-size: 1.2em; margin: 1rem 0;">
+                χ·Σx<sub>i</sub> + Π(x<sub>i</sub>) = χ·D + (D/n)<sup>n</sup>
+            </p>
+            <p>其中χ是混合参数，控制两种模型的权重</p>
+            
+            <p><strong>3. 引入放大系数A：</strong></p>
+            <p>令χ = An<sup>n</sup>，得到最终的StableSwap不变量：</p>
+            <p style="text-align: center; font-size: 1.2em; background: #fff; padding: 1rem; border-radius: 4px;">
                 An<sup>n</sup>Σx<sub>i</sub> + D = ADn<sup>n</sup> + D<sup>n+1</sup>/(n<sup>n</sup>Πx<sub>i</sub>)
             </p>
-            <p>其中：</p>
-            <ul>
-                <li>A = 放大系数（控制曲线平坦度）</li>
-                <li>n = 池中代币数量</li>
-                <li>x<sub>i</sub> = 代币i的余额</li>
-                <li>D = 不变量（类似于总流动性）</li>
-            </ul>
         </div>
         
         <div class="tip">
-            💡 <strong>关键洞察：</strong>当A值很大时，曲线在平衡点附近非常平坦，提供接近零滑点的交易。但远离平衡点时，曲线会快速变陡，防止池子被抽干。
+            💡 <strong>放大系数A的直观理解：</strong>
+            <ul>
+                <li>A → 0：公式退化为恒定乘积（类似Uniswap）</li>
+                <li>A → ∞：公式趋近恒定和（完美的稳定币交换）</li>
+                <li>A = 100：实践中的平衡点，在±2%范围内提供极低滑点</li>
+            </ul>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">StableSwap曲线可视化与参数影响分析 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-python"># Curve StableSwap可视化分析
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import newton
+
+class StableSwapVisualization:
+    def __init__(self, n_coins=2):
+        self.n = n_coins
+        self.precision = 10**18
+        
+    def get_D(self, xp, amp):
+        """计算D值 - StableSwap的核心"""
+        S = sum(xp)
+        if S == 0:
+            return 0
+            
+        D = S
+        Ann = amp * self.n
+        
+        for _ in range(255):
+            D_P = D
+            for x in xp:
+                D_P = D_P * D // (x * self.n)
+            Dprev = D
+            D = (Ann * S // amp + D_P * self.n) * D // ((Ann - amp) * D // amp + (self.n + 1) * D_P)
+            
+            if abs(D - Dprev) <= 1:
+                break
+                
+        return D
+    
+    def get_y(self, i, j, x, xp, amp):
+        """给定x计算y - 交易的核心计算"""
+        D = self.get_D(xp, amp)
+        
+        S_ = sum(xp) - xp[i] - xp[j] + x
+        c = D
+        Ann = amp * self.n
+        
+        for k in range(self.n):
+            if k != i and k != j:
+                c = c * D // (xp[k] * self.n)
+        c = c * D * amp // (Ann * self.n)
+        
+        b = S_ + D * amp // Ann
+        y_prev = 0
+        y = D
+        
+        for _ in range(255):
+            y_prev = y
+            y = (y * y + c) // (2 * y + b - D)
+            if abs(y - y_prev) <= 1:
+                break
+                
+        return y
+    
+    def visualize_curves(self):
+        """可视化不同A值下的价格曲线"""
+        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+        
+        # 初始池子：平衡状态
+        initial_balance = 1000000
+        
+        # 1. 价格曲线对比
+        ax = axes[0, 0]
+        x_range = np.linspace(0.1 * initial_balance, 1.9 * initial_balance, 1000)
+        
+        for A in [0.1, 1, 10, 100, 1000]:
+            prices = []
+            for x in x_range:
+                xp = [int(x), initial_balance]
+                y = self.get_y(0, 1, int(x), xp, int(A * 100))
+                # 计算边际价格 dy/dx
+                price = (initial_balance - y) / (x - initial_balance) if x != initial_balance else 1
+                prices.append(price)
+            
+            ax.plot(x_range / initial_balance, prices, label=f'A={A}', linewidth=2)
+        
+        ax.axhline(y=1, color='black', linestyle='--', alpha=0.3)
+        ax.set_xlabel('相对储备量 (x/x₀)')
+        ax.set_ylabel('价格 (dy/dx)')
+        ax.set_title('不同A值下的价格曲线')
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        ax.set_ylim(0, 2)
+        
+        # 2. 资本效率分析
+        ax = axes[0, 1]
+        A_values = [1, 10, 50, 100, 500, 1000]
+        effective_liquidity = []
+        
+        for A in A_values:
+            # 计算±1%价格范围内的有效流动性比例
+            total_liquidity = 2 * initial_balance
+            x_1pct = initial_balance * 0.99
+            x_2pct = initial_balance * 1.01
+            
+            # 在这个范围内可交易的量
+            tradeable = (x_2pct - x_1pct) / total_liquidity * 100
+            effective_liquidity.append(tradeable)
+        
+        ax.bar(range(len(A_values)), effective_liquidity, color='skyblue', edgecolor='navy')
+        ax.set_xticks(range(len(A_values)))
+        ax.set_xticklabels([f'A={A}' for A in A_values])
+        ax.set_ylabel('有效流动性比例 (%)')
+        ax.set_title('±1%价格范围内的资本效率')
+        ax.grid(True, alpha=0.3, axis='y')
+        
+        # 3. 滑点分析
+        ax = axes[1, 0]
+        trade_sizes = np.logspace(2, 6, 50)  # $100 到 $1M
+        
+        for A in [10, 100, 1000]:
+            slippages = []
+            for size in trade_sizes:
+                # 计算交易产生的滑点
+                xp = [initial_balance, initial_balance]
+                y_out = initial_balance - self.get_y(0, 1, initial_balance + int(size), xp, int(A * 100))
+                slippage = (size - y_out) / size * 10000  # 基点
+                slippages.append(slippage)
+            
+            ax.loglog(trade_sizes, slippages, label=f'A={A}', linewidth=2)
+        
+        ax.set_xlabel('交易规模 ($)')
+        ax.set_ylabel('滑点 (基点)')
+        ax.set_title('交易规模 vs 滑点')
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        
+        # 4. A参数的风险收益权衡
+        ax = axes[1, 1]
+        A_range = np.logspace(0, 3, 100)
+        
+        # 计算不同指标
+        capital_efficiency = []
+        depeg_risk = []
+        
+        for A in A_range:
+            # 资本效率：1%范围内的深度
+            eff = min(100, A / 10)  # 简化模型
+            capital_efficiency.append(eff)
+            
+            # 脱锚风险：池子耗尽速度
+            risk = 100 / (1 + A / 100)  # 简化模型
+            depeg_risk.append(risk)
+        
+        ax2 = ax.twinx()
+        
+        line1 = ax.plot(A_range, capital_efficiency, 'b-', label='资本效率', linewidth=2)
+        line2 = ax2.plot(A_range, depeg_risk, 'r-', label='脱锚风险', linewidth=2)
+        
+        ax.set_xlabel('放大系数 A')
+        ax.set_ylabel('资本效率 (%)', color='b')
+        ax2.set_ylabel('脱锚风险指数', color='r')
+        ax.set_xscale('log')
+        ax.set_title('A参数的风险收益权衡')
+        
+        lines = line1 + line2
+        labels = [l.get_label() for l in lines]
+        ax.legend(lines, labels, loc='center right')
+        
+        ax.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        return fig
+    
+    def simulate_depeg_scenario(self, A=100, depeg_percent=5):
+        """模拟脱锚场景下的池子行为"""
+        initial = 1000000
+        results = {
+            'price': [],
+            'pool_ratio': [],
+            'trade_size': []
+        }
+        
+        # 模拟逐步脱锚
+        current_x = initial
+        current_y = initial
+        
+        for step in range(100):
+            # 套利者卖出贬值资产
+            trade_size = initial * 0.01  # 每次1%
+            
+            xp = [current_x, current_y]
+            new_y = self.get_y(0, 1, current_x + trade_size, xp, int(A * 100))
+            
+            received = current_y - new_y
+            current_x += trade_size
+            current_y = new_y
+            
+            # 计算价格
+            price = received / trade_size
+            pool_ratio = current_x / (current_x + current_y)
+            
+            results['price'].append(price)
+            results['pool_ratio'].append(pool_ratio)
+            results['trade_size'].append(step * trade_size)
+            
+            if price < (1 - depeg_percent/100):
+                break
+                
+        return results
+
+# 运行可视化
+visualizer = StableSwapVisualization()
+visualizer.visualize_curves()
+
+# 模拟脱锚场景
+depeg_results = visualizer.simulate_depeg_scenario(A=100, depeg_percent=5)
+print(f"5%脱锚时，池子中稳定资产比例：{(1-depeg_results['pool_ratio'][-1])*100:.1f}%")</code></pre>
+            </div>
         </div>
         
         <div class="code-block">
@@ -14120,6 +14525,311 @@ interface IStableSwap {
         return mint_amount;
     }
 }</code></pre>
+            </div>
+        </div>
+        
+        <h4>6.3.2 Curve V2：动态调整的自适应AMM</h4>
+        <p>Curve V2（也称为Tricrypto）是DeFi中最先进的AMM设计之一，它引入了自适应机制来处理波动资产：</p>
+        
+        <div class="info-box">
+            <h5>🚀 Curve V2的革命性创新</h5>
+            <ul>
+                <li><strong>内部预言机：</strong>使用EMA（指数移动平均）追踪"真实"市场价格</li>
+                <li><strong>动态放大系数：</strong>根据市场条件自动调整A值</li>
+                <li><strong>动态费用：</strong>池子失衡时提高费用，平衡时降低费用</li>
+                <li><strong>K值重定价：</strong>通过调整K值激励套利者恢复平衡</li>
+            </ul>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">Curve V2自适应机制实现 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">contract CurveV2Pool {
+    // V2核心参数
+    uint256 public A;           // 基础放大系数
+    uint256 public gamma;       // 风险参数（控制曲率）
+    uint256 public mid_fee;     // 基础费用
+    uint256 public out_fee;     // 最大费用
+    uint256 public fee_gamma;   // 费用调整速度
+    
+    // 内部预言机状态
+    uint256 public price_oracle;    // EMA价格
+    uint256 public price_scale;     // 当前池内价格
+    uint256 public last_prices_timestamp;
+    
+    // 动态A和gamma
+    uint256 public future_A;
+    uint256 public future_gamma;
+    uint256 public future_time;
+    
+    // 计算动态费用
+    function dynamic_fee() public view returns (uint256) {
+        // 获取当前价格偏离度
+        uint256 xp0 = balances[0] * PRECISION / price_scale;
+        uint256 xp1 = balances[1] * PRECISION;
+        
+        // 理想平衡点
+        uint256 ideal_balance = (xp0 + xp1) / 2;
+        
+        // 计算不平衡度
+        uint256 imbalance = xp0 > xp1 ? 
+            (xp0 - ideal_balance) * PRECISION / ideal_balance :
+            (ideal_balance - xp1) * PRECISION / ideal_balance;
+            
+        // 动态费用 = mid_fee + (out_fee - mid_fee) * imbalance^fee_gamma
+        uint256 fee = mid_fee;
+        if (imbalance > 0) {
+            // 使用近似的幂函数计算
+            uint256 fee_multiplier = pow_approx(imbalance, fee_gamma);
+            fee = mid_fee + (out_fee - mid_fee) * fee_multiplier / PRECISION;
+        }
+        
+        return fee;
+    }
+    
+    // 更新内部预言机
+    function tweak_price(
+        uint256 A_gamma,
+        uint256 new_price_scale,
+        uint256 K0_prev
+    ) internal {
+        // 时间衰减因子
+        uint256 time_since = block.timestamp - last_prices_timestamp;
+        uint256 alpha = exp_decay(time_since);
+        
+        // 更新EMA价格
+        price_oracle = (price_oracle * alpha + new_price_scale * (PRECISION - alpha)) / PRECISION;
+        
+        // 当价格偏离过大时，调整K值
+        uint256 price_deviation = new_price_scale > price_oracle ?
+            (new_price_scale - price_oracle) * PRECISION / price_oracle :
+            (price_oracle - new_price_scale) * PRECISION / price_oracle;
+            
+        if (price_deviation > allowed_extra_profit) {
+            // 重新定价K值，激励套利
+            K0 = K0 * (PRECISION + adjustment_step) / PRECISION;
+        }
+        
+        price_scale = new_price_scale;
+        last_prices_timestamp = block.timestamp;
+        
+        emit PriceOracleUpdated(price_oracle, price_scale);
+    }
+    
+    // 自适应参数调整
+    function update_parameters(
+        uint256 _future_A,
+        uint256 _future_gamma,
+        uint256 _future_time
+    ) external onlyOwner {
+        require(_future_time > block.timestamp + MIN_RAMP_TIME, "Too soon");
+        
+        // 限制参数变化幅度
+        require(_future_A > A / 10 && _future_A < A * 10, "A change too large");
+        require(_future_gamma > gamma / 10 && _future_gamma < gamma * 10, "gamma change too large");
+        
+        future_A = _future_A;
+        future_gamma = _future_gamma;
+        future_time = _future_time;
+        
+        emit ParametersUpdateScheduled(_future_A, _future_gamma, _future_time);
+    }
+    
+    // 获取当前有效参数（线性插值）
+    function get_A_gamma() public view returns (uint256 A_effective, uint256 gamma_effective) {
+        uint256 t = block.timestamp;
+        
+        if (t < future_time) {
+            // 线性过渡
+            uint256 elapsed = t - initial_time;
+            uint256 total_time = future_time - initial_time;
+            
+            A_effective = initial_A + (future_A - initial_A) * elapsed / total_time;
+            gamma_effective = initial_gamma + (future_gamma - initial_gamma) * elapsed / total_time;
+        } else {
+            A_effective = future_A;
+            gamma_effective = future_gamma;
+        }
+    }
+    
+    // 防止价格操纵的延迟机制
+    function claim_admin_fees() external {
+        require(block.timestamp > last_claim_time + MIN_CLAIM_INTERVAL, "Too frequent");
+        
+        // 只有当价格稳定时才能提取费用
+        uint256 price_threshold = PRECISION * 2 / 100; // 2%
+        require(
+            abs_diff(price_scale, price_oracle) < price_threshold,
+            "Price not stable"
+        );
+        
+        // 计算并转移管理费
+        uint256 admin_share = calculate_admin_fees();
+        _transfer_fees(admin_share);
+        
+        last_claim_time = block.timestamp;
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">V2参数优化的AI/ML方法 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-python"># 使用强化学习优化Curve V2参数
+import numpy as np
+import torch
+import torch.nn as nn
+from collections import deque
+
+class CurveV2Optimizer:
+    """基于深度强化学习的Curve V2参数优化器"""
+    
+    def __init__(self):
+        self.state_dim = 10  # 市场状态维度
+        self.action_dim = 4   # A, gamma, mid_fee, out_fee
+        
+        # 策略网络
+        self.policy_net = nn.Sequential(
+            nn.Linear(self.state_dim, 256),
+            nn.ReLU(),
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.Linear(128, self.action_dim),
+            nn.Sigmoid()  # 输出0-1范围
+        )
+        
+        # 经验回放
+        self.memory = deque(maxlen=10000)
+        
+    def get_market_state(self, pool_data):
+        """提取市场状态特征"""
+        state = []
+        
+        # 1. 价格偏离度
+        price_deviation = abs(pool_data['price_scale'] - pool_data['price_oracle']) / pool_data['price_oracle']
+        state.append(price_deviation)
+        
+        # 2. 池子不平衡度
+        total = sum(pool_data['balances'])
+        imbalance = max(pool_data['balances']) / total - 0.5
+        state.append(imbalance)
+        
+        # 3. 历史波动率（24h）
+        volatility = np.std(pool_data['price_history'][-96:]) / np.mean(pool_data['price_history'][-96:])
+        state.append(volatility)
+        
+        # 4. 交易量趋势
+        volume_ma_short = np.mean(pool_data['volume_history'][-24:])
+        volume_ma_long = np.mean(pool_data['volume_history'][-168:])
+        volume_trend = volume_ma_short / (volume_ma_long + 1e-8) - 1
+        state.append(volume_trend)
+        
+        # 5. 费用收益率
+        fee_apr = pool_data['fees_24h'] * 365 / pool_data['tvl']
+        state.append(fee_apr)
+        
+        # 6. 无常损失估计
+        il_estimate = self.estimate_impermanent_loss(pool_data)
+        state.append(il_estimate)
+        
+        # 7-10. 其他市场指标
+        state.extend([
+            pool_data['gas_price_gwei'] / 100,  # 标准化gas价格
+            pool_data['market_fear_greed'] / 100,  # 市场情绪
+            pool_data['competing_pools_tvl'] / pool_data['tvl'],  # 竞争态势
+            pool_data['arbitrage_volume'] / pool_data['total_volume']  # 套利占比
+        ])
+        
+        return np.array(state, dtype=np.float32)
+    
+    def predict_optimal_params(self, market_state):
+        """预测最优参数"""
+        with torch.no_grad():
+            state_tensor = torch.FloatTensor(market_state).unsqueeze(0)
+            raw_output = self.policy_net(state_tensor)
+            
+            # 将网络输出映射到实际参数范围
+            params = {
+                'A': int(10 + raw_output[0, 0].item() * 990),  # 10-1000
+                'gamma': int(1e14 + raw_output[0, 1].item() * 9e14),  # 0.0001-0.001
+                'mid_fee': int(1e6 + raw_output[0, 2].item() * 4e6),  # 0.01%-0.05%
+                'out_fee': int(1e7 + raw_output[0, 3].item() * 9e7)   # 0.1%-1%
+            }
+            
+        return params
+    
+    def simulate_parameter_impact(self, pool_state, new_params, horizon=24):
+        """模拟参数变更的影响"""
+        results = {
+            'revenue': [],
+            'il': [],
+            'volume': [],
+            'price_stability': []
+        }
+        
+        # 蒙特卡洛模拟
+        for _ in range(100):
+            sim_pool = self.create_pool_copy(pool_state)
+            sim_pool.update_parameters(new_params)
+            
+            for hour in range(horizon):
+                # 模拟市场活动
+                trades = self.generate_random_trades()
+                
+                for trade in trades:
+                    revenue = sim_pool.execute_trade(trade)
+                    results['revenue'].append(revenue)
+                
+                # 记录指标
+                results['il'].append(sim_pool.calculate_il())
+                results['volume'].append(sim_pool.get_volume())
+                results['price_stability'].append(sim_pool.get_price_stability())
+        
+        # 计算预期收益
+        expected_performance = {
+            'revenue': np.mean(results['revenue']),
+            'il': np.mean(results['il']),
+            'volume': np.mean(results['volume']),
+            'sharpe_ratio': self.calculate_sharpe_ratio(results)
+        }
+        
+        return expected_performance
+    
+    def auto_tune_parameters(self, pool_address):
+        """自动调参主循环"""
+        pool = CurveV2Pool(pool_address)
+        
+        while True:
+            # 获取当前市场状态
+            pool_data = pool.get_current_data()
+            market_state = self.get_market_state(pool_data)
+            
+            # 预测最优参数
+            optimal_params = self.predict_optimal_params(market_state)
+            
+            # 模拟影响
+            impact = self.simulate_parameter_impact(pool_data, optimal_params)
+            
+            # 决策：是否更新参数
+            if impact['sharpe_ratio'] > pool_data['current_sharpe'] * 1.1:
+                # 预期性能提升10%以上，执行更新
+                print(f"Updating parameters: {optimal_params}")
+                pool.schedule_parameter_update(optimal_params)
+                
+                # 记录结果用于学习
+                self.memory.append({
+                    'state': market_state,
+                    'action': optimal_params,
+                    'reward': None  # 将在未来填充实际结果
+                })
+            
+            # 等待下一个周期
+            time.sleep(3600)  # 每小时检查一次
+
+# 使用示例
+optimizer = CurveV2Optimizer()
+optimizer.auto_tune_parameters("0x...")  # Curve V2池地址</code></pre>
             </div>
         </div>
 
@@ -14434,6 +15144,263 @@ interface IStableSwap {
     }
 }</code></pre>
             </div>
+        </div>
+
+        <h3>6.5 2024年最新发展趋势</h3>
+        
+        <h4>6.5.1 Uniswap V4 Hooks：可组合的AMM新范式</h4>
+        <div class="info-box">
+            <h5>🔗 Hooks带来的革命性变化</h5>
+            <ul>
+                <li><strong>自定义逻辑：</strong>在交易生命周期的任何点插入自定义代码</li>
+                <li><strong>动态费用：</strong>基于任意逻辑实时调整费用</li>
+                <li><strong>MEV内部化：</strong>将MEV收益返还给LP而非套利者</li>
+                <li><strong>条件订单：</strong>实现限价单、止损单等复杂订单类型</li>
+            </ul>
+        </div>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">Uniswap V4 稳定币专用Hook示例 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-solidity">contract StablecoinOptimizedHook is BaseHook {
+    using FixedPoint96 for uint256;
+    
+    // Hook配置
+    struct HookConfig {
+        uint24 baseFee;           // 基础费用
+        uint24 maxFee;            // 最大费用
+        uint256 targetRatio;      // 目标平衡比例
+        uint256 priceThreshold;   // 价格偏离阈值
+        bool enableMEVProtection; // MEV保护开关
+    }
+    
+    mapping(PoolId => HookConfig) public poolConfigs;
+    mapping(PoolId => uint256) public lastTradeTimestamp;
+    
+    function beforeSwap(
+        address sender,
+        PoolKey calldata key,
+        IPoolManager.SwapParams calldata params
+    ) external override returns (bytes4) {
+        // 1. 动态费用调整
+        uint24 dynamicFee = calculateDynamicFee(key.toId(), params);
+        
+        // 2. MEV保护：检测潜在的三明治攻击
+        if (poolConfigs[key.toId()].enableMEVProtection) {
+            require(
+                block.timestamp > lastTradeTimestamp[key.toId()] + 1,
+                "Too frequent trading"
+            );
+        }
+        
+        // 3. 大额交易警告
+        if (params.amountSpecified > getPoolLiquidity(key.toId()) / 100) {
+            emit LargeTradeWarning(sender, params.amountSpecified);
+        }
+        
+        // 更新费用
+        poolManager.updateDynamicFee(key, dynamicFee);
+        
+        return BaseHook.beforeSwap.selector;
+    }
+    
+    function afterSwap(
+        address sender,
+        PoolKey calldata key,
+        IPoolManager.SwapParams calldata params,
+        BalanceDelta delta
+    ) external override returns (bytes4) {
+        // 1. 更新价格预言机
+        updateInternalOracle(key.toId(), delta);
+        
+        // 2. 检查是否需要触发再平衡
+        if (shouldRebalance(key.toId())) {
+            triggerRebalance(key.toId());
+        }
+        
+        // 3. 分配MEV收益给LP
+        uint256 mevRevenue = calculateMEVRevenue(params, delta);
+        if (mevRevenue > 0) {
+            distributeMEVToLPs(key.toId(), mevRevenue);
+        }
+        
+        lastTradeTimestamp[key.toId()] = block.timestamp;
+        
+        return BaseHook.afterSwap.selector;
+    }
+    
+    function calculateDynamicFee(
+        PoolId poolId,
+        IPoolManager.SwapParams calldata params
+    ) internal view returns (uint24) {
+        HookConfig memory config = poolConfigs[poolId];
+        
+        // 获取池子状态
+        (uint256 balance0, uint256 balance1) = getPoolBalances(poolId);
+        uint256 totalBalance = balance0 + balance1;
+        
+        // 计算不平衡度
+        uint256 imbalance = balance0 > balance1 ?
+            (balance0 - balance1) * 1e6 / totalBalance :
+            (balance1 - balance0) * 1e6 / totalBalance;
+            
+        // 根据交易方向调整费用
+        bool isBalancing = (params.zeroForOne && balance0 > balance1) ||
+                          (!params.zeroForOne && balance1 > balance0);
+                          
+        if (isBalancing) {
+            // 有助于平衡的交易，降低费用
+            return config.baseFee / 2;
+        } else {
+            // 加剧不平衡的交易，提高费用
+            uint24 fee = config.baseFee + uint24(imbalance * (config.maxFee - config.baseFee) / 1e6);
+            return fee > config.maxFee ? config.maxFee : fee;
+        }
+    }
+}</code></pre>
+            </div>
+        </div>
+        
+        <h4>6.5.2 AI驱动的流动性管理</h4>
+        <p>2024年见证了AI在DeFi中的实际应用，特别是在流动性管理和参数优化方面：</p>
+        
+        <div class="code-block">
+            <div class="code-header" onclick="toggleCode(this)">基于Transformer的流动性预测模型 <span class="toggle-icon">▼</span></div>
+            <div class="code-content" style="display: none;">
+                <pre><code class="language-python"># 使用Transformer预测最优流动性分配
+import torch
+import torch.nn as nn
+import numpy as np
+from transformers import TimeSeriesTransformerModel
+
+class LiquidityOptimizer:
+    def __init__(self):
+        # 预训练的市场预测模型
+        self.market_predictor = TimeSeriesTransformerModel.from_pretrained(
+            "defi-market-predictor-v2"
+        )
+        
+        # 流动性分配网络
+        self.allocation_net = nn.Sequential(
+            nn.Linear(256, 512),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Linear(256, 10),  # 最多10个池子
+            nn.Softmax(dim=-1)
+        )
+        
+    def predict_market_conditions(self, historical_data):
+        """预测未来24小时的市场条件"""
+        # 准备输入数据
+        features = self.extract_features(historical_data)
+        
+        # Transformer预测
+        with torch.no_grad():
+            predictions = self.market_predictor(
+                input_ids=features['price_series'],
+                attention_mask=features['mask']
+            )
+        
+        # 解析预测结果
+        market_forecast = {
+            'volatility': predictions.volatility_forecast,
+            'volume': predictions.volume_forecast,
+            'correlation_matrix': predictions.correlation_forecast,
+            'black_swan_probability': predictions.tail_risk_estimate
+        }
+        
+        return market_forecast
+    
+    def optimize_liquidity_allocation(self, 
+                                    available_capital,
+                                    pool_candidates,
+                                    risk_tolerance):
+        """优化跨多个池子的流动性分配"""
+        
+        # 1. 获取市场预测
+        market_forecast = self.predict_market_conditions(self.get_market_data())
+        
+        # 2. 评估每个池子
+        pool_scores = []
+        for pool in pool_candidates:
+            score = self.evaluate_pool(pool, market_forecast)
+            pool_scores.append(score)
+        
+        # 3. 运行优化
+        allocation = self.solve_markowitz_optimization(
+            expected_returns=pool_scores['returns'],
+            covariance_matrix=pool_scores['risks'],
+            risk_tolerance=risk_tolerance
+        )
+        
+        # 4. 考虑实际约束
+        allocation = self.apply_practical_constraints(
+            allocation,
+            min_position_size=1000,  # $1000最小仓位
+            max_concentration=0.3,    # 单池最大30%
+            gas_budget=available_capital * 0.01  # 1% gas预算
+        )
+        
+        return allocation
+    
+    def real_time_rebalancing(self, current_positions):
+        """实时再平衡决策"""
+        rebalance_actions = []
+        
+        for position in current_positions:
+            # 计算当前表现
+            performance = self.calculate_position_performance(position)
+            
+            # 预测未来表现
+            future_performance = self.predict_position_performance(
+                position,
+                horizon=24  # 24小时
+            )
+            
+            # 再平衡决策
+            if self.should_rebalance(performance, future_performance):
+                action = self.generate_rebalance_action(position)
+                rebalance_actions.append(action)
+        
+        # 批量优化以节省gas
+        optimized_actions = self.batch_optimize_actions(rebalance_actions)
+        
+        return optimized_actions
+
+# 实际应用
+optimizer = LiquidityOptimizer()
+allocation = optimizer.optimize_liquidity_allocation(
+    available_capital=1000000,  # $1M
+    pool_candidates=['USDC/DAI', 'USDC/USDT', 'DAI/FRAX'],
+    risk_tolerance=0.05  # 5%最大回撤
+)</code></pre>
+            </div>
+        </div>
+        
+        <h4>6.5.3 跨链流动性聚合与原生稳定币</h4>
+        <div class="tip-box">
+            <strong>🌉 2024年跨链发展</strong>
+            <ul>
+                <li><strong>LayerZero OFT：</strong>原生跨链稳定币，无需桥接</li>
+                <li><strong>Chainlink CCIP：</strong>安全的跨链流动性转移</li>
+                <li><strong>统一流动性层：</strong>多链共享流动性池</li>
+                <li><strong>Intent-based架构：</strong>用户表达意图，协议自动寻找最优路径</li>
+            </ul>
+        </div>
+        
+        <h4>6.5.4 流动性激励与veTokenomics</h4>
+        <p>理解现代AMM不能忽视其经济激励层，特别是Curve开创的ve模型：</p>
+        
+        <div class="info-box">
+            <h5>💰 veTokenomics核心机制</h5>
+            <ul>
+                <li><strong>投票托管（Vote Escrow）：</strong>锁定治理代币获得投票权</li>
+                <li><strong>收益加速：</strong>veCRV持有者可将LP收益提升至2.5倍</li>
+                <li><strong>贿赂市场：</strong>协议通过贿赂veCRV持有者引导流动性</li>
+                <li><strong>Gauge权重：</strong>投票决定各池子的CRV释放量</li>
+            </ul>
         </div>
 
         <h3>练习题</h3>
@@ -15123,6 +16090,49 @@ interface IStableSwap {
                 <td style="border: 1px solid #ddd; padding: 8px;">在交易前临时添加的流动性</td>
             </tr>
         </table>
+
+        <h3>第六章小结</h3>
+        <div class="info-box">
+            <h4>核心要点</h4>
+            <ul>
+                <li><strong>理论基础：</strong>从恒定乘积到恒定和，理解AMM模型的数学本质</li>
+                <li><strong>效率优化：</strong>从V2到V3，集中流动性提升100倍资本效率但增加风险</li>
+                <li><strong>稳定币专用：</strong>Curve StableSwap通过混合不变量实现低滑点高效率</li>
+                <li><strong>动态调整：</strong>Curve V2的自适应系统，根据市场状态调整参数</li>
+                <li><strong>前沿发展：</strong>Uniswap V4 Hooks、AI驱动优化、跨链聚合</li>
+            </ul>
+        </div>
+
+        <div class="example-box">
+            <h4>实践建议</h4>
+            <ol>
+                <li><strong>风险评估：</strong>部署前必须进行无常损失和脱锚风险的定量分析</li>
+                <li><strong>参数选择：</strong>根据资产特性和市场环境合理设置放大系数A</li>
+                <li><strong>MEV防护：</strong>实施TWAP、批量交易等机制保护用户</li>
+                <li><strong>监控系统：</strong>建立实时监控，及时响应市场异常</li>
+                <li><strong>治理机制：</strong>通过veToken等模型建立可持续的激励体系</li>
+            </ol>
+        </div>
+
+        <div class="warning-box">
+            <h4>风险提醒</h4>
+            <ul>
+                <li><strong>流动性风险：</strong>极端市场条件下可能出现流动性枯竭</li>
+                <li><strong>Oracle风险：</strong>价格预言机操纵可能导致协议损失</li>
+                <li><strong>智能合约风险：</strong>代码漏洞可能被利用造成资金损失</li>
+                <li><strong>治理攻击：</strong>恶意提案可能损害协议利益</li>
+                <li><strong>监管风险：</strong>法规变化可能影响协议运营</li>
+            </ul>
+        </div>
+
+        <h3>推荐阅读</h3>
+        <ul>
+            <li><a href="https://curve.fi/files/stableswap-paper.pdf" target="_blank">Curve StableSwap Whitepaper</a></li>
+            <li><a href="https://uniswap.org/whitepaper-v3.pdf" target="_blank">Uniswap V3 Core</a></li>
+            <li><a href="https://github.com/Uniswap/v4-core" target="_blank">Uniswap V4 Documentation</a></li>
+            <li><a href="https://arxiv.org/abs/2103.12732" target="_blank">Automated Market Making: Theory and Practice</a></li>
+            <li><a href="https://ethereum.org/en/developers/docs/mev/" target="_blank">MEV Research Resources</a></li>
+        </ul>
     </div>
     
     <!-- 第七章：借贷协议 -->
