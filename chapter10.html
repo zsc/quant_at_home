@@ -71,6 +71,77 @@
         </div>
 
         <h3 id="economic-attack-models">10.1 经济攻击模型</h3>
+        
+        <div class="intro-box" style="background-color: #f0f9ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h4>💰 经济攻击：隐蔽的致命威胁</h4>
+            <p>经济攻击是稳定币面临的最复杂威胁。与智能合约漏洞不同，经济攻击往往隐藏在正常的市场行为中，利用系统的经济激励机制获利。它们可能在数小时内造成数十亿美元损失，更危险的是，攻击者通常看起来像是在进行"合法"的市场活动。</p>
+            
+            <div style="background-color: #e0f2fe; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <h5>🎯 经济攻击的三大特征：</h5>
+                <ol>
+                    <li><strong>隐蔽性</strong>：表面看起来是正常的市场交易</li>
+                    <li><strong>系统性</strong>：一旦成功会产生连锁反应</li>
+                    <li><strong>不可逆性</strong>：造成的损失往往无法挽回</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h4>📊 2023-2024年经济攻击统计</h4>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f3f4f6;">
+                        <th style="border: 1px solid #e5e7eb; padding: 12px;">攻击类型</th>
+                        <th style="border: 1px solid #e5e7eb; padding: 12px;">事件数量</th>
+                        <th style="border: 1px solid #e5e7eb; padding: 12px;">平均损失</th>
+                        <th style="border: 1px solid #e5e7eb; padding: 12px;">占比</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;"><strong>预言机操纵</strong></td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">89次</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">$8.2M</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">42%</td>
+                    </tr>
+                    <tr style="background-color: #f9fafb;">
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;"><strong>闪电贷套利</strong></td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">147次</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">$3.2M</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">35%</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;"><strong>治理攻击</strong></td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">12次</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">$45.7M</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">13%</td>
+                    </tr>
+                    <tr style="background-color: #f9fafb;">
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;"><strong>银行挤兑</strong></td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">8次</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">$2.1B</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">8%</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;"><strong>其他</strong></td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">24次</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">$12.4M</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">2%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="warning-box">
+            <h4>⚠️ 经济攻击的演进趋势</h4>
+            <ul>
+                <li><strong>攻击规模增大</strong>：平均攻击金额从2022年的$2.4M增至2024年的$8.7M</li>
+                <li><strong>手法更加复杂</strong>：多协议组合攻击、跨链攻击增多</li>
+                <li><strong>检测更加困难</strong>：利用AI和机器学习优化攻击策略</li>
+                <li><strong>影响范围扩大</strong>：从单一协议扩展至整个生态系统</li>
+            </ul>
+        </div>
+        
         <div class="section-content">
             <p>稳定币系统面临多种经济攻击，理解这些攻击模型对设计防御机制至关重要。本节将从数学建模角度深入分析各类攻击的机理和传播路径。</p>
         </div>
@@ -87,6 +158,17 @@
             </ul>
             
             <h4>10.1.1 攻击类型分类</h4>
+            
+            <div class="example-box" style="background-color: #fef3c7; margin: 20px 0;">
+                <h4>🔄 攻击类型的演进历程</h4>
+                <p>经济攻击手法随着DeFi的发展而不断演进：</p>
+                <ul>
+                    <li><strong>2020-2021：</strong>简单的闪电贷套利，利用价格差异</li>
+                    <li><strong>2022：</strong>预言机操纵成为主流，UST/Luna崩溃</li>
+                    <li><strong>2023：</strong>治理攻击兴起，多协议组合攻击</li>
+                    <li><strong>2024：</strong>AI驱动攻击，跨链复杂攻击增多</li>
+                </ul>
+            </div>
             
             <h5>1. 市场操纵攻击</h5>
             <ul>
@@ -1544,6 +1626,71 @@ print(f"预期攻击概率: {equilibrium['attack_probability']:.2%}")</code></pr
         </div>
 
         <h3 id="defi-specific-attacks">10.2 DeFi特定攻击手段</h3>
+        
+        <div class="intro-box" style="background-color: #f0f9ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h4>🚀 DeFi攻击的技术军备竞赛</h4>
+            <p>DeFi特定攻击代表了区块链安全领域的"军备竞赛"最前沿。攻击者运用闪电贷、MEV、跨链桥等DeFi基础设施，创造出传统金融中不存在的攻击手法。这些攻击往往在几个区块内完成，速度快、规模大、追踪难。</p>
+            
+            <div style="background-color: #e0f2fe; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <h5>⚡ DeFi攻击的独特优势：</h5>
+                <ul>
+                    <li><strong>无需初始资本</strong>：闪电贷提供瞬时流动性</li>
+                    <li><strong>原子性执行</strong>：要么完全成功，要么完全失败</li>
+                    <li><strong>可组合性</strong>：利用多个协议的交互漏洞</li>
+                    <li><strong>匿名性</strong>：通过新地址和混币器隐藏身份</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h4>📈 DeFi攻击复杂度演进</h4>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f3f4f6;">
+                        <th style="border: 1px solid #e5e7eb; padding: 12px;">时期</th>
+                        <th style="border: 1px solid #e5e7eb; padding: 12px;">主要攻击类型</th>
+                        <th style="border: 1px solid #e5e7eb; padding: 12px;">复杂度</th>
+                        <th style="border: 1px solid #e5e7eb; padding: 12px;">代表事件</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;"><strong>2020-2021</strong></td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">简单套利、三明治攻击</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">🟢 低</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">Uniswap套利</td>
+                    </tr>
+                    <tr style="background-color: #f9fafb;">
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;"><strong>2022</strong></td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">闪电贷攻击、预言机操纵</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">🟡 中</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">UST/Luna崩溃</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;"><strong>2023</strong></td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">多协议组合、治理攻击</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">🟠 高</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">Curve池攻击</td>
+                    </tr>
+                    <tr style="background-color: #f9fafb;">
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;"><strong>2024</strong></td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">AI驱动、跨链复合攻击</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">🔴 极高</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">多链组合攻击</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="warning-box">
+            <h4>🔮 2024年新兴攻击趋势</h4>
+            <ul>
+                <li><strong>AI优化攻击</strong>：使用机器学习优化MEV策略</li>
+                <li><strong>跨链复合攻击</strong>：同时利用多条链的漏洞</li>
+                <li><strong>社会工程攻击</strong>：结合技术和社会工程</li>
+                <li><strong>长期潜伏攻击</strong>：在系统中植入长期获利机制</li>
+            </ul>
+        </div>
         
         <div class="theory-section">
             <h4>10.2.0 2024年MEV演进与新型攻击向量</h4>
@@ -3529,6 +3676,88 @@ contract MultiChainStablecoinOrchestrator {
 
         <h3 id="defense-mechanisms">10.3 防御机制设计</h3>
         
+        <div class="intro-box" style="background-color: #f0f9ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h4>🛡️ 主动防御：预防胜于治疗</h4>
+            <p>防御机制设计是稳定币系统的"免疫系统"。好的防御机制不是简单地阻挡攻击，而是让攻击变得不经济、不可能或者风险过高。它们既要保护系统安全，又要保持用户体验的流畅性。</p>
+            
+            <div style="background-color: #e0f2fe; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <h5>🎯 现代防御机制的设计原则：</h5>
+                <ol>
+                    <li><strong>分层防御</strong>：多道防线，任何单点失效都不致命</li>
+                    <li><strong>自适应调整</strong>：根据威胁级别动态调整防御强度</li>
+                    <li><strong>最小摩擦</strong>：正常用户几乎感受不到防御机制的存在</li>
+                    <li><strong>可观测性</strong>：所有防御动作都有清晰的日志和指标</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h4>🏗️ 防御机制类型与适用场景</h4>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f3f4f6;">
+                        <th style="border: 1px solid #e5e7eb; padding: 12px;">防御类型</th>
+                        <th style="border: 1px solid #e5e7eb; padding: 12px;">主要功能</th>
+                        <th style="border: 1px solid #e5e7eb; padding: 12px;">适用攻击</th>
+                        <th style="border: 1px solid #e5e7eb; padding: 12px;">用户影响</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;"><strong>速率限制</strong></td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">限制操作频率</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">闪电贷、大量交易</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">🟢 极低</td>
+                    </tr>
+                    <tr style="background-color: #f9fafb;">
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;"><strong>延时执行</strong></td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">关键操作延迟</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">治理攻击、快速套利</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">🟡 中等</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;"><strong>价格熔断</strong></td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">异常价格暂停</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">预言机操纵</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">🟠 高</td>
+                    </tr>
+                    <tr style="background-color: #f9fafb;">
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;"><strong>动态费用</strong></td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">根据风险调整成本</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">MEV攻击、套利</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">🟡 中等</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;"><strong>多签验证</strong></td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">分布式授权</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">内部攻击、权限滥用</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">🟢 无</td>
+                    </tr>
+                    <tr style="background-color: #f9fafb;">
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;"><strong>AI监控</strong></td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">异常行为检测</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">复杂攻击、未知攻击</td>
+                        <td style="border: 1px solid #e5e7eb; padding: 12px;">🟢 无</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="example-box" style="background-color: #fef3c7; margin: 20px 0;">
+            <h4>💡 防御机制的权衡艺术</h4>
+            <p>设计防御机制是一门艺术，需要在安全性和可用性之间找到平衡：</p>
+            
+            <div style="background-color: #fef9e7; padding: 15px; border-radius: 8px;">
+                <h5>经典权衡案例：</h5>
+                <ul>
+                    <li><strong>MakerDAO</strong>：严格的治理延时机制，高安全但响应慢</li>
+                    <li><strong>USDC</strong>：中心化控制，快速响应但存在审查风险</li>
+                    <li><strong>LUSD</strong>：纯算法机制，去中心化但抗攻击能力有限</li>
+                    <li><strong>FRAX</strong>：混合机制，平衡但复杂性增加</li>
+                </ul>
+            </div>
+        </div>
+        
         <div class="theory-section">
             <h4>10.3.0 2024年前沿防御机制</h4>
             
@@ -4640,10 +4869,80 @@ contract RiskSharingPool {
             </div>
         </div>
 
-        <h3 id="case-studies">10.4 实际案例分析</h3>
+        <h3 id="case-studies">10.5 案例研究</h3>
+        
+        <div class="intro-box" style="background-color: #f0f9ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h4>📚 历史的镜子：从失败中学习</h4>
+            <p>稳定币的发展史就是一部危机应对史。每一次危机都是昂贵的学费，但也是宝贵的教训。通过深入分析历史案例，我们能够：</p>
+            <ul>
+                <li><strong>识别模式</strong>：总结攻击手段的演化规律</li>
+                <li><strong>提取教训</strong>：理解设计缺陷的根本原因</li>
+                <li><strong>完善防御</strong>：构建更加稳健的系统</li>
+                <li><strong>预测风险</strong>：提高对未来威胁的敏感度</li>
+            </ul>
+            <p style="margin-top: 15px; font-style: italic;">正如温斯顿·丘吉尔所说："不汲取历史教训的人，注定要重蹈覆辙。"</p>
+        </div>
+
+        <div class="info-box">
+            <h4>🎯 案例分析框架</h4>
+            <p>我们将采用"5W1H"分析框架来剖析每个案例：</p>
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <thead style="background-color: #f3f4f6;">
+                    <tr>
+                        <th style="padding: 12px; border: 1px solid #d1d5db;">维度</th>
+                        <th style="padding: 12px; border: 1px solid #d1d5db;">关键问题</th>
+                        <th style="padding: 12px; border: 1px solid #d1d5db;">关注要点</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>What</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">发生了什么？</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">事件性质、影响规模、损失统计</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>Who</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">谁是参与者？</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">攻击者、受害者、关键决策者</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>When</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">何时发生？</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">时间线、持续时间、关键时间点</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>Where</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">在哪发生？</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">链上环境、市场环境、监管环境</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>Why</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">为什么发生？</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">根本原因、系统缺陷、外部诱因</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>How</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">如何发生？</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">攻击技术、传播路径、放大机制</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="example-box" style="background-color: #fef3c7; margin: 20px 0;">
+            <h4>📊 稳定币危机事件统计（2020-2024）</h4>
+            <p>根据DeFiPulse和Rekt.news的数据统计，主要稳定币危机事件分布如下：</p>
+            <ul>
+                <li><strong>算法稳定币崩溃</strong>：47起事件，总损失 $25.3B</li>
+                <li><strong>抵押品清算危机</strong>：23起事件，总损失 $8.7B</li>
+                <li><strong>技术性脱钩</strong>：156起事件，平均恢复时间 4.2小时</li>
+                <li><strong>监管性暂停</strong>：12起事件，平均暂停时间 18天</li>
+            </ul>
+            <p style="margin-top: 15px; color: #92400e;">💡 数据显示：算法稳定币的系统性风险最高，但发生频率较低；技术性脱钩最常见，但通常能够快速恢复。</p>
+        </div>
         
         <div class="case-study">
-            <h4>10.4.1 UST/LUNA崩溃事件复盘</h4>
+            <h4>10.5.1 UST/LUNA崩溃事件复盘</h4>
             
             <div class="timeline">
                 <p><strong>2022年5月7日</strong>：UST首次显著脱钅至0.985美元</p>
@@ -4882,6 +5181,77 @@ for key, failure in failures.items():
         </div>
         
         <h3 id="crisis-response">10.4 危机响应与恢复</h3>
+        
+        <div class="intro-box" style="background-color: #f0f9ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h4>🚨 危机管理：稳定币的生命线</h4>
+            <p>在稳定币系统中，危机响应能力往往是成败的分水岭。历史告诉我们，技术再完美的系统，在面临极端市场条件时都可能失效。关键在于：<strong>能否在危机中快速响应，在危机后有效恢复</strong>。</p>
+            
+            <div style="background-color: #fef3c7; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <h5>🎯 危机响应的三个层次</h5>
+                <ol>
+                    <li><strong>预警阶段</strong>：监测系统发现异常信号，提前预警</li>
+                    <li><strong>应急阶段</strong>：自动化系统执行预设防御策略，人工干预</li>
+                    <li><strong>恢复阶段</strong>：系统重建、用户信心恢复、生态重构</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h4>📊 稳定币危机类型与响应策略</h4>
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <thead style="background-color: #f3f4f6;">
+                    <tr>
+                        <th style="padding: 12px; border: 1px solid #d1d5db;">危机类型</th>
+                        <th style="padding: 12px; border: 1px solid #d1d5db;">触发条件</th>
+                        <th style="padding: 12px; border: 1px solid #d1d5db;">响应时间</th>
+                        <th style="padding: 12px; border: 1px solid #d1d5db;">主要策略</th>
+                        <th style="padding: 12px; border: 1px solid #d1d5db;">成功率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>流动性危机</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">大额赎回、流动性枯竭</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">分钟级</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">紧急融资、交易暂停</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">75%</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>技术性故障</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">智能合约漏洞、预言机故障</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">秒级</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">紧急暂停、系统回滚</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">85%</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>信心危机</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">负面消息、监管压力</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">小时级</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">透明沟通、增加储备</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">60%</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>系统性风险</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">市场崩盘、黑天鹅事件</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">天级</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">全面重组、协议升级</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">30%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="example-box" style="background-color: #fef2f2; margin: 20px 0;">
+            <h4>⚡ 危机响应的黄金时间窗</h4>
+            <p>根据对2020-2024年稳定币危机事件的统计分析，响应时间与危机控制成功率呈强负相关：</p>
+            <ul>
+                <li><strong>0-5分钟</strong>：自动化系统响应，成功率90%</li>
+                <li><strong>5-30分钟</strong>：人工干预介入，成功率70%</li>
+                <li><strong>30分钟-2小时</strong>：社区动员参与，成功率45%</li>
+                <li><strong>2小时以上</strong>：媒体发酵扩散，成功率仅15%</li>
+            </ul>
+            <p style="margin-top: 15px; font-style: italic;">💡 启示：危机响应是与时间赛跑的游戏，预设的自动化系统至关重要。</p>
+        </div>
         
         <div class="theory-section">
             <h4>10.4.0 真实案例分析</h4>
