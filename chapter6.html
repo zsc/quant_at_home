@@ -293,8 +293,30 @@ interface IStableSwap {
 
         <h3>6.2 Uniswap V2/V3集成策略</h3>
         
+        <div class="info-box">
+            <strong>🦄 Uniswap的演进史：</strong>
+            <ul>
+                <li><strong>V1 (2018)：</strong>ETH-ERC20交易对，概念验证</li>
+                <li><strong>V2 (2020)：</strong>任意ERC20对，闪电交换，时间加权平均价格(TWAP)</li>
+                <li><strong>V3 (2021)：</strong>集中流动性，资本效率提升4000倍，NFT头寸</li>
+                <li><strong>V4 (2024)：</strong>Hooks系统，允许自定义AMM逻辑</li>
+            </ul>
+            <p>每次迭代都为稳定币交易带来新的可能性。</p>
+        </div>
+        
         <h4>6.2.1 Uniswap V2稳定币池分析</h4>
-        <p>虽然Uniswap V2不是为稳定币优化的，但由于其简单性和广泛采用，许多稳定币对仍在V2上交易。让我们量化其低效性：</p>
+        <p>虽然Uniswap V2不是为稳定币优化的，但由于其简单性和广泫采用，许多稳定币对仍在V2上交易。让我们量化其低效性：</p>
+        
+        <div class="example-box">
+            <strong>💰 实际案例 - DAI/USDC池的演变：</strong>
+            <p>DAI/USDC是Uniswap V2上最早的主要稳定币池之一：</p>
+            <ul>
+                <li><strong>2020年5月：</strong>TVL $500万，日交易量$100万</li>
+                <li><strong>2021年高峰：</strong>TVL $1.5亿，但资本效率仅8%</li>
+                <li><strong>V3迁移后：</strong>相同交易量仅需$2000万TVL</li>
+                <li><strong>教训：</strong>V2的恒定乘积模型对稳定币对极其低效</li>
+            </ul>
+        </div>
         
         <div class="info-box">
             <h5>📊 V2资本效率的量化分析</h5>
