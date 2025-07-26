@@ -94,6 +94,48 @@
                 </li>
             </ul>
             
+            <div class="info-box" style="background-color: #e0f2fe; margin: 15px 0;">
+                <h5>📊 2024年RWA收益数据洞察</h5>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                    <tr>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">项目</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">资产类型</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">APY</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">TVL</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">风险等级</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">MakerDAO RWA</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">美国短期国债</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">5.2%</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$3.2B</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">低</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Ondo Finance</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">OUSG（国债ETF）</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">4.8%</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$180M</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">低</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Maple Finance</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">企业贷款</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">9-12%</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$150M</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">中</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Centrifuge</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">资产支持证券</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">6-8%</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$240M</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">中</td>
+                    </tr>
+                </table>
+                <p style="margin-top: 10px;"><strong>关键趋势：</strong>传统金融机构进场，BlackRock的BUIDL基金在Ethereum上推出，标志着RWA正式进入主流。</p>
+            </div>
+            
             <h5>2. 加密资产超额抵押型（DAI、LUSD）</h5>
             <ul>
                 <li><strong>稳定费/借款利息</strong>：
@@ -551,6 +593,33 @@ for lev in leverages:
                 </li>
                 <li><strong>设计要点</strong>：保持接口简洁，将复杂逻辑委托给子模块</li>
             </ul>
+            
+            <div class="example-box" style="background-color: #f0fdf4; margin: 15px 0;">
+                <h5>🎯 ERC-4626的革命性意义</h5>
+                <p><strong>为什么ERC-4626改变了收益聚合器的游戏规则？</strong></p>
+                <ul>
+                    <li><strong>标准化前（2022年以前）</strong>：
+                        <ul>
+                            <li>每个协议自定义接口</li>
+                            <li>集成成本高，易出错</li>
+                            <li>流动性碎片化严重</li>
+                        </ul>
+                    </li>
+                    <li><strong>标准化后（ERC-4626）</strong>：
+                        <ul>
+                            <li>统一的deposit/redeem接口</li>
+                            <li>份额计算标准化（shares vs assets）</li>
+                            <li>可组合性大幅提升</li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="formula" style="background: #f3f4f6; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                    <p><strong>核心公式：</strong></p>
+                    <p>shares = assets × totalSupply / totalAssets</p>
+                    <p>assets = shares × totalAssets / totalSupply</p>
+                    <p><em>注：精度处理和舍入方向是实现的关键细节</em></p>
+                </div>
+            </div>
             
             <h5>2. 策略（Strategy）- 策略模式（Strategy Pattern）</h5>
             <ul>
@@ -1063,6 +1132,67 @@ contract ConvexStrategy is IStrategy {
                 </li>
             </ul>
         </div>
+        
+        <div class="warning-box" style="background-color: #fef2f2; margin: 20px 0;">
+            <h5>⚠️ 自动复投的隐藏陷阱</h5>
+            <p><strong>案例分析：2023年某收益聚合器的复投攻击</strong></p>
+            <ul>
+                <li><strong>攻击手法</strong>：
+                    <ul>
+                        <li>攻击者监控复投交易模式</li>
+                        <li>在复投前大量买入收益代币</li>
+                        <li>复投推高价格后立即卖出</li>
+                        <li>损失：用户收益减少15%</li>
+                    </ul>
+                </li>
+                <li><strong>防御措施</strong>：
+                    <ul>
+                        <li>TWAP价格检查</li>
+                        <li>滑点保护（最大2%）</li>
+                        <li>延迟执行机制</li>
+                        <li>私有内存池交易</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="info-box" style="background-color: #ecfdf5; margin: 20px 0;">
+            <h5>💡 复投频率的数学优化</h5>
+            <p><strong>实证研究：基于2024年Ethereum主网数据</strong></p>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <tr>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">本金规模</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">Gas成本</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">最优频率</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">净收益提升</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$1,000</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$20/次</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">每月1次</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">+0.2%</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$10,000</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$20/次</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">每周1次</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">+0.8%</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$100,000</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$20/次</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">每天1次</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">+1.2%</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$1,000,000+</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$20/次</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">每8小时</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">+1.5%</td>
+                </tr>
+            </table>
+            <p style="margin-top: 10px;"><strong>关键洞察：</strong>Layer 2的低成本使得小额资金也能实现高频复投，Arbitrum上$1,000即可实现日复投。</p>
+        </div>
 
         <h4>8.3.2 跨链收益优化</h4>
         <div class="code-section">
@@ -1416,6 +1546,39 @@ contract CrossChainYieldRouter is Pausable {
                             <li>Renzo：流动性再质押</li>
                         </ul>
                     </li>
+                </ul>
+            </div>
+            
+            <div class="example-box" style="background-color: #fff7ed; margin: 20px 0;">
+                <h5>📈 Pendle的创新：收益代币化与固定收益</h5>
+                <p><strong>如何在波动的DeFi中创造固定收益产品？</strong></p>
+                <ul>
+                    <li><strong>PT（Principal Token）</strong>：本金代币
+                        <ul>
+                            <li>代表到期时的本金</li>
+                            <li>价格 = 本金 × 折现因子</li>
+                            <li>提供固定收益（如买入0.95 PT，到期获得1.0）</li>
+                        </ul>
+                    </li>
+                    <li><strong>YT（Yield Token）</strong>：收益代币
+                        <ul>
+                            <li>代表期间内的所有收益</li>
+                            <li>价格 = 预期总收益的现值</li>
+                            <li>提供杠杆收益敞口</li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="formula" style="background: #f3f4f6; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                    <p><strong>定价公式：</strong></p>
+                    <p>PT价格 = 1 / (1 + r)^t</p>
+                    <p>YT价格 = ∫[0,T] y(t) × e^(-r×t) dt</p>
+                    <p>其中：r = 无风险利率，y(t) = 预期收益率函数</p>
+                </div>
+                <p><strong>实际案例（2024年Q1）：</strong></p>
+                <ul>
+                    <li>stETH-PT（6个月）：5.2%固定APY</li>
+                    <li>stETH-YT：12-25%波动APY（取决于ETH质押率）</li>
+                    <li>市场规模：TVL超过$5B</li>
                 </ul>
             </div>
         </div>
