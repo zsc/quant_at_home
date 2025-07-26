@@ -80,12 +80,71 @@
             <h4>4.1.1 抵押债仓位(CDP)核心概念</h4>
             <p>CDP（Collateralized Debt Position，抵押债仓位）是抵押型稳定币的核心机制，允许用户通过锁定抵押品来铸造稳定币。让我们深入了解其工作原理：</p>
             
+            <div class="info-box">
+                <h5>🎯 CDP的发展历史</h5>
+                <p>CDP概念的演进：</p>
+                <ul>
+                    <li><strong>2014年 - BitUSD</strong>：BitShares首次实现基于CDP的稳定币</li>
+                    <li><strong>2017年 - SAI</strong>：MakerDAO的单抵押品系统（仅ETH）</li>
+                    <li><strong>2019年 - DAI</strong>：多抵押品DAI，支持30+种资产</li>
+                    <li><strong>2022年 - RWA</strong>：引入现实世界资产作为抵押品</li>
+                    <li><strong>2024年 - 多链</strong>：跨链 CDP系统兴起</li>
+                </ul>
+            </div>
+            
             <div class="tip">
                 💡 关键洞察：CDP本质上是一个智能合约控制的贷款系统，用户的抵押品被锁定在合约中，作为铸造稳定币的担保。
             </div>
             
+            <div class="example-box">
+                <h5>📊 CDP vs 传统贷款的对比</h5>
+                <table style="width: 100%; margin: 1rem 0;">
+                    <tr>
+                        <th style="padding: 0.5rem; background: #f1f5f9;">特征</th>
+                        <th style="padding: 0.5rem; background: #f1f5f9;">CDP系统</th>
+                        <th style="padding: 0.5rem; background: #f1f5f9;">传统贷款</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">审批流程</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">无需许可，立即执行</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">需要信用审核</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">抵押物</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">加密资产、RWA</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">房产、股票等</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">清算速度</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">即时自动执行</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">数周至数月</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">利率</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">算法动态调整</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">固定或浮动</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">透明度</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">完全链上透明</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">有限透明</td>
+                    </tr>
+                </table>
+            </div>
+            
             <h4>4.1.2 风险参数五元组</h4>
             <p>抵押型稳定币的安全性依赖于精心设计的风险参数。这些参数不是孤立的，而是相互影响的：</p>
+            
+            <div class="warning-box">
+                <h5>⚠️ 参数设定的重要性</h5>
+                <p>不当的参数设定可能导致：</p>
+                <ul>
+                    <li><strong>过于保守</strong>：资本效率低，用户体验差，竞争力不足</li>
+                    <li><strong>过于激进</strong>：系统风险高，可能导致坏账和崩盘</li>
+                    <li><strong>不平衡</strong>：某些抵押品被过度使用，集中度风险</li>
+                </ul>
+                <p><strong>案例</strong>：2020年3月，MakerDAO因ETH价格暴跌而出现$4M坏账，主要原因是清算参数设定不当。</p>
+            </div>
             
             <table class="comparison-table">
                 <tr>
@@ -134,6 +193,27 @@
                     <li><strong>Monte Carlo模拟：</strong>随机生成价格路径，评估系统在不同场景下的表现</li>
                     <li><strong>市场深度分析：</strong>考虑大规模清算对市场的冲击</li>
                 </ul>
+                <div class="code-snippet">
+                    <pre><code class="language-python"># VaR计算示例
+import numpy as np
+from scipy import stats
+
+# 计算某抵押品的95% VaR
+def calculate_var(returns, confidence=0.95):
+    # 假设收益率服从正态分布
+    mu, sigma = returns.mean(), returns.std()
+    var_95 = stats.norm.ppf(1-confidence, mu, sigma)
+    
+    # 考虑肥尾效应，使用t分布
+    nu = 4  # 自由度
+    var_95_t = stats.t.ppf(1-confidence, nu) * sigma + mu
+    
+    # 建议清算比率 = 1 / (1 + |var_95_t| * safety_factor)
+    safety_factor = 1.5  # 安全系数
+    liquidation_ratio = 1 / (1 + abs(var_95_t) * safety_factor)
+    
+    return liquidation_ratio</code></pre>
+                </div>
             </div>
             
             <div class="code-block">
@@ -254,6 +334,18 @@ contract CDPEngine {
             
             <h4>4.1.2 利率累积机制</h4>
             <p>稳定费（Stability Fee）是抵押型稳定币的重要收入来源，通过复利计算实现精确的利息累积：</p>
+            
+            <div class="example-box">
+                <h5>💰 稳定费的经济学意义</h5>
+                <p>稳定费不仅仅是借款利息，更是重要的货币政策工具：</p>
+                <ul>
+                    <li><strong>需求调节</strong>：通过调整利率控制稳定币供应量</li>
+                    <li><strong>风险补偿</strong>：不同抵押品的风险差异通过利率体现</li>
+                    <li><strong>协议收入</strong>：为系统缓冲池积累资金</li>
+                    <li><strong>市场信号</strong>：反映协议对市场状况的判断</li>
+                </ul>
+                <p><strong>实际数据</strong>：2021-2023年，MakerDAO通过稳定费获得超过$200M收入。</p>
+            </div>
             
             <div class="code-block">
                 <div class="code-header" onclick="toggleCode(this)">利率累积计算实现 <span class="toggle-icon">▼</span></div>
@@ -462,6 +554,16 @@ contract StabilityFeeCollector {
                     <li>支持部分清算，提高用户体验</li>
                     <li>更高的资本效率和更低的清算损失</li>
                 </ul>
+                <div class="code-snippet">
+                    <pre><code class="language-javascript">// Liquidation 2.0参数示例
+const liquidationParams = {
+    buf: '1.05',      // 5%初始折扣
+    tail: '8400',     // 140分钟拍卖时长
+    cusp: '0.60',     // 40%最大折扣
+    chip: '0.01',     // 1%最小竞价增幅
+    tip: '100',       // 100 DAI Keeper奖励
+};</code></pre>
+                </div>
             </div>
             
             <h4>4.2.1 清算触发条件</h4>
@@ -639,6 +741,22 @@ contract StabilityFeeCollector {
             <h4>4.2.3 Keeper激励机制与MEV防护</h4>
             <p>Keeper是维护系统健康的关键参与者，但也可能成为MEV攻击的来源。我们需要在激励和防护之间找到平衡：</p>
             
+            <div class="example-box">
+                <h5>👨‍💻 Keeper生态系统现状</h5>
+                <p>2024年Keeper市场数据：</p>
+                <ul>
+                    <li><strong>活跃Keeper数量</strong>：约200-300个专业团队</li>
+                    <li><strong>年收入规模</strong>：超过$100M（包括MEV）</li>
+                    <li><strong>竞争格局</strong>：
+                        <ul>
+                            <li>头部5%的Keeper获得70%收入</li>
+                            <li>清算速度：平均2-3个区块内完成</li>
+                            <li>成功率：约92%的清算被前10名Keeper执行</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            
             <div class="tip-box">
                 <strong>🕸️ MEV在清算中的两种主要形式：</strong>
                 <ul>
@@ -757,6 +875,28 @@ contract StabilityFeeCollector {
             
             <h4>4.3.1 预言机架构设计</h4>
             <p>价格预言机是抵押型稳定币的关键组件，需要确保价格的准确性和抗操纵性：</p>
+            
+            <div class="warning-box">
+                <h5>🎯 预言机攻击的真实案例</h5>
+                <ul>
+                    <li><strong>2019 bZx事件</strong>：通过操纵Kyber价格窃取$350k</li>
+                    <li><strong>2020 Harvest事件</strong>：利用Curve价格滞后窃取$24M</li>
+                    <li><strong>2021 Cream事件</strong>：通过操纵yUSD价格窃取$130M</li>
+                    <li><strong>2022 Mango事件</strong>：通过操纵MNGO价格窃取$100M</li>
+                </ul>
+                <p><strong>共同特征</strong>：依赖单一或少数价格源、缺乏延迟机制、未考虑市场操纵成本</p>
+            </div>
+            
+            <div class="info-box">
+                <h5>🔒 预言机安全最佳实践</h5>
+                <ul>
+                    <li><strong>多源聚合</strong>：至少使用3个独立数据源</li>
+                    <li><strong>时间加权平均（TWAP）</strong>：减少瞬间操纵影响</li>
+                    <li><strong>异常值过滤</strong>：剔除偷离平均值过远的数据</li>
+                    <li><strong>断路器机制</strong>：价格波动过大时暂停更新</li>
+                    <li><strong>延迟更新</strong>：防止闪电贷攻击</li>
+                </ul>
+            </div>
             
             <div class="code-block">
                 <div class="code-header" onclick="toggleCode(this)">预言机系统架构 <span class="toggle-icon">▼</span></div>
@@ -913,6 +1053,37 @@ contract ChainlinkPriceAdapter {
             <h4>4.3.3 TWAP价格保护</h4>
             <p>使用时间加权平均价格（TWAP）防止价格操纵：</p>
             
+            <div class="example-box">
+                <h5>🕰️ TWAP参数选择指南</h5>
+                <table style="width: 100%; margin: 1rem 0;">
+                    <tr>
+                        <th style="padding: 0.5rem; background: #f1f5f9;">窗口时长</th>
+                        <th style="padding: 0.5rem; background: #f1f5f9;">安全性</th>
+                        <th style="padding: 0.5rem; background: #f1f5f9;">响应速度</th>
+                        <th style="padding: 0.5rem; background: #f1f5f9;">适用场景</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">15分钟</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">低</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">快</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">高流动性资产</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">1小时</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">中</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">中</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">主流资产</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">4小时</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">高</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">慢</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">低流动性/高风险</td>
+                    </tr>
+                </table>
+                <p><strong>建议</strong>：MakerDAO使用1小时TWAP，在安全性和响应性之间取得平衡。</p>
+            </div>
+            
             <div class="code-block">
                 <div class="code-header" onclick="toggleCode(this)">TWAP实现 <span class="toggle-icon">▼</span></div>
                 <div class="code-content" style="display: none;">
@@ -1002,6 +1173,17 @@ contract ChainlinkPriceAdapter {
                     <li><strong>即时流动性：</strong>提供大量即时可用的流动性</li>
                     <li><strong>中心化风险：</strong>依赖于USDC等中心化稳定币</li>
                 </ul>
+            </div>
+            
+            <div class="info-box">
+                <h5>📊 PSM的实际影响（2024年数据）</h5>
+                <ul>
+                    <li><strong>USDC PSM规模</strong>：约$5B，占DAI总供应量的50%+</li>
+                    <li><strong>日交易量</strong>：$50M-200M，取决于市场波动</li>
+                    <li><strong>费用收入</strong>：每年约$5M-10M（0.1%费率）</li>
+                    <li><strong>价格稳定性</strong>：DAI价格偏离度从±2%降至±0.1%</li>
+                </ul>
+                <p><strong>争议点</strong>：PSM使DAI变成了“USDC包装器”，引发关于去中心化的讨论。</p>
             </div>
             
             <div class="code-block">
@@ -1113,6 +1295,55 @@ contract PegStabilityModule {
                     <li><strong>机遇：</strong>更稳定的收益、更大的资产规模、更低的波动性</li>
                     <li><strong>挑战：</strong>对手方风险、法律风险、托管风险、链上表示复杂性</li>
                 </ul>
+            </div>
+            
+            <div class="example-box">
+                <h5>📊 MakerDAO的RWA投资组合（2024年）</h5>
+                <table style="width: 100%; margin: 1rem 0;">
+                    <tr>
+                        <th style="padding: 0.5rem; background: #f1f5f9;">资产类型</th>
+                        <th style="padding: 0.5rem; background: #f1f5f9;">规模</th>
+                        <th style="padding: 0.5rem; background: #f1f5f9;">收益率</th>
+                        <th style="padding: 0.5rem; background: #f1f5f9;">风险等级</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">美国国库券</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$1.2B</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">5.0%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">最低</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">企业债券</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$500M</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">6.5%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">低</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">房地产贷款</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$300M</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">7.2%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">中</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">绿色能源项目</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">$100M</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">8.5%</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e2e8f0;">中高</td>
+                    </tr>
+                </table>
+                <p><strong>总收益</strong>：约$110M/年，占MakerDAO总收入的60%+</p>
+            </div>
+            
+            <div class="warning-box">
+                <h5>⚠️ RWA的法律架构复杂性</h5>
+                <p>RWA的链上表示需要复杂的法律结构：</p>
+                <ul>
+                    <li><strong>SPV（特殊目的实体）</strong>：隔离资产，保护投资者</li>
+                    <li><strong>信托结构</strong>：确保DAO对资产的控制权</li>
+                    <li><strong>法律意见</strong>：各司法管辖区的合规性</li>
+                    <li><strong>审计要求</strong>：定期的财务和合规审计</li>
+                </ul>
+                <p><strong>案例</strong>：Centrifuge的Tinlake协议为每个RWA池创建SPV，通过法律文件绑定链上代币与链下资产。</p>
             </div>
             
             <div class="code-block">

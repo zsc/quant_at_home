@@ -314,6 +314,31 @@ header h1 {
     border: 1px solid var(--border-color);
 }
 
+/* 答案内容默认隐藏 */
+.answer-content {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+/* 答案切换按钮 */
+.answer-toggle {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.answer-toggle:hover {
+    background-color: #4f46e5;
+}
+
 /* 表格 */
 table {
     width: 100%;
