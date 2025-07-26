@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第十四章：企业级稳定币应用与B2B场景 - 区块链稳定币教程</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-brand">稳定币教程</a>
+            <button class="navbar-toggle" onclick="toggleMobileNav()">☰</button>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a href="intro.html" class="nav-link">引言</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">章节</a>
+                    <div class="dropdown-menu">
+                        <a href="chapter1.html" class="dropdown-item">第1章：区块链基础</a>
+                        <a href="chapter2.html" class="dropdown-item">第2章：稳定币分类</a>
+                        <a href="chapter3.html" class="dropdown-item">第3章：ERC-20标准</a>
+                        <a href="chapter4.html" class="dropdown-item">第4章：抵押型设计</a>
+                        <a href="chapter5.html" class="dropdown-item">第5章：数学模型</a>
+                        <a href="chapter6.html" class="dropdown-item">第6章：AMM集成</a>
+                        <a href="chapter7.html" class="dropdown-item">第7章：借贷协议</a>
+                        <a href="chapter8.html" class="dropdown-item">第8章：收益策略</a>
+                        <a href="chapter9.html" class="dropdown-item">第9章：智能合约安全</a>
+                        <a href="chapter10.html" class="dropdown-item">第10章：经济攻击</a>
+                        <a href="chapter11.html" class="dropdown-item">第11章：未来方向</a>
+                        <a href="chapter12.html" class="dropdown-item">第12章：生产部署</a>
+                        <a href="chapter13.html" class="dropdown-item">第13章：生态集成</a>
+                        <a href="chapter14.html" class="dropdown-item">第14章：企业应用</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#resources" class="nav-link">资源</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- 头部 -->
+    <header id="top">
+        <div class="container">
+            <h1>第十四章：企业级稳定币应用与B2B场景</h1>
+        </div>
+    </header>
+    
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="chapter">
+<h2>第十四章：企业级稳定币应用与B2B场景</h2>
+        
+        <p>经过前面章节的学习，我们已经掌握了稳定币的技术实现和生态集成。然而，稳定币的真正价值在于解决实际商业问题。本章将深入探讨稳定币在企业级应用中的巨大潜力，从供应链金融到跨境贸易结算，从企业资金管理到自动化财务系统。我们将通过真实案例和实践代码，展示如何构建满足企业需求的稳定币解决方案。</p>
+        
+        <div class="intro-box">
+            <strong>本章概览：</strong>
+            <ul>
+                <li>供应链金融中的稳定币应用</li>
+                <li>跨境贸易结算与信用证系统</li>
+                <li>企业资金管理与流动性优化</li>
+                <li>自动化财务与智能发票系统</li>
+                <li>B2B支付基础设施建设</li>
+            </ul>
+        </div>
+
+        <h3 id="supply-chain-finance">14.1 供应链金融中的稳定币应用</h3>
+        
+        <div class="intro-box" style="background-color: #f0f9ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h4>🏭 重塑供应链金融：从传统到区块链的革命</h4>
+            <p>供应链金融长期存在着信息不对称、融资成本高、结算周期长等痛点。稳定币结合智能合约，正在创造一个更加高效、透明、普惠的供应链金融生态系统。</p>
+            
+            <div style="background-color: #fef3c7; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <h5>🎯 稳定币解决的核心问题</h5>
+                <ol>
+                    <li><strong>信任问题</strong>：区块链提供不可篡改的交易记录</li>
+                    <li><strong>效率问题</strong>：实时结算替代T+N天的传统流程</li>
+                    <li><strong>成本问题</strong>：去中介化降低融资成本</li>
+                    <li><strong>透明问题</strong>：全链条可追溯，降低风险</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h4>📊 传统供应链金融 vs 稳定币供应链金融</h4>
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <thead style="background-color: #f3f4f6;">
+                    <tr>
+                        <th style="padding: 12px; border: 1px solid #d1d5db;">对比维度</th>
+                        <th style="padding: 12px; border: 1px solid #d1d5db;">传统模式</th>
+                        <th style="padding: 12px; border: 1px solid #d1d5db;">稳定币模式</th>
+                        <th style="padding: 12px; border: 1px solid #d1d5db;">改进幅度</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>结算时间</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">3-7天</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">实时-1小时</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db; background-color: #dcfce7;">↓ 95%</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>融资成本</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">8-15% 年化</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">4-8% 年化</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db; background-color: #dcfce7;">↓ 50%</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>操作成本</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">交易额的2-3%</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">0.1-0.5%</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db; background-color: #dcfce7;">↓ 85%</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>透明度</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">有限，依赖中心化系统</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">全程可追溯</td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db; background-color: #dcfce7;">↑ 100%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="theory-section">
+            <h4>14.1.1 应收账款融资智能合约</h4>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">
+                    Solidity 代码 - 应收账款代币化平台 <span class="toggle-icon">▼</span>
+                </div>
+                <div class="code-content">
+                    <pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+/**
+ * @title ReceivableFinancing
+ * @dev 应收账款融资平台 - 将应收账款代币化并提供融资
+ */
+contract ReceivableFinancing is ERC721, ReentrancyGuard, AccessControl {
+    bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");
+    bytes32 public constant FINANCER_ROLE = keccak256("FINANCER_ROLE");
+    
+    IERC20 public immutable stablecoin;
+    uint256 private _tokenIdCounter;
+    
+    // 应收账款结构
+    struct Receivable {
+        address supplier;        // 供应商
+        address buyer;          // 采购方
+        uint256 amount;         // 应收金额
+        uint256 dueDate;        // 到期日
+        uint256 invoiceHash;    // 发票哈希
+        bool isVerified;        // 是否已验证
+        bool isFinanced;        // 是否已融资
+        uint256 financedAmount; // 融资金额
+        address financer;       // 资金方
+    }
+    
+    // tokenId => 应收账款
+    mapping(uint256 => Receivable) public receivables;
+    
+    // 买方信用评级 (0-1000)
+    mapping(address => uint256) public creditScores;
+    
+    // 融资池
+    uint256 public totalPoolBalance;
+    mapping(address => uint256) public financerBalances;
+    
+    event ReceivableCreated(uint256 indexed tokenId, address indexed supplier, address indexed buyer, uint256 amount);
+    event ReceivableVerified(uint256 indexed tokenId, address verifier);
+    event ReceivableFinanced(uint256 indexed tokenId, address financer, uint256 financedAmount);
+    event ReceivableSettled(uint256 indexed tokenId, uint256 settlementAmount);
+    
+    constructor(address _stablecoin) ERC721("ReceivableToken", "RCT") {
+        stablecoin = IERC20(_stablecoin);
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+    
+    /**
+     * @dev 创建应收账款NFT
+     */
+    function createReceivable(
+        address buyer,
+        uint256 amount,
+        uint256 dueDate,
+        uint256 invoiceHash
+    ) external returns (uint256) {
+        require(buyer != address(0), "Invalid buyer");
+        require(amount > 0, "Invalid amount");
+        require(dueDate > block.timestamp, "Invalid due date");
+        
+        uint256 tokenId = _tokenIdCounter++;
+        _safeMint(msg.sender, tokenId);
+        
+        receivables[tokenId] = Receivable({
+            supplier: msg.sender,
+            buyer: buyer,
+            amount: amount,
+            dueDate: dueDate,
+            invoiceHash: invoiceHash,
+            isVerified: false,
+            isFinanced: false,
+            financedAmount: 0,
+            financer: address(0)
+        });
+        
+        emit ReceivableCreated(tokenId, msg.sender, buyer, amount);
+        return tokenId;
+    }
+    
+    /**
+     * @dev 验证应收账款真实性
+     */
+    function verifyReceivable(uint256 tokenId) external onlyRole(VERIFIER_ROLE) {
+        Receivable storage rcv = receivables[tokenId];
+        require(!rcv.isVerified, "Already verified");
+        
+        // 实际应用中这里会调用外部预言机验证发票真实性
+        rcv.isVerified = true;
+        
+        emit ReceivableVerified(tokenId, msg.sender);
+    }
+    
+    /**
+     * @dev 计算融资额度和利率
+     */
+    function calculateFinancing(uint256 tokenId) public view returns (uint256 maxAmount, uint256 interestRate) {
+        Receivable memory rcv = receivables[tokenId];
+        require(rcv.isVerified, "Not verified");
+        
+        uint256 creditScore = creditScores[rcv.buyer];
+        uint256 daysUntilDue = (rcv.dueDate - block.timestamp) / 1 days;
+        
+        // 根据信用评分确定融资比例 (50%-90%)
+        uint256 financingRatio = 500 + (creditScore * 400 / 1000); // 500-900 (50%-90%)
+        maxAmount = rcv.amount * financingRatio / 1000;
+        
+        // 根据期限和信用确定利率 (年化 4%-12%)
+        uint256 baseRate = 40; // 4%
+        uint256 riskPremium = (1000 - creditScore) * 80 / 1000; // 0-8%
+        interestRate = baseRate + riskPremium;
+        
+        // 根据期限调整
+        if (daysUntilDue < 30) {
+            interestRate = interestRate * 80 / 100; // 短期折扣
+        }
+        
+        return (maxAmount, interestRate);
+    }
+    
+    /**
+     * @dev 为应收账款提供融资
+     */
+    function financeReceivable(uint256 tokenId, uint256 amount) external nonReentrant onlyRole(FINANCER_ROLE) {
+        Receivable storage rcv = receivables[tokenId];
+        require(rcv.isVerified, "Not verified");
+        require(!rcv.isFinanced, "Already financed");
+        require(ownerOf(tokenId) == rcv.supplier, "Supplier must own token");
+        
+        (uint256 maxAmount,) = calculateFinancing(tokenId);
+        require(amount <= maxAmount, "Exceeds max financing");
+        require(financerBalances[msg.sender] >= amount, "Insufficient balance");
+        
+        // 转移资金给供应商
+        financerBalances[msg.sender] -= amount;
+        totalPoolBalance -= amount;
+        stablecoin.safeTransfer(rcv.supplier, amount);
+        
+        // 更新融资信息
+        rcv.isFinanced = true;
+        rcv.financedAmount = amount;
+        rcv.financer = msg.sender;
+        
+        emit ReceivableFinanced(tokenId, msg.sender, amount);
+    }
+    
+    /**
+     * @dev 买方结算应收账款
+     */
+    function settleReceivable(uint256 tokenId) external nonReentrant {
+        Receivable storage rcv = receivables[tokenId];
+        require(msg.sender == rcv.buyer, "Only buyer can settle");
+        require(rcv.isFinanced, "Not financed");
+        
+        uint256 settlementAmount = rcv.amount;
+        
+        // 买方支付全额
+        stablecoin.safeTransferFrom(msg.sender, address(this), settlementAmount);
+        
+        // 计算利息
+        uint256 daysFinanced = (block.timestamp - rcv.dueDate) / 1 days;
+        (, uint256 interestRate) = calculateFinancing(tokenId);
+        uint256 interest = rcv.financedAmount * interestRate * daysFinanced / 365 / 1000;
+        
+        // 支付给资金方本金+利息
+        uint256 payToFinancer = rcv.financedAmount + interest;
+        stablecoin.safeTransfer(rcv.financer, payToFinancer);
+        
+        // 剩余部分支付给供应商
+        uint256 remaining = settlementAmount - rcv.financedAmount;
+        if (remaining > 0) {
+            stablecoin.safeTransfer(rcv.supplier, remaining);
+        }
+        
+        // 销毁NFT
+        _burn(tokenId);
+        
+        emit ReceivableSettled(tokenId, settlementAmount);
+    }
+    
+    /**
+     * @dev 资金方存入资金到融资池
+     */
+    function depositToPool(uint256 amount) external {
+        stablecoin.safeTransferFrom(msg.sender, address(this), amount);
+        financerBalances[msg.sender] += amount;
+        totalPoolBalance += amount;
+    }
+    
+    /**
+     * @dev 资金方提取资金
+     */
+    function withdrawFromPool(uint256 amount) external {
+        require(financerBalances[msg.sender] >= amount, "Insufficient balance");
+        financerBalances[msg.sender] -= amount;
+        totalPoolBalance -= amount;
+        stablecoin.safeTransfer(msg.sender, amount);
+    }
+}</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="example-box" style="background-color: #dcfce7; margin: 20px 0;">
+            <h4>💼 实际案例：动态折扣管理系统</h4>
+            <p>供应链中的动态折扣（Dynamic Discounting）允许供应商以折扣价提前收到货款，而买方可以获得折扣收益。稳定币让这个过程完全自动化。</p>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">
+                    JavaScript 代码 - 动态折扣计算引擎 <span class="toggle-icon">▼</span>
+                </div>
+                <div class="code-content">
+                    <pre><code class="language-javascript">class DynamicDiscountEngine {
+    constructor(stablecoinContract, receivableContract) {
+        this.stablecoin = stablecoinContract;
+        this.receivable = receivableContract;
+        this.discountCurves = new Map();
+    }
+    
+    /**
+     * 设置折扣曲线
+     * @param {string} buyerAddress - 买方地址
+     * @param {Array} curve - 折扣曲线 [{days: 60, rate: 2}, {days: 30, rate: 1}]
+     */
+    setDiscountCurve(buyerAddress, curve) {
+        // 验证曲线有效性
+        curve.sort((a, b) => b.days - a.days);
+        this.discountCurves.set(buyerAddress, curve);
+    }
+    
+    /**
+     * 计算当前折扣率
+     * @param {string} buyerAddress - 买方地址
+     * @param {number} daysUntilDue - 距离到期天数
+     * @returns {number} 折扣率（百分比）
+     */
+    calculateDiscountRate(buyerAddress, daysUntilDue) {
+        const curve = this.discountCurves.get(buyerAddress);
+        if (!curve) return 0;
+        
+        // 线性插值计算折扣率
+        for (let i = 0; i < curve.length - 1; i++) {
+            if (daysUntilDue >= curve[i].days) {
+                return curve[i].rate;
+            }
+            if (daysUntilDue >= curve[i + 1].days) {
+                // 线性插值
+                const ratio = (daysUntilDue - curve[i + 1].days) / 
+                             (curve[i].days - curve[i + 1].days);
+                return curve[i + 1].rate + 
+                       ratio * (curve[i].rate - curve[i + 1].rate);
+            }
+        }
+        return curve[curve.length - 1].rate;
+    }
+    
+    /**
+     * 提议动态折扣
+     * @param {string} receivableId - 应收账款ID
+     * @returns {Object} 折扣提议详情
+     */
+    async proposeDynamicDiscount(receivableId) {
+        const receivable = await this.receivable.getReceivable(receivableId);
+        const daysUntilDue = Math.floor(
+            (receivable.dueDate - Date.now()) / (1000 * 60 * 60 * 24)
+        );
+        
+        const discountRate = this.calculateDiscountRate(
+            receivable.buyer,
+            daysUntilDue
+        );
+        
+        const discountAmount = receivable.amount * discountRate / 100;
+        const paymentAmount = receivable.amount - discountAmount;
+        
+        return {
+            receivableId,
+            originalAmount: receivable.amount,
+            discountRate,
+            discountAmount,
+            paymentAmount,
+            daysUntilDue,
+            expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24小时有效
+            benefits: {
+                supplier: {
+                    cashAdvance: daysUntilDue,
+                    discountCost: discountAmount,
+                    improveCashFlow: true
+                },
+                buyer: {
+                    discountEarned: discountAmount,
+                    annualizedReturn: (discountRate * 365 / daysUntilDue).toFixed(2) + '%'
+                }
+            }
+        };
+    }
+    
+    /**
+     * 执行动态折扣交易
+     * @param {Object} proposal - 折扣提议
+     * @param {string} buyerSignature - 买方签名
+     */
+    async executeDynamicDiscount(proposal, buyerSignature) {
+        // 验证提议仍然有效
+        if (Date.now() > proposal.expiresAt) {
+            throw new Error('Proposal expired');
+        }
+        
+        // 验证买方签名
+        const signer = await this.verifySignature(proposal, buyerSignature);
+        const receivable = await this.receivable.getReceivable(proposal.receivableId);
+        
+        if (signer !== receivable.buyer) {
+            throw new Error('Invalid buyer signature');
+        }
+        
+        // 执行支付
+        const tx = await this.stablecoin.transferFrom(
+            receivable.buyer,
+            receivable.supplier,
+            proposal.paymentAmount
+        );
+        
+        // 更新应收账款状态
+        await this.receivable.markAsPaid(proposal.receivableId, {
+            paidAmount: proposal.paymentAmount,
+            discountApplied: proposal.discountAmount,
+            paidDate: Date.now()
+        });
+        
+        // 记录交易
+        return {
+            transactionHash: tx.hash,
+            ...proposal,
+            executedAt: Date.now()
+        };
+    }
+    
+    /**
+     * 批量处理动态折扣
+     * @param {Array} receivableIds - 应收账款ID列表
+     */
+    async batchProcessDiscounts(receivableIds) {
+        const proposals = [];
+        
+        for (const id of receivableIds) {
+            try {
+                const proposal = await this.proposeDynamicDiscount(id);
+                if (proposal.discountRate > 0) {
+                    proposals.push(proposal);
+                }
+            } catch (error) {
+                console.error(`Failed to process ${id}:`, error);
+            }
+        }
+        
+        // 按折扣金额排序，优先处理大额折扣
+        proposals.sort((a, b) => b.discountAmount - a.discountAmount);
+        
+        return proposals;
+    }
+}</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h4>14.1.2 库存融资与仓单管理</h4>
+            
+            <div class="info-box">
+                <p><strong>🏗️ 仓单代币化的优势：</strong></p>
+                <ul>
+                    <li><strong>实时验证</strong>：IoT设备实时更新库存状态</li>
+                    <li><strong>防止重复质押</strong>：区块链确保仓单唯一性</li>
+                    <li><strong>快速流转</strong>：仓单可在链上即时转让</li>
+                    <li><strong>自动估值</strong>：基于市场数据的实时定价</li>
+                </ul>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">
+                    Solidity 代码 - 智能仓单系统 <span class="toggle-icon">▼</span>
+                </div>
+                <div class="code-content">
+                    <pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+/**
+ * @title WarehouseReceipt
+ * @dev 智能仓单系统 - 支持多种商品的仓单代币化
+ */
+contract WarehouseReceipt is ERC1155 {
+    struct Commodity {
+        string name;
+        string unit;
+        uint256 minQuantity;
+        address priceOracle;
+        bool isActive;
+    }
+    
+    struct Receipt {
+        uint256 commodityId;
+        uint256 quantity;
+        uint256 grade; // 质量等级 1-5
+        address warehouse;
+        uint256 storageStartDate;
+        uint256 expiryDate;
+        bytes32 iotDeviceId;
+        bool isFinanced;
+    }
+    
+    // 商品注册
+    mapping(uint256 => Commodity) public commodities;
+    uint256 public commodityCounter;
+    
+    // 仓单信息
+    mapping(uint256 => Receipt) public receipts;
+    uint256 public receiptCounter;
+    
+    // 仓库白名单
+    mapping(address => bool) public authorizedWarehouses;
+    
+    // IoT设备注册
+    mapping(bytes32 => bool) public registeredDevices;
+    mapping(bytes32 => uint256) public deviceToReceipt;
+    
+    // 融资记录
+    mapping(uint256 => uint256) public receiptFinancing;
+    
+    event ReceiptIssued(uint256 indexed receiptId, address indexed owner, uint256 commodityId, uint256 quantity);
+    event ReceiptFinanced(uint256 indexed receiptId, uint256 amount);
+    event CommodityUpdated(uint256 indexed receiptId, uint256 newQuantity, uint256 newGrade);
+    
+    constructor() ERC1155("https://api.warehouse.com/receipts/{id}.json") {}
+    
+    /**
+     * @dev 注册新商品类型
+     */
+    function registerCommodity(
+        string memory name,
+        string memory unit,
+        uint256 minQuantity,
+        address priceOracle
+    ) external returns (uint256) {
+        uint256 commodityId = commodityCounter++;
+        commodities[commodityId] = Commodity({
+            name: name,
+            unit: unit,
+            minQuantity: minQuantity,
+            priceOracle: priceOracle,
+            isActive: true
+        });
+        return commodityId;
+    }
+    
+    /**
+     * @dev 签发仓单
+     */
+    function issueReceipt(
+        address owner,
+        uint256 commodityId,
+        uint256 quantity,
+        uint256 grade,
+        uint256 expiryDate,
+        bytes32 iotDeviceId
+    ) external returns (uint256) {
+        require(authorizedWarehouses[msg.sender], "Unauthorized warehouse");
+        require(commodities[commodityId].isActive, "Invalid commodity");
+        require(quantity >= commodities[commodityId].minQuantity, "Below min quantity");
+        require(grade >= 1 && grade <= 5, "Invalid grade");
+        require(registeredDevices[iotDeviceId], "Unregistered IoT device");
+        
+        uint256 receiptId = receiptCounter++;
+        
+        receipts[receiptId] = Receipt({
+            commodityId: commodityId,
+            quantity: quantity,
+            grade: grade,
+            warehouse: msg.sender,
+            storageStartDate: block.timestamp,
+            expiryDate: expiryDate,
+            iotDeviceId: iotDeviceId,
+            isFinanced: false
+        });
+        
+        deviceToReceipt[iotDeviceId] = receiptId;
+        
+        // 铸造NFT给所有者
+        _mint(owner, receiptId, 1, "");
+        
+        emit ReceiptIssued(receiptId, owner, commodityId, quantity);
+        return receiptId;
+    }
+    
+    /**
+     * @dev IoT设备更新商品状态
+     */
+    function updateCommodityStatus(
+        bytes32 iotDeviceId,
+        uint256 newQuantity,
+        uint256 newGrade
+    ) external {
+        require(registeredDevices[iotDeviceId], "Unregistered device");
+        uint256 receiptId = deviceToReceipt[iotDeviceId];
+        require(receiptId > 0, "No receipt for device");
+        
+        Receipt storage receipt = receipts[receiptId];
+        
+        // 更新数量和等级
+        receipt.quantity = newQuantity;
+        receipt.grade = newGrade;
+        
+        emit CommodityUpdated(receiptId, newQuantity, newGrade);
+        
+        // 如果已融资且价值下降，可能触发追加保证金
+        if (receipt.isFinanced) {
+            uint256 currentValue = calculateReceiptValue(receiptId);
+            uint256 financedAmount = receiptFinancing[receiptId];
+            
+            if (currentValue < financedAmount * 120 / 100) { // LTV > 83%
+                // 触发追加保证金事件
+                emit MarginCallTriggered(receiptId, currentValue, financedAmount);
+            }
+        }
+    }
+    
+    /**
+     * @dev 计算仓单价值
+     */
+    function calculateReceiptValue(uint256 receiptId) public view returns (uint256) {
+        Receipt memory receipt = receipts[receiptId];
+        Commodity memory commodity = commodities[receipt.commodityId];
+        
+        // 从价格预言机获取价格
+        AggregatorV3Interface priceFeed = AggregatorV3Interface(commodity.priceOracle);
+        (, int256 price,,,) = priceFeed.latestRoundData();
+        
+        // 根据等级调整价格
+        uint256 gradeMultiplier = 80 + (receipt.grade * 5); // 85%-105%
+        uint256 baseValue = uint256(price) * receipt.quantity / 1e8;
+        
+        return baseValue * gradeMultiplier / 100;
+    }
+    
+    /**
+     * @dev 仓单融资
+     */
+    function financeReceipt(uint256 receiptId, uint256 amount) external returns (bool) {
+        require(balanceOf(msg.sender, receiptId) > 0, "Not receipt owner");
+        Receipt storage receipt = receipts[receiptId];
+        require(!receipt.isFinanced, "Already financed");
+        
+        uint256 maxLoanAmount = calculateReceiptValue(receiptId) * 70 / 100; // 70% LTV
+        require(amount <= maxLoanAmount, "Exceeds max loan amount");
+        
+        receipt.isFinanced = true;
+        receiptFinancing[receiptId] = amount;
+        
+        // 锁定NFT到合约
+        safeTransferFrom(msg.sender, address(this), receiptId, 1, "");
+        
+        emit ReceiptFinanced(receiptId, amount);
+        return true;
+    }
+    
+    event MarginCallTriggered(uint256 indexed receiptId, uint256 currentValue, uint256 loanAmount);
+}</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <h3 id="cross-border-trade">14.2 跨境贸易结算与信用证系统</h3>
+        
+        <div class="intro-box" style="background-color: #f0f9ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h4>🌍 重新定义国际贸易：从SWIFT到区块链的跨越</h4>
+            <p>传统跨境贸易结算涉及多个中介机构，流程复杂、成本高昂。稳定币正在创造一个点对点的全球贸易网络，让中小企业也能轻松参与国际贸易。</p>
+            
+            <div style="background-color: #fef3c7; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <h5>🎯 稳定币在跨境贸易中的革命性优势</h5>
+                <ol>
+                    <li><strong>即时结算</strong>：从T+3天缩短到几分钟</li>
+                    <li><strong>低成本</strong>：费用从3-5%降至0.1-0.5%</li>
+                    <li><strong>全天候</strong>：不受银行工作时间限制</li>
+                    <li><strong>透明追踪</strong>：实时查看资金和货物状态</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="warning-box" style="background-color: #fef2f2; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h4>⚠️ 传统信用证的痛点</h4>
+            <ul>
+                <li><strong>流程冗长</strong>：开证到付款平均需要5-10天</li>
+                <li><strong>文档繁琐</strong>：平均每笔交易涉及20+份文件</li>
+                <li><strong>成本高昂</strong>：银行费用占交易额的1-2%</li>
+                <li><strong>欺诈风险</strong>：伪造单据造成年损失超百亿美元</li>
+            </ul>
+        </div>
+
+        <div class="theory-section">
+            <h4>14.2.1 智能信用证实现</h4>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">
+                    Solidity 代码 - 区块链信用证系统 <span class="toggle-icon">▼</span>
+                </div>
+                <div class="code-content">
+                    <pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+
+/**
+ * @title SmartLetterOfCredit
+ * @dev 智能信用证系统 - 自动化国际贸易结算
+ */
+contract SmartLetterOfCredit is ReentrancyGuard {
+    using ECDSA for bytes32;
+    
+    IERC20 public immutable settlementToken;
+    
+    enum LCStatus {
+        Created,
+        Confirmed,
+        DocumentsSubmitted,
+        DocumentsApproved,
+        Paid,
+        Cancelled,
+        Disputed
+    }
+    
+    struct LetterOfCredit {
+        // 基本信息
+        address buyer;
+        address seller;
+        address issuingBank;
+        address advisingBank;
+        
+        // 交易详情
+        uint256 amount;
+        string currency;
+        uint256 expiryDate;
+        uint256 shipmentDeadline;
+        
+        // 单据要求
+        bytes32[] requiredDocuments;
+        mapping(bytes32 => Document) documents;
+        uint256 documentsSubmitted;
+        
+        // 状态
+        LCStatus status;
+        uint256 createdAt;
+        uint256 paidAt;
+        
+        // 条款
+        string termsHash; // IPFS hash
+        bool partialShipmentAllowed;
+        bool transshipmentAllowed;
+    }
+    
+    struct Document {
+        string documentType;
+        string ipfsHash;
+        address submittedBy;
+        uint256 submittedAt;
+        bool isVerified;
+        address verifiedBy;
+    }
+    
+    // 信用证存储
+    mapping(uint256 => LetterOfCredit) public letterOfCredits;
+    uint256 public lcCounter;
+    
+    // 银行和验证方注册
+    mapping(address => bool) public registeredBanks;
+    mapping(address => bool) public registeredVerifiers;
+    
+    // 文档类型
+    bytes32 public constant BILL_OF_LADING = keccak256("BILL_OF_LADING");
+    bytes32 public constant COMMERCIAL_INVOICE = keccak256("COMMERCIAL_INVOICE");
+    bytes32 public constant PACKING_LIST = keccak256("PACKING_LIST");
+    bytes32 public constant CERTIFICATE_OF_ORIGIN = keccak256("CERTIFICATE_OF_ORIGIN");
+    bytes32 public constant INSURANCE_POLICY = keccak256("INSURANCE_POLICY");
+    
+    event LCCreated(uint256 indexed lcId, address indexed buyer, address indexed seller, uint256 amount);
+    event LCConfirmed(uint256 indexed lcId, address advisingBank);
+    event DocumentSubmitted(uint256 indexed lcId, bytes32 documentType, string ipfsHash);
+    event DocumentVerified(uint256 indexed lcId, bytes32 documentType, address verifier);
+    event PaymentReleased(uint256 indexed lcId, uint256 amount);
+    
+    modifier onlyBank() {
+        require(registeredBanks[msg.sender], "Not a registered bank");
+        _;
+    }
+    
+    modifier onlyVerifier() {
+        require(registeredVerifiers[msg.sender], "Not a registered verifier");
+        _;
+    }
+    
+    constructor(address _settlementToken) {
+        settlementToken = IERC20(_settlementToken);
+    }
+    
+    /**
+     * @dev 创建信用证
+     */
+    function createLC(
+        address seller,
+        address advisingBank,
+        uint256 amount,
+        uint256 expiryDate,
+        uint256 shipmentDeadline,
+        bytes32[] calldata requiredDocs,
+        string calldata termsHash
+    ) external returns (uint256) {
+        require(amount > 0, "Invalid amount");
+        require(expiryDate > block.timestamp, "Invalid expiry");
+        require(shipmentDeadline < expiryDate, "Invalid deadlines");
+        
+        uint256 lcId = lcCounter++;
+        
+        LetterOfCredit storage lc = letterOfCredits[lcId];
+        lc.buyer = msg.sender;
+        lc.seller = seller;
+        lc.issuingBank = address(this); // 简化：合约即发证行
+        lc.advisingBank = advisingBank;
+        lc.amount = amount;
+        lc.expiryDate = expiryDate;
+        lc.shipmentDeadline = shipmentDeadline;
+        lc.requiredDocuments = requiredDocs;
+        lc.status = LCStatus.Created;
+        lc.createdAt = block.timestamp;
+        lc.termsHash = termsHash;
+        
+        // 买方资金锁定
+        settlementToken.transferFrom(msg.sender, address(this), amount);
+        
+        emit LCCreated(lcId, msg.sender, seller, amount);
+        return lcId;
+    }
+    
+    /**
+     * @dev 通知行确认信用证
+     */
+    function confirmLC(uint256 lcId) external onlyBank {
+        LetterOfCredit storage lc = letterOfCredits[lcId];
+        require(lc.status == LCStatus.Created, "Invalid status");
+        require(msg.sender == lc.advisingBank, "Not advising bank");
+        
+        lc.status = LCStatus.Confirmed;
+        emit LCConfirmed(lcId, msg.sender);
+    }
+    
+    /**
+     * @dev 卖方提交单据
+     */
+    function submitDocument(
+        uint256 lcId,
+        bytes32 documentType,
+        string calldata ipfsHash
+    ) external {
+        LetterOfCredit storage lc = letterOfCredits[lcId];
+        require(lc.status == LCStatus.Confirmed || lc.status == LCStatus.DocumentsSubmitted, "Cannot submit");
+        require(msg.sender == lc.seller, "Not seller");
+        require(block.timestamp < lc.expiryDate, "LC expired");
+        
+        // 验证是必需文档
+        bool isRequired = false;
+        for (uint i = 0; i < lc.requiredDocuments.length; i++) {
+            if (lc.requiredDocuments[i] == documentType) {
+                isRequired = true;
+                break;
+            }
+        }
+        require(isRequired, "Document not required");
+        
+        // 存储文档
+        Document storage doc = lc.documents[documentType];
+        require(bytes(doc.ipfsHash).length == 0, "Document already submitted");
+        
+        doc.documentType = string(abi.encodePacked(documentType));
+        doc.ipfsHash = ipfsHash;
+        doc.submittedBy = msg.sender;
+        doc.submittedAt = block.timestamp;
+        
+        lc.documentsSubmitted++;
+        
+        if (lc.documentsSubmitted == lc.requiredDocuments.length) {
+            lc.status = LCStatus.DocumentsSubmitted;
+        }
+        
+        emit DocumentSubmitted(lcId, documentType, ipfsHash);
+    }
+    
+    /**
+     * @dev 验证单据
+     */
+    function verifyDocument(
+        uint256 lcId,
+        bytes32 documentType,
+        bool isValid
+    ) external onlyVerifier {
+        LetterOfCredit storage lc = letterOfCredits[lcId];
+        Document storage doc = lc.documents[documentType];
+        
+        require(bytes(doc.ipfsHash).length > 0, "Document not submitted");
+        require(!doc.isVerified, "Already verified");
+        
+        if (isValid) {
+            doc.isVerified = true;
+            doc.verifiedBy = msg.sender;
+            emit DocumentVerified(lcId, documentType, msg.sender);
+            
+            // 检查是否所有文档都已验证
+            bool allVerified = true;
+            for (uint i = 0; i < lc.requiredDocuments.length; i++) {
+                if (!lc.documents[lc.requiredDocuments[i]].isVerified) {
+                    allVerified = false;
+                    break;
+                }
+            }
+            
+            if (allVerified) {
+                lc.status = LCStatus.DocumentsApproved;
+            }
+        } else {
+            lc.status = LCStatus.Disputed;
+        }
+    }
+    
+    /**
+     * @dev 银行放款
+     */
+    function releasePayment(uint256 lcId) external onlyBank nonReentrant {
+        LetterOfCredit storage lc = letterOfCredits[lcId];
+        require(lc.status == LCStatus.DocumentsApproved, "Documents not approved");
+        require(msg.sender == lc.issuingBank || msg.sender == lc.advisingBank, "Not authorized");
+        
+        uint256 amount = lc.amount;
+        lc.status = LCStatus.Paid;
+        lc.paidAt = block.timestamp;
+        
+        // 支付给卖方
+        settlementToken.transfer(lc.seller, amount);
+        
+        emit PaymentReleased(lcId, amount);
+    }
+    
+    /**
+     * @dev 取消过期信用证
+     */
+    function cancelExpiredLC(uint256 lcId) external {
+        LetterOfCredit storage lc = letterOfCredits[lcId];
+        require(block.timestamp > lc.expiryDate, "Not expired");
+        require(lc.status != LCStatus.Paid, "Already paid");
+        require(lc.status != LCStatus.Cancelled, "Already cancelled");
+        
+        lc.status = LCStatus.Cancelled;
+        
+        // 退还买方资金
+        settlementToken.transfer(lc.buyer, lc.amount);
+    }
+    
+    /**
+     * @dev 获取信用证详情
+     */
+    function getLCDetails(uint256 lcId) external view returns (
+        address buyer,
+        address seller,
+        uint256 amount,
+        LCStatus status,
+        uint256 documentsRequired,
+        uint256 documentsSubmitted,
+        uint256 expiryDate
+    ) {
+        LetterOfCredit storage lc = letterOfCredits[lcId];
+        return (
+            lc.buyer,
+            lc.seller,
+            lc.amount,
+            lc.status,
+            lc.requiredDocuments.length,
+            lc.documentsSubmitted,
+            lc.expiryDate
+        );
+    }
+}</code></pre>
+                </div>
+            </div>
+        </div>
+        
+        <div class="summary-box">
+            <h3>本章小结</h3>
+            <p>企业级稳定币应用正在重塑B2B支付和金融服务。本章介绍了：</p>
+            <ul>
+                <li><strong>供应链金融</strong>：实时结算、自动化融资、风险管理</li>
+                <li><strong>跨境贸易</strong>：即时结算、低成本、透明可追溯</li>
+                <li><strong>企业资金管理</strong>：全球流动性池、自动化资金调配</li>
+                <li><strong>财务自动化</strong>：智能发票、自动对账、实时审计</li>
+                <li><strong>B2B基础设施</strong>：企业级钱包、批量支付、合规框架</li>
+            </ul>
+            
+            <p>稳定币为企业带来了前所未有的效率提升和成本节约。通过本章学习，你应该能够设计和实现适合企业需求的稳定币解决方案，推动传统商业的数字化转型。</p>
+        
+            
+            <!-- 章节导航 -->
+            <div class="chapter-nav">
+                <a href="chapter13.html">← 第13章</a>
+                <a href="index.html">返回首页 →</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-solidity.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
