@@ -59,6 +59,58 @@
         
         <p>在DeFi世界中，如何让稳定币产生收益是每个投资者和协议都关心的核心问题。本章将系统性地探讨稳定币收益生成的各种策略，从最简单的借贷收益到复杂的自动化策略组合。我们将深入分析Yearn、Convex等收益聚合器的工作原理，理解自动复投的数学优化，探讨跨链收益套利的机会与风险。更重要的是，我们将学习如何评估不同收益策略的风险收益比，构建稳健的收益优化系统。</p>
         
+        <div class="tip-box">
+            <h4>🎯 为什么稳定币收益策略如此重要？</h4>
+            <ul>
+                <li><strong>机会成本：</strong>在高利率环境下（2024年美债5%+），不产生收益的稳定币实际在贬值</li>
+                <li><strong>协议可持续性：</strong>收益是吸引和保留TVL的核心动力</li>
+                <li><strong>风险对冲：</strong>稳定的收益流可以对冲其他投资的波动风险</li>
+                <li><strong>复利效应：</strong>自动复投可以显著提升长期回报</li>
+            </ul>
+        </div>
+        
+        <div class="example-box">
+            <h4>稳定币收益的历史演变</h4>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">时期</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">主流策略</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">典型APY</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">标志性事件</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2019-2020</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">简单借贷</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">5-10%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Compound流动性挖矿启动</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2020-2021</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">流动性挖矿</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">20-100%+</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">DeFi Summer，收益农耕兴起</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2021-2022</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">收益聚合</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">10-30%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Yearn生态成熟，Convex War</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2022-2023</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">风险调整</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">3-8%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Terra崩盘，风险意识提升</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2024+</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">RWA整合</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">4-6%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">传统资产代币化，稳健收益回归</td>
+                </tr>
+            </table>
+        </div>
+        
         <div class="intro-box">
             <strong>本章概览：</strong>
             <ul>
@@ -199,9 +251,63 @@
                 <li><strong>资金来源</strong>：稳定费收入、清算罚金、RWA收益</li>
                 <li><strong>2024年创新</strong>：Enhanced DSR（sDAI）实现自动复利</li>
             </ul>
+            
+            <div style="background: #f0f8ff; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                <h5>DSR利率历史与市场影响</h5>
+                <ul>
+                    <li><strong>2019年11月：</strong>DSR首次推出，初始利率2%</li>
+                    <li><strong>2020年3月：</strong>黑色星期四后降至0%，刺激DAI需求</li>
+                    <li><strong>2023年6月：</strong>升至8%历史高位，与美债收益竞争</li>
+                    <li><strong>2024年现状：</strong>稳定在5%左右，RWA收益支撑可持续性</li>
+                </ul>
+                <p style="margin-top: 0.5rem;"><strong>关键洞察：</strong>DSR已成为DeFi的"无风险利率"基准，影响整个生态的收益定价。</p>
+            </div>
+        </div>
+        
+        <div class="example-box">
+            <h4>收益策略的风险-回报光谱</h4>
+            <div style="background: linear-gradient(to right, #10b981, #eab308, #ef4444); height: 20px; border-radius: 10px; margin: 1rem 0;"></div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <span style="color: #10b981;">低风险</span>
+                <span style="color: #eab308;">中等风险</span>
+                <span style="color: #ef4444;">高风险</span>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #10b981; color: white;">低风险策略 (2-5% APY)</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #eab308;">中等风险策略 (5-15% APY)</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #ef4444; color: white;">高风险策略 (15%+ APY)</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px; vertical-align: top;">
+                        • DSR (sDAI)<br>
+                        • AAVE/Compound存款<br>
+                        • Curve稳定币池<br>
+                        • RWA代币化国债
+                    </td>
+                    <td style="border: 1px solid #ddd; padding: 8px; vertical-align: top;">
+                        • 收益聚合器<br>
+                        • 杠杆流动性挖矿<br>
+                        • 跨链收益套利<br>
+                        • Delta中性策略
+                    </td>
+                    <td style="border: 1px solid #ddd; padding: 8px; vertical-align: top;">
+                        • 新协议流动性挖矿<br>
+                        • 高杠杆策略<br>
+                        • 跨链桥LP<br>
+                        • 期权策略
+                    </td>
+                </tr>
+            </table>
         </div>
 
         <h4>8.1.2 多维度风险矩阵</h4>
+        
+        <div class="tip-box">
+            <p><strong>🎯 风险评估的重要性：</strong>在追求高收益的DeFi世界，理解和量化风险是生存的第一法则。稳定币虽然价格稳定，但其收益策略仍面临多重风险。本节提供一个全面的风险评估框架，帮助您做出明智的投资决策。</p>
+        </div>
+        
         <div class="info-box">
             <h4>风险维度分析框架：</h4>
             
@@ -325,8 +431,56 @@
                 </tr>
             </table>
         </div>
+        
+        <div class="example-box">
+            <h4>实战案例：Terra/UST崩盘的风险教训</h4>
+            <p>2022年5月，Terra生态的UST稳定币在48小时内从$1跌至$0.1，造成400亿美元损失。复盘其风险失控过程：</p>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                <tr>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #fee2e2;">风险类型</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #fee2e2;">具体表现</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #fee2e2;">后果</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">经济模型风险</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">20% Anchor收益不可持续，依赖新资金流入</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">储备枯竭，信心崩塌</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">流动性风险</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Curve池流动性不足，无法承受大额抛售</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">严重脱锚，恐慌加剧</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">治理风险</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Do Kwon单方面决策，社区无法有效制衡</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">错误决策无法纠正</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">组合性风险</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">大量协议依赖UST，形成系统性风险</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">连锁崩盘，波及整个生态</td>
+                </tr>
+            </table>
+            
+            <div style="background: #fef3c7; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                <strong>⚠️ 关键教训：</strong>
+                <ul style="margin-top: 0.5rem;">
+                    <li>高收益往往意味着高风险，20% APY在熊市不可持续</li>
+                    <li>算法稳定币需要强大的流动性缓冲和多重稳定机制</li>
+                    <li>过度的组合性会放大系统性风险</li>
+                    <li>去中心化治理和风险管理同样重要</li>
+                </ul>
+            </div>
+        </div>
 
         <h4>8.1.3 收益计算与复利效应</h4>
+        
+        <div class="tip-box">
+            <p><strong>🔢 理解复利的魔力：</strong>爱因斯坦称复利为"世界第八大奇迹"。在DeFi中，自动复投策略可以将年化收益提升20-30%，但也需要考虑Gas成本和时机选择。</p>
+        </div>
+        
         <div class="concept">
             <h5>核心概念精确定义：</h5>
             <ul>
@@ -342,6 +496,49 @@
                 <p>连续复利：APY = lim(n→∞) [(1 + APR/n)^n - 1] = e^APR - 1</p>
                 <p><strong>最优复利频率：</strong>考虑Gas成本后的净收益最大化</p>
                 <p>Optimal n = argmax[V₀(1 + APR/n)^n - n·GasCost - V₀]</p>
+            </div>
+            
+            <div class="example-box" style="margin-top: 1rem;">
+                <h5>复利频率对收益的影响（实例计算）</h5>
+                <p>假设：本金$10,000，APR 10%，Gas费用$5/次</p>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">复利频率</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">APY</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">年收益</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">Gas成本</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">净收益</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">年度（1次）</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">10.00%</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$1,000</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$5</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$995</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">月度（12次）</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">10.47%</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$1,047</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$60</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$987</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">每周（52次）</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">10.51%</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$1,051</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$260</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">$791</td>
+                    </tr>
+                    <tr style="background-color: #d1fae5;">
+                        <td style="border: 1px solid #ddd; padding: 8px;"><strong>最优（~8次）</strong></td>
+                        <td style="border: 1px solid #ddd; padding: 8px;"><strong>10.43%</strong></td>
+                        <td style="border: 1px solid #ddd; padding: 8px;"><strong>$1,043</strong></td>
+                        <td style="border: 1px solid #ddd; padding: 8px;"><strong>$40</strong></td>
+                        <td style="border: 1px solid #ddd; padding: 8px;"><strong>$1,003</strong></td>
+                    </tr>
+                </table>
+                <p style="margin-top: 0.5rem;"><strong>结论：</strong>在本例中，每1.5个月复利一次可实现净收益最大化。</p>
             </div>
         </div>
         
