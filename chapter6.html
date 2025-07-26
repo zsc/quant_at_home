@@ -443,6 +443,40 @@ interface IStableSwap {
         <h4>6.2.2 Uniswap V3集中流动性优化</h4>
         <p>Uniswap V3的集中流动性是一把双刃剑 - 它极大提升了资本效率，但也引入了新的风险维度：</p>
         
+        <div class="info-box">
+            <strong>🎯 集中流动性的革命性创新：</strong>
+            <p>2021年5月，Uniswap V3引入了集中流动性概念，允许LP在特定价格范围内提供流动性。这对稳定币对来说是巨大突破：</p>
+            <ul>
+                <li><strong>理论上：</strong>如果价格始终在0.999-1.001之间，资本效率可提升2000倍</li>
+                <li><strong>实践中：</strong>顶级做市商在USDC/USDT对上实现了500-1000倍的资本效率提升</li>
+                <li><strong>风险：</strong>一旦价格脱离范围，LP将100%持有贬值资产</li>
+            </ul>
+        </div>
+        
+        <div class="example-box">
+            <strong>💼 专业做市商策略揭秘 - GSR的稳定币LP策略：</strong>
+            <p>根据链上数据分析，专业做市商GSR在Uniswap V3上的策略：</p>
+            <ul>
+                <li><strong>核心头寸：</strong>0.9995-1.0005 (±0.05%，占80%资金)</li>
+                <li><strong>保护头寸：</strong>0.995-1.005 (±0.5%，占15%资金)</li>
+                <li><strong>尾部对冲：</strong>0.95-1.05 (±5%，占5%资金)</li>
+                <li><strong>再平衡频率：</strong>每4小时检查，价格偏离0.02%时调整</li>
+                <li><strong>年化收益：</strong>在低波动期可达15-25% APY</li>
+            </ul>
+            <p>关键：多层头寸结构既捕获了大部分交易费，又提供了脱锚保护。</p>
+        </div>
+        
+        <div class="warning-box">
+            <strong>⚠️ 2023年3月USDC脱锚期间的V3惨案：</strong>
+            <ul>
+                <li><strong>受影响LP：</strong>超过85%的集中流动性头寸出界</li>
+                <li><strong>损失规模：</strong>仅0.99-1.01范围内的LP损失超过$5000万</li>
+                <li><strong>最惨案例：</strong>某鲸鱼在0.999-1.001范围内的$1000万头寸，最终换回95%的USDC</li>
+                <li><strong>幸存者：</strong>只有设置了宽范围（如0.9-1.1）的LP避免了重大损失</li>
+            </ul>
+            <p><strong>教训：</strong>稳定币V3 LP必须在收益优化和风险管理之间找到平衡。</p>
+        </div>
+        
         <div class="tip-box">
             <strong>📊 集中流动性的收益与风险：</strong>
             <table style="width: 100%; margin-top: 1rem;">
@@ -660,8 +694,25 @@ interface IStableSwap {
 
         <h3>6.3 Curve StableSwap深度解析</h3>
         
+        <div class="info-box">
+            <strong>🌊 Curve Finance的传奇故事：</strong>
+            <p>2019年末，一位神秘的俄罗斯开发者Michael Egorov创造了Curve。他的洞察很简单：稳定币之间的交易不需要Uniswap那样的通用解决方案。通过专门优化，他创造了比Uniswap低100倍滑点的稳定币交易所。</p>
+            <p>有趣的是，Curve最初叫StableSwap.exchange，界面极其简陋。但其卓越的数学设计迅速吸引了巨鲸，在DeFi Summer期间成为TVL最高的协议。</p>
+        </div>
+        
         <h4>6.3.1 StableSwap不变量的数学推导</h4>
         <p>Curve的天才之处在于创造了一个在恒定和与恒定积之间优雅过渡的混合不变量：</p>
+        
+        <div class="example-box">
+            <strong>🧮 StableSwap的数学直觉：</strong>
+            <p>想象你在设计一个稳定币AMM，你希望：</p>
+            <ul>
+                <li><strong>价格=1附近：</strong>表现得像恒定和（x+y=k），提供零滑点</li>
+                <li><strong>价格偏离时：</strong>逐渐过渡到恒定积（x·y=k），防止流动性枯竭</li>
+                <li><strong>关键创新：</strong>使用放大系数A控制这个过渡的"锐度"</li>
+            </ul>
+            <p>这就像一个"智能弹簧"：在平衡点附近很软（低滑点），偏离越远越硬（防止极端失衡）。</p>
+        </div>
         
         <div style="background: #e0e7ff; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
             <h5>从第一性原理推导StableSwap公式</h5>
@@ -1186,6 +1237,30 @@ print(f"5%脱锚时，池子中稳定资产比例：{(1-depeg_results['pool_rati
             </ul>
         </div>
         
+        <div class="example-box">
+            <strong>📊 Curve V2实战数据 - Tricrypto池分析：</strong>
+            <p>Tricrypto (USDT/WBTC/WETH)是Curve V2的旗舰池，展示了自适应AMM的威力：</p>
+            <ul>
+                <li><strong>TVL峰值：</strong>$50亿（2021年11月）</li>
+                <li><strong>日均交易量：</strong>$5-10亿</li>
+                <li><strong>费用动态范围：</strong>0.04% - 0.4%（10倍变化）</li>
+                <li><strong>再平衡效率：</strong>比静态AMM快3-5倍恢复平衡</li>
+                <li><strong>LP收益提升：</strong>相比V1提升30-50%</li>
+            </ul>
+            <p>关键成功因素：内部预言机有效防止了三明治攻击，动态费用在市场波动时保护LP。</p>
+        </div>
+        
+        <div class="warning-box">
+            <strong>⚠️ Curve V2的复杂性挑战：</strong>
+            <ul>
+                <li><strong>Gas成本：</strong>一次交换可能消耗50-100万Gas，是V1的5-10倍</li>
+                <li><strong>参数风险：</strong>错误的参数设置可能导致池子"卡住"</li>
+                <li><strong>MEV表面：</strong>复杂的重定价机制创造了新的MEV机会</li>
+                <li><strong>审计难度：</strong>代码复杂度极高，已发现多个边缘情况bug</li>
+            </ul>
+            <p>教训：创新与复杂性之间需要平衡，过度工程化可能适得其反。</p>
+        </div>
+        
         <div class="code-block">
             <div class="code-header" onclick="toggleCode(this)">Curve V2自适应机制实现 <span class="toggle-icon">▼</span></div>
             <div class="code-content" style="display: none;">
@@ -1480,8 +1555,42 @@ optimizer.auto_tune_parameters("0x...")  # Curve V2池地址</code></pre>
 
         <h3>6.4 高级AMM优化策略</h3>
         
+        <div class="info-box">
+            <strong>🔮 AMM的未来：混合与可组合性</strong>
+            <p>2024年的AMM格局已经从"赢者通吃"转向"专业化分工"。不同的AMM设计服务于不同的用例：</p>
+            <ul>
+                <li><strong>稳定币对：</strong>Curve的StableSwap仍然是王者</li>
+                <li><strong>波动资产：</strong>Uniswap V3的集中流动性占主导</li>
+                <li><strong>长尾资产：</strong>Balancer的加权池提供灵活性</li>
+                <li><strong>衍生品：</strong>专用AMM如Perpetual Protocol</li>
+            </ul>
+            <p>新趋势是创建混合AMM，根据资产类型和市场条件动态选择最优曲线。</p>
+        </div>
+        
         <h4>6.4.1 混合AMM设计</h4>
         <p>结合不同AMM模型的优点，为稳定币创造更高效的交易环境：</p>
+        
+        <div class="example-box">
+            <strong>🏗️ 实际案例 - Solidly的创新尝试：</strong>
+            <p>Andre Cronje的Solidly（现为Velodrome）引入了稳定币对和波动对的混合设计：</p>
+            <ul>
+                <li><strong>稳定对模式：</strong>使用x³y + xy³ = k，介于恒定和与恒定积之间</li>
+                <li><strong>波动对模式：</strong>标准x·y = k</li>
+                <li><strong>创新点：</strong>比Curve更简单的公式，Gas效率提升50%</li>
+                <li><strong>局限性：</strong>缺乏动态调整能力，在极端情况下表现不佳</li>
+            </ul>
+            <p>虽然Solidly本身失败了，但其设计理念影响了后续的Velodrome、Thena等协议。</p>
+        </div>
+        
+        <div class="warning-box">
+            <strong>⚠️ 混合AMM的设计陷阱：</strong>
+            <ul>
+                <li><strong>参数爆炸：</strong>每增加一个特性，参数空间指数增长</li>
+                <li><strong>过渡不连续：</strong>不同模式切换时可能产生套利机会</li>
+                <li><strong>复杂度诅咒：</strong>更复杂不一定更好，Simple is beautiful</li>
+                <li><strong>测试困难：</strong>边缘情况难以完全覆盖</li>
+            </ul>
+        </div>
         
         <div class="code-block">
             <div class="code-header" onclick="toggleCode(this)">混合AMM实现 <span class="toggle-icon">▼</span></div>
@@ -1609,6 +1718,48 @@ optimizer.auto_tune_parameters("0x...")  # Curve V2池地址</code></pre>
                 <li><strong>套利攻击：</strong>利用不同池之间的价格差</li>
                 <li><strong>JIT流动性：</strong>在交易前添加流动性，交易后立即移除</li>
             </ul>
+        </div>
+        
+        <div class="example-box">
+            <strong>💸 MEV的真实损失数据 - 2024年1月统计：</strong>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="background: #f3f4f6;">
+                    <th style="border: 1px solid #ddd; padding: 8px;">协议</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">月度MEV提取</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">用户损失率</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">主要攻击类型</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Uniswap V2</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$12M</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">0.25%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">三明治(70%)</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Uniswap V3</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$8M</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">0.15%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">JIT(40%)</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Curve</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$3M</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">0.05%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">套利(80%)</td>
+                </tr>
+            </table>
+            <p>数据来源：EigenPhi MEV数据平台。注意Curve的MEV损失率最低，得益于其内部预言机设计。</p>
+        </div>
+        
+        <div class="warning-box">
+            <strong>🚨 2024年新型MEV攻击趋势：</strong>
+            <ul>
+                <li><strong>跨链MEV：</strong>利用不同链上的价格差和延迟</li>
+                <li><strong>预言机抢跑：</strong>在预言机更新前进行交易</li>
+                <li><strong>治理攻击：</strong>通过闪电贷操纵投票改变AMM参数</li>
+                <li><strong>AI驱动MEV：</strong>使用机器学习预测大额交易</li>
+            </ul>
+            <p>防护建议：使用私有内存池、批量拍卖、commit-reveal机制等。</p>
         </div>
         
         <div class="code-block">
@@ -1804,6 +1955,34 @@ optimizer.auto_tune_parameters("0x...")  # Curve V2池地址</code></pre>
             </ul>
         </div>
         
+        <div class="example-box">
+            <strong>🎣 Hooks实战案例 - 稳定币专用Hook设计：</strong>
+            <p>社区已经开发了多个专门为稳定币优化的Hooks：</p>
+            <ul>
+                <li><strong>动态费用Hook：</strong>
+                    <ul>
+                        <li>价格接近1:1时：0.01%费用</li>
+                        <li>偏离1-2%：0.05%费用</li>
+                        <li>偏离>2%：0.3%费用</li>
+                    </ul>
+                </li>
+                <li><strong>TWAP预言机Hook：</strong>防止闪电贷价格操纵</li>
+                <li><strong>限价单Hook：</strong>允许用户在特定价格自动兑换</li>
+                <li><strong>收益分配Hook：</strong>将交易费自动复投到Aave等借贷协议</li>
+            </ul>
+            <p>这些Hook让Uniswap V4能够匹配甚至超越Curve的稳定币交易效率。</p>
+        </div>
+        
+        <div class="warning-box">
+            <strong>⚠️ Hooks的安全挑战：</strong>
+            <ul>
+                <li><strong>恶意Hook风险：</strong>Hook可以任意操纵交易，需要严格审计</li>
+                <li><strong>Gas成本增加：</strong>复杂Hook可能使交易成本翻倍</li>
+                <li><strong>可组合性复杂度：</strong>多个Hook交互可能产生意外行为</li>
+                <li><strong>MEV新表面：</strong>Hook创造了新的MEV提取机会</li>
+            </ul>
+        </div>
+        
         <div class="code-block">
             <div class="code-header" onclick="toggleCode(this)">Uniswap V4 稳定币专用Hook示例 <span class="toggle-icon">▼</span></div>
             <div class="code-content" style="display: none;">
@@ -1908,6 +2087,45 @@ optimizer.auto_tune_parameters("0x...")  # Curve V2池地址</code></pre>
         
         <h4>6.5.2 AI驱动的流动性管理</h4>
         <p>2024年见证了AI在DeFi中的实际应用，特别是在流动性管理和参数优化方面：</p>
+        
+        <div class="info-box">
+            <strong>🤖 AI在AMM中的突破性应用：</strong>
+            <p>从2023年底开始，多个团队开始将大语言模型和深度学习应用于DeFi：</p>
+            <ul>
+                <li><strong>Gamma Strategies：</strong>使用LSTM预测V3最优价格范围，LP收益提升40%</li>
+                <li><strong>Arrakis Finance：</strong>基于强化学习的自动再平衡，降低无常损失30%</li>
+                <li><strong>Sommelier Protocol：</strong>使用GPT-4分析市场情绪调整策略</li>
+                <li><strong>Range Protocol：</strong>集成链上ML模型实时优化头寸</li>
+            </ul>
+        </div>
+        
+        <div class="example-box">
+            <strong>📈 实战案例 - Charm Finance的Alpha Vaults：</strong>
+            <p>Charm的AI驱动策略在2024年Q1表现：</p>
+            <ul>
+                <li><strong>策略：</strong>使用神经网络预测24小时价格范围</li>
+                <li><strong>训练数据：</strong>2年历史价格、链上活动、社交情绪</li>
+                <li><strong>再平衡频率：</strong>每4小时基于AI预测调整</li>
+                <li><strong>性能提升：</strong>
+                    <ul>
+                        <li>APY: 传统LP 12% → AI优化 18%</li>
+                        <li>最大回撤: -15% → -8%</li>
+                        <li>夏普比率: 0.8 → 1.4</li>
+                    </ul>
+                </li>
+            </ul>
+            <p>关键：AI不是替代人类决策，而是增强决策质量和执行速度。</p>
+        </div>
+        
+        <div class="warning-box">
+            <strong>⚠️ AI策略的隐藏风险：</strong>
+            <ul>
+                <li><strong>过拟合：</strong>历史数据训练的模型可能在新市场环境失效</li>
+                <li><strong>黑盒风险：</strong>深度学习模型决策过程不透明</li>
+                <li><strong>对抗攻击：</strong>恶意actor可能通过异常交易欺骗AI</li>
+                <li><strong>系统性风险：</strong>如果多个协议使用相似AI，可能产生羊群效应</li>
+            </ul>
+        </div>
         
         <div class="code-block">
             <div class="code-header" onclick="toggleCode(this)">基于Transformer的流动性预测模型 <span class="toggle-icon">▼</span></div>
