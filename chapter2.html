@@ -73,7 +73,9 @@
             <div class="theory-section">
                 <h3>2.1 法币抵押型稳定币（Fiat-Collateralized）</h3>
                 
-                <p>法币抵押型稳定币是最直观的稳定币模型，通过持有等值的法币储备来保证稳定币价值。这类稳定币是目前市场份额最大的类型。</p>
+                <p>法币抵押型稳定币是最直观的稳定币模型，通过持有等值的法币储备来保证稳定币价值。这类稳定币是目前市场份额最大的类型，占据了超过90%的稳定币市值。它们的成功不仅源于简单直观的机制，更重要的是建立了传统金融世界与加密世界之间的桥梁。</p>
+                
+                <p>然而，"简单"并不意味着"简陋"。法币抵押型稳定币面临着独特的挑战：如何在保持去中心化理想的同时满足监管要求？如何在透明性和隐私性之间找到平衡？如何处理银行系统的信任风险？这些问题的答案，决定了不同项目的命运。</p>
                 
                 <h4>核心机制</h4>
                 <div style="background: #f0f9ff; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
@@ -157,6 +159,18 @@ contract FiatTokenV2_1 is FiatTokenV2 {
                     </tr>
                 </table>
                 
+                <div class="info-box">
+                    <h5>💡 深度解析：USDC的成功之道</h5>
+                    <p>USDC能够成为第二大稳定币，不仅因为其透明的储备管理，更重要的是其战略定位。与USDT主攻交易市场不同，USDC从一开始就瞄准了合规和机构市场：</p>
+                    <ul>
+                        <li><strong>监管优先</strong>：主动拥抱监管，获得纽约州金融服务部（NYDFS）等机构认可</li>
+                        <li><strong>技术标准化</strong>：严格遵循ERC-20标准，便于集成</li>
+                        <li><strong>生态建设</strong>：与Coinbase、Circle形成强大的生态联盟</li>
+                        <li><strong>DeFi整合</strong>：成为大多数DeFi协议的首选稳定币</li>
+                    </ul>
+                    <p>特别值得注意的是，USDC在2023年银行危机期间的表现。当硅谷银行倒闭导致USDC短暂脱锚至$0.87时，Circle的快速响应和美联储的介入最终化解了危机，这个事件反而增强了市场对USDC风险管理能力的信心。</p>
+                </div>
+                
                 <h4>主要代表：USDT（Tether）</h4>
                 <h5>储备资产构成（2024年Q1）</h5>
                 <table style="width: 100%; margin: 1rem 0;">
@@ -187,6 +201,29 @@ contract FiatTokenV2_1 is FiatTokenV2 {
                     </tr>
                 </table>
                 
+                <div class="example-box">
+                    <h5>🔍 USDT的韧性之谜</h5>
+                    <p>尽管面临诸多争议，USDT仍然保持着稳定币市场的霸主地位，这背后有深层次的原因：</p>
+                    <ul>
+                        <li><strong>先发优势</strong>：2014年推出，建立了强大的网络效应</li>
+                        <li><strong>流动性护城河</strong>：几乎所有交易所都支持USDT交易对</li>
+                        <li><strong>多链部署</strong>：支持15+条区块链，满足不同用户需求</li>
+                        <li><strong>新兴市场渗透</strong>：在亚洲、拉美等地区深度渗透</li>
+                    </ul>
+                    <p>更重要的是，USDT已经成为加密货币市场的"基础设施"。即使在FTX崩盘、银行危机等极端事件中，USDT都展现出了惊人的稳定性。这种"大而不能倒"的特性，反而成为了其最大的护城河。</p>
+                </div>
+                
+                <div class="warning-box">
+                    <h5>⚠️ 风险警示：法币稳定币的系统性风险</h5>
+                    <p>2023年3月的银行危机暴露了法币稳定币的脆弱性：</p>
+                    <ul>
+                        <li><strong>银行依赖</strong>：即使100%储备，银行倒闭仍可能造成损失</li>
+                        <li><strong>流动性错配</strong>：大规模赎回时可能面临流动性危机</li>
+                        <li><strong>监管不确定性</strong>：各国监管政策差异巨大</li>
+                        <li><strong>地缘政治风险</strong>：美元武器化可能影响美元稳定币</li>
+                    </ul>
+                </div>
+                
                 <h4>优缺点分析</h4>
                 <div class="tip">
                     <strong>优点：</strong>
@@ -209,7 +246,17 @@ contract FiatTokenV2_1 is FiatTokenV2 {
                 </div>
                 
                 <h4>2024年最新发展：PayPal USD (PYUSD)</h4>
-                <p>传统金融巨头进军稳定币市场的里程碑案例。</p>
+                <p>传统金融巨头进军稳定币市场的里程碑案例。PayPal作为全球最大的支付公司之一，其进入稳定币领域不仅验证了这个市场的巨大潜力，更可能改变整个行业的游戏规则。PYUSD的推出标志着Web2巨头正式拥抱Web3，这种融合将带来前所未有的用户规模和应用场景。</p>
+                
+                <div class="info-box">
+                    <h5>🌟 PYUSD的战略意义</h5>
+                    <ul>
+                        <li><strong>4亿用户基础</strong>：PayPal的用户可以无缝使用PYUSD</li>
+                        <li><strong>商户网络</strong>：3500万商户的潜在接受度</li>
+                        <li><strong>合规先行</strong>：与Paxos合作，确保完全合规</li>
+                        <li><strong>支付创新</strong>：探索可编程支付、自动化结算等新场景</li>
+                    </ul>
+                </div>
                 
                 <h5>技术架构与合规性</h5>
                 <ul>
