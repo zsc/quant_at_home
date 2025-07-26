@@ -641,6 +641,126 @@ contract CentralizedStablecoin is ERC20, Ownable, Pausable {
                     </ul>
                 </div>
                 
+                <div class="info-box" style="background-color: #e0f2fe; border-left: 4px solid #0284c7;">
+                    <h4>🔐 什么是多签（Multi-Signature）？</h4>
+                    <p><strong>多签（Multi-Signature，简称MultiSig）</strong>是一种需要多个私钥共同签名才能执行操作的安全机制。在区块链世界中，多签是降低单点故障风险的关键技术。</p>
+                    
+                    <h5>核心概念</h5>
+                    <ul>
+                        <li><strong>M-of-N机制：</strong>N个签名者中需要至少M个签名才能执行操作
+                            <ul>
+                                <li>2-of-3：3个管理员中需要2个同意</li>
+                                <li>3-of-5：5个管理员中需要3个同意</li>
+                                <li>常见配置：2/3、3/5、4/7等</li>
+                            </ul>
+                        </li>
+                        <li><strong>应用场景：</strong>
+                            <ul>
+                                <li>资金管理：大额转账需要多人批准</li>
+                                <li>合约升级：防止单个管理员恶意修改</li>
+                                <li>紧急暂停：关键操作需要集体决策</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                    <h5>在稳定币中的重要性</h5>
+                    <p>对于管理数十亿美元的稳定币项目，单一owner控制是极其危险的：</p>
+                    <ul>
+                        <li><strong>内部风险：</strong>恶意内部人员、私钥泄露、胁迫攻击</li>
+                        <li><strong>外部风险：</strong>黑客攻击、钓鱼、社会工程学</li>
+                        <li><strong>操作风险：</strong>误操作、私钥丢失</li>
+                    </ul>
+                    
+                    <div class="code-block">
+                        <div class="code-header" onclick="toggleCode(this)">多签钱包示例 <span class="toggle-icon">▼</span></div>
+                        <div class="code-content" style="display: none;">
+                            <pre><code class="language-solidity">contract MultiSigWallet {
+    struct Transaction {
+        address to;
+        uint value;
+        bytes data;
+        bool executed;
+        uint confirmations;
+    }
+    
+    address[] public owners;
+    mapping(address => bool) public isOwner;
+    uint public required; // M in M-of-N
+    
+    Transaction[] public transactions;
+    mapping(uint => mapping(address => bool)) public confirmations;
+    
+    modifier onlyOwner() {
+        require(isOwner[msg.sender], "Not owner");
+        _;
+    }
+    
+    constructor(address[] memory _owners, uint _required) {
+        require(_owners.length >= _required, "Invalid requirement");
+        owners = _owners;
+        required = _required;
+        
+        for (uint i = 0; i < _owners.length; i++) {
+            isOwner[_owners[i]] = true;
+        }
+    }
+    
+    function submitTransaction(address to, uint value, bytes memory data) 
+        public onlyOwner returns (uint txIndex) 
+    {
+        txIndex = transactions.length;
+        transactions.push(Transaction({
+            to: to,
+            value: value,
+            data: data,
+            executed: false,
+            confirmations: 0
+        }));
+    }
+    
+    function confirmTransaction(uint txIndex) public onlyOwner {
+        require(!confirmations[txIndex][msg.sender], "Already confirmed");
+        confirmations[txIndex][msg.sender] = true;
+        transactions[txIndex].confirmations++;
+        
+        if (transactions[txIndex].confirmations >= required) {
+            executeTransaction(txIndex);
+        }
+    }
+    
+    function executeTransaction(uint txIndex) private {
+        Transaction storage tx = transactions[txIndex];
+        require(!tx.executed, "Already executed");
+        require(tx.confirmations >= required, "Not enough confirmations");
+        
+        tx.executed = true;
+        (bool success,) = tx.to.call{value: tx.value}(tx.data);
+        require(success, "Transaction failed");
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <h5>实际案例</h5>
+                    <ul>
+                        <li><strong>USDC：</strong>使用Gnosis Safe多签管理关键权限</li>
+                        <li><strong>DAI（MakerDAO）：</strong>通过多签控制紧急关停机制</li>
+                        <li><strong>WBTC：</strong>商业联盟成员共同管理铸币权限</li>
+                    </ul>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ 多签的局限性：</strong>
+                        <ul>
+                            <li><strong>操作延迟：</strong>需要多人签名，紧急情况响应慢</li>
+                            <li><strong>密钥管理：</strong>更多密钥意味着更复杂的管理</li>
+                            <li><strong>社会工程学：</strong>攻击者可能同时针对多个签名者</li>
+                            <li><strong>Gas成本：</strong>每次操作需要多笔交易</li>
+                        </ul>
+                    </div>
+                    
+                    <p><strong>最佳实践：</strong>多签配合时间锁（Timelock）使用，重要操作不仅需要多人同意，还要有24-48小时的公示期，给社区足够的反应时间。</p>
+                </div>
+                
                 <h4>链上 vs 链下：理解稳定币的双重世界</h4>
                 <div style="background: #e0f2fe; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
                     <p><strong>关键概念澄清：</strong></p>

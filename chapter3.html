@@ -1577,8 +1577,8 @@ contract EIP712Example {
                 </ul>
                 <p>要求：Gas优化，支持紧急暂停。</p>
                 
-                <div class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案 ▼</div>
-                <div class="answer" style="display: none;">
+                <button class="answer-toggle" onclick="toggleAnswer('answer3_1')">查看参考答案</button>
+                <div class="answer-content" id="answer3_1" style="display: none;">
                     <pre><code class="language-solidity">contract ExtendedERC20 is ERC20, Pausable, Ownable {
     // 转账备注
     mapping(bytes32 => string) public transferNotes;
@@ -1698,8 +1698,8 @@ contract EIP712Example {
                     <li>处理跨链失败的情况</li>
                 </ul>
                 
-                <div class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案 ▼</div>
-                <div class="answer" style="display: none;">
+                <button class="answer-toggle" onclick="toggleAnswer('answer3_2')">查看参考答案</button>
+                <div class="answer-content" id="answer3_2" style="display: none;">
                     <pre><code class="language-solidity">// 源链合约
 contract SourceBridge is Ownable, Pausable {
     IERC20 public token;
@@ -1815,17 +1815,17 @@ contract InefficientToken is ERC20 {
     }
 }</code></pre>
                 
-                <div class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案 ▼</div>
-                <div class="answer" style="display: none;">
+                <button class="answer-toggle" onclick="toggleAnswer('answer3_3')">查看参考答案</button>
+                <div class="answer-content" id="answer3_3" style="display: none;">
                     <pre><code class="language-solidity">contract OptimizedToken is ERC20 {
     // 使用bitmap替代mapping节省存储
-    mapping(uint256 => uint256) private whitelistBitmap;
+    mapping(uint256 =&gt; uint256) private whitelistBitmap;
     
     // 事件替代存储历史记录
     event TransferRecorded(address indexed from, address indexed to, uint256 amount, uint256 timestamp);
     
     // 只存储必要的统计信息
-    mapping(address => uint256) public transferCount;
+    mapping(address =&gt; uint256) public transferCount;
     
     function setWhitelist(address account, bool status) external onlyOwner {
         uint256 index = uint256(uint160(account));
@@ -1833,9 +1833,9 @@ contract InefficientToken is ERC20 {
         uint256 bitIndex = index % 256;
         
         if (status) {
-            whitelistBitmap[wordIndex] |= (1 << bitIndex);
+            whitelistBitmap[wordIndex] |= (1 &lt;&lt; bitIndex);
         } else {
-            whitelistBitmap[wordIndex] &= ~(1 << bitIndex);
+            whitelistBitmap[wordIndex] &= ~(1 &lt;&lt; bitIndex);
         }
     }
     
@@ -1844,7 +1844,7 @@ contract InefficientToken is ERC20 {
         uint256 wordIndex = index / 256;
         uint256 bitIndex = index % 256;
         uint256 word = whitelistBitmap[wordIndex];
-        return (word & (1 << bitIndex)) != 0;
+        return (word & (1 &lt;&lt; bitIndex)) != 0;
     }
     
     function transfer(address to, uint256 amount) public override returns (bool) {
@@ -1873,7 +1873,7 @@ contract InefficientToken is ERC20 {
         returns (bool[] memory) 
     {
         bool[] memory results = new bool[](accounts.length);
-        for (uint256 i = 0; i < accounts.length; ) {
+        for (uint256 i = 0; i &lt; accounts.length; ) {
             results[i] = isWhitelisted(accounts[i]);
             unchecked { ++i; }
         }

@@ -81,6 +81,66 @@
                 <li><strong>风险管理（Risk Management）</strong>：清算和保险机制</li>
             </ul>
         </div>
+        
+        <div class="info-box">
+            <h4>借贷协议的演进历程</h4>
+            <p><strong>从传统金融到DeFi的革命性转变：</strong></p>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                <tr>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">时期</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">代表协议</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">创新点</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #f3f4f6;">TVL峰值</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2018-2019</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">MakerDAO</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">单一抵押品CDP</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$1B</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2019-2020</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Compound V1</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">池化借贷、cToken模型</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$5B</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2020-2021</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Aave V2</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">闪电贷、信用委托</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$20B</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2022-2023</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Aave V3</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">E-Mode、隔离模式</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$7B</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2024+</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Morpho、Euler V2</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">模块化、风险隔离池</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$3B+</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="example-box">
+            <h4>案例研究：稳定币在借贷协议中的独特地位</h4>
+            <p><strong>为什么稳定币是借贷协议的"硬通货"？</strong></p>
+            <ul>
+                <li><strong>价格稳定性：</strong>相比ETH等波动资产，稳定币清算风险低</li>
+                <li><strong>计价单位：</strong>美元计价符合传统金融习惯</li>
+                <li><strong>流动性深度：</strong>USDC/USDT交易对遍布各大DEX</li>
+                <li><strong>监管友好：</strong>合规稳定币更容易获得机构认可</li>
+            </ul>
+            <p><strong>数据洞察（2024年Q1）：</strong></p>
+            <ul>
+                <li>Aave V3上USDC供应量：$2.8B（占总供应量35%）</li>
+                <li>平均借款利率：USDC 4.2% vs ETH 2.8%</li>
+                <li>稳定币借贷利用率：82%（远高于其他资产的65%）</li>
+            </ul>
+        </div>
 
         <div class="info-box">
             <h4>设计哲学对比：Compound vs Aave</h4>
@@ -132,6 +192,56 @@
                     </ul>
                 </li>
             </ol>
+        </div>
+        
+        <div class="info-box">
+            <h4>深度解析：Morpho的数学原理</h4>
+            <p><strong>P2P匹配的博弈论基础：</strong></p>
+            <div class="formula">
+                <p><strong>传统池化模型的利差：</strong></p>
+                <p>Spread = R_borrow - R_supply = f(U) × (1 - ReserveFactor)</p>
+                <p>其中 f(U) 是利用率函数</p>
+            </div>
+            <p><strong>Morpho的改进：</strong></p>
+            <ul>
+                <li><strong>匹配成功：</strong>借贷双方直接交易，利率 R_p2p ∈ [R_supply, R_borrow]</li>
+                <li><strong>匹配失败：</strong>回退到底层协议，保持原有利率</li>
+                <li><strong>激励相容：</strong>双方都有动力参与P2P匹配</li>
+            </ul>
+            <p><strong>实际效果（2024年数据）：</strong></p>
+            <ul>
+                <li>平均匹配率：67%</li>
+                <li>存款者APY提升：+0.8%</li>
+                <li>借款者APY降低：-1.2%</li>
+                <li>累计节省利息：$45M+</li>
+            </ul>
+        </div>
+        
+        <div class="warning-box">
+            <h4>资本效率vs系统风险的权衡</h4>
+            <p><strong>高资本效率的代价：</strong></p>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                <tr>
+                    <th style="border: 1px solid #ddd; padding: 8px;">效率提升手段</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">风险类型</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">缓解措施</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">提高LTV至97%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">连锁清算风险</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">仅限相关资产（稳定币）</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">降低清算缓冲</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">预言机延迟风险</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">多源预言机、TWAP</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">无限杠杆循环</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">系统性崩盘</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">供应上限、借款上限</td>
+                </tr>
+            </table>
         </div>
 
         <h4>7.1.3 Compound协议架构</h4>
@@ -707,6 +817,88 @@ contract FlashLoanProvider is IERC3156FlashLender, ReentrancyGuard {
                 <li><strong>Chronicle Protocol：</strong>基于阈值签名的去中心化预言机</li>
             </ul>
         </div>
+        
+        <div class="warning-box">
+            <h4>历史重大闪电贷攻击事件分析</h4>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                <tr>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #fee2e2;">时间</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #fee2e2;">协议</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #fee2e2;">损失</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #fee2e2;">攻击手法</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #fee2e2;">教训</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2020.02</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">bZx</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$1M</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">操纵Kyber价格</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">需要多源预言机</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2020.10</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Harvest</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$24M</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Curve池价格操纵</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">AMM价格需TWAP保护</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2021.05</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">PancakeBunny</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$45M</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">LP代币价格操纵</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">LP定价需特殊处理</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2022.04</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Beanstalk</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$182M</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">治理攻击+闪电贷</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">治理需时间锁</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2023.07</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Curve pools</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$70M</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">重入攻击组合</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">编译器版本风险</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="info-box">
+            <h4>闪电贷的正面应用场景</h4>
+            <p><strong>并非所有闪电贷都是攻击！合法用例包括：</strong></p>
+            <ol>
+                <li><strong>套利交易：</strong>
+                    <ul>
+                        <li>DEX间价差套利（占闪电贷使用量60%+）</li>
+                        <li>清算套利（帮助维护协议健康）</li>
+                        <li>收益农场优化（自动复投）</li>
+                    </ul>
+                </li>
+                <li><strong>债务重组：</strong>
+                    <ul>
+                        <li>Aave→Compound迁移（节省gas）</li>
+                        <li>抵押品置换（避免清算）</li>
+                        <li>利率优化（追求更低APY）</li>
+                    </ul>
+                </li>
+                <li><strong>自清算保护：</strong>
+                    <ul>
+                        <li>用户自己清算自己（保留清算奖励）</li>
+                        <li>避免MEV机器人抢先交易</li>
+                    </ul>
+                </li>
+            </ol>
+            <p><strong>数据统计（2024年Q1）：</strong></p>
+            <ul>
+                <li>日均闪电贷交易量：$2.3B</li>
+                <li>套利用途：62%</li>
+                <li>清算用途：23%</li>
+                <li>其他用途：15%</li>
+            </ul>
+        </div>
         <div class="code-block">
             <pre><code class="language-solidity">// 防御闪电贷攻击的措施
 contract FlashLoanProtectedVault {
@@ -1062,6 +1254,70 @@ contract StablecoinLendingPool is
                 <li>流动性聚合：跨链收益优化</li>
             </ul>
         </div>
+        
+        <div class="example-box">
+            <h4>跨链借贷协议案例分析</h4>
+            <ol>
+                <li><strong>Radiant Capital（LayerZero）</strong>
+                    <ul>
+                        <li>全链流动性共享</li>
+                        <li>跨链利率平衡机制</li>
+                        <li>统一清算引擎</li>
+                        <li>TVL峰值：$400M（2023）</li>
+                    </ul>
+                </li>
+                <li><strong>Pike Finance（Wormhole）</strong>
+                    <ul>
+                        <li>原生跨链借贷</li>
+                        <li>Hub链结算模式</li>
+                        <li>跨链风险隔离</li>
+                    </ul>
+                </li>
+                <li><strong>Tapioca（LayerZero + Stargate）</strong>
+                    <ul>
+                        <li>Omnichain货币市场</li>
+                        <li>跨链杠杆策略</li>
+                        <li>统一流动性层</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+        
+        <div class="warning-box">
+            <h4>跨链借贷的特殊风险</h4>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                <tr>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #fee2e2;">风险类型</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #fee2e2;">描述</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #fee2e2;">影响</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #fee2e2;">缓解措施</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">桥接风险</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">跨链桥被黑或故障</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">资产永久锁定</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">多签、时间锁、保险</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">延迟风险</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">跨链消息延迟</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">套利机会、清算延迟</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">缓冲区、异步处理</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">流动性分片</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">各链流动性隔离</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">资本效率低下</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">虚拟流动性池</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">治理分裂</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">多链治理不同步</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">参数不一致</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">跨链治理同步</td>
+                </tr>
+            </table>
+        </div>
 
         <h4>7.5.2 信用借贷探索</h4>
         <div class="concept">
@@ -1071,6 +1327,62 @@ contract StablecoinLendingPool is
                 <li>社交恢复机制</li>
                 <li>收入代币化模型</li>
                 <li>保险池风险分担</li>
+            </ul>
+        </div>
+        
+        <div class="info-box">
+            <h4>链上信用体系的构建</h4>
+            <p><strong>信用评分维度：</strong></p>
+            <ol>
+                <li><strong>历史还款记录（40%权重）</strong>
+                    <ul>
+                        <li>还款次数、金额、及时率</li>
+                        <li>违约历史及恢复情况</li>
+                    </ul>
+                </li>
+                <li><strong>链上活动（25%权重）</strong>
+                    <ul>
+                        <li>DeFi协议交互历史</li>
+                        <li>持仓时长和稳定性</li>
+                        <li>Gas消耗（活跃度指标）</li>
+                    </ul>
+                </li>
+                <li><strong>身份验证（20%权重）</strong>
+                    <ul>
+                        <li>ENS域名、社交验证</li>
+                        <li>KYC/AML（可选）</li>
+                        <li>声誉代币质押</li>
+                    </ul>
+                </li>
+                <li><strong>收入证明（15%权重）</strong>
+                    <ul>
+                        <li>链上收入流（DeFi收益、NFT版税）</li>
+                        <li>稳定币流入规律性</li>
+                    </ul>
+                </li>
+            </ol>
+            <p><strong>实践案例：</strong></p>
+            <ul>
+                <li><strong>Maple Finance：</strong>机构信用借贷，累计放贷$2B+</li>
+                <li><strong>TrueFi：</strong>无抵押借贷，默认率<1%</li>
+                <li><strong>Goldfinch：</strong>新兴市场信贷，真实世界资产支持</li>
+            </ul>
+        </div>
+        
+        <div class="theory-box">
+            <h4>未来展望：AI与借贷协议的融合</h4>
+            <p><strong>智能化风控系统：</strong></p>
+            <ul>
+                <li><strong>机器学习定价：</strong>基于历史数据动态调整利率曲线</li>
+                <li><strong>异常检测：</strong>识别潜在的市场操纵和攻击行为</li>
+                <li><strong>预测清算：</strong>提前预警高风险仓位</li>
+                <li><strong>个性化风险评估：</strong>为每个用户定制借贷参数</li>
+            </ul>
+            <p><strong>技术栈演进：</strong></p>
+            <ul>
+                <li>链上机器学习（zkML）</li>
+                <li>去中心化计算网络</li>
+                <li>隐私保护推理</li>
             </ul>
         </div>
 
@@ -1186,6 +1498,28 @@ contract AdvancedLiquidationEngine {
                 </tr>
             </table>
         </div>
+        
+        <div class="theory-box">
+            <h4>预言机的信息论分析</h4>
+            <p><strong>信息传递的三个维度：</strong></p>
+            <div class="formula">
+                <p><strong>信息价值函数：</strong></p>
+                <p>V(I) = f(Accuracy, Latency, Cost)</p>
+                <p>其中：</p>
+                <ul>
+                    <li>Accuracy = 1 - |P_oracle - P_real| / P_real</li>
+                    <li>Latency = T_onchain - T_event</li>
+                    <li>Cost = Gas_cost + Oracle_fee</li>
+                </ul>
+            </div>
+            <p><strong>预言机三难困境（Oracle Trilemma）：</strong></p>
+            <ul>
+                <li><strong>去中心化：</strong>多节点共识，抗单点故障</li>
+                <li><strong>准确性：</strong>价格数据的真实性和及时性</li>
+                <li><strong>成本效率：</strong>链上gas消耗和维护成本</li>
+            </ul>
+            <p>类似区块链的"不可能三角"，预言机也面临类似权衡。</p>
+        </div>
 
         <div class="info-box">
             <h4>案例研究：2020年3月12日 MakerDAO黑色星期四</h4>
@@ -1213,6 +1547,49 @@ contract AdvancedLiquidationEngine {
         <div class="concept">
             <p><strong>坏账定义：</strong>当抵押品价值 < 债务价值时产生的协议损失</p>
             <p><strong>处理机制对比：</strong></p>
+        </div>
+        
+        <div class="info-box">
+            <h4>坏账产生的数学模型</h4>
+            <div class="formula">
+                <p><strong>坏账概率模型（基于几何布朗运动）：</strong></p>
+                <p>P(BadDebt) = Φ((ln(LT/V₀) - (μ - σ²/2)T) / (σ√T))</p>
+                <p>其中：</p>
+                <ul>
+                    <li>LT = 清算阈值</li>
+                    <li>V₀ = 初始抵押品价值</li>
+                    <li>μ = 资产收益率均值</li>
+                    <li>σ = 波动率</li>
+                    <li>Φ = 标准正态分布函数</li>
+                </ul>
+            </div>
+            <p><strong>实证数据（2020-2024）：</strong></p>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                <tr>
+                    <th style="border: 1px solid #ddd; padding: 8px;">资产类型</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">年化波动率</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">坏账率</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">平均损失</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">稳定币对</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">2-5%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">0.01%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$10K</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">ETH/稳定币</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">60-80%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">0.5%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$500K</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">小币种</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">100%+</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">3-5%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">$2M+</td>
+                </tr>
+            </table>
         </div>
 
         <div class="example-box">

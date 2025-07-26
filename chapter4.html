@@ -1796,8 +1796,8 @@ main()
                 </ul>
                 <p>要求：使用PID控制器或其他控制理论方法。</p>
                 
-                <div class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案 ▼</div>
-                <div class="answer" style="display: none;">
+                <button class="answer-toggle" onclick="toggleAnswer('answer4_1')">查看参考答案</button>
+                <div class="answer-content" id="answer4_1" style="display: none;">
                     <pre><code class="language-solidity">contract DynamicStabilityFee {
     // PID控制器参数
     struct PIDController {
@@ -1912,8 +1912,8 @@ main()
                     <li>偿还借入的DAI并获利</li>
                 </ul>
                 
-                <div class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案 ▼</div>
-                <div class="answer" style="display: none;">
+                <button class="answer-toggle" onclick="toggleAnswer('answer4_2')">查看参考答案</button>
+                <div class="answer-content" id="answer4_2" style="display: none;">
                     <pre><code class="language-solidity">contract FlashLiquidator {
     IVat public vat;
     IDog public dog;
@@ -2022,8 +2022,8 @@ main()
                     <li>考虑抵押品之间的相关性</li>
                 </ul>
                 
-                <div class="answer-toggle" onclick="toggleAnswer(this)">查看参考答案 ▼</div>
-                <div class="answer" style="display: none;">
+                <button class="answer-toggle" onclick="toggleAnswer('answer4_3')">查看参考答案</button>
+                <div class="answer-content" id="answer4_3" style="display: none;">
                     <pre><code class="language-solidity">contract MultiCollateralCDP {
     struct CollateralPosition {
         uint256 amount;
