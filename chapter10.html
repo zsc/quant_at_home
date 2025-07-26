@@ -201,7 +201,7 @@
             <p>反身性（Reflexivity）是索罗斯提出的核心概念，在稳定币系统中表现尤为明显。市场参与者的预期会影响市场价格，而价格变化又会强化或改变预期，形成自我强化的循环。</p>
             
             <div class="code-block">
-                <div class="code-header">
+                <div class="code-header" onclick="toggleCode(this)">
                     Python 代码 <span class="toggle-icon">▼</span>
                 </div>
                 <div class="code-content" style="display: none;">
@@ -334,7 +334,7 @@ print(f"成功概率: {prob:.2%}")</code></pre>
             <p>在超额抵押稳定币系统中，攻击者可以通过操纵债务参数来制造系统性风险：</p>
             
             <div class="code-block">
-                <div class="code-header">
+                <div class="code-header" onclick="toggleCode(this)">
                     Python 代码 <span class="toggle-icon">▼</span>
                 </div>
                 <div class="code-content" style="display: none;">
@@ -444,7 +444,7 @@ print(f"MKR稀释: {impact['mkr_dilution']:.2%}")</code></pre>
             <p>这种攻击通过持续的小额套利缓慢消耗协议的资本储备：</p>
             
             <div class="code-block">
-                <div class="code-header">
+                <div class="code-header" onclick="toggleCode(this)">
                     Python 代码 <span class="toggle-icon">▼</span>
                 </div>
                 <div class="code-content" style="display: none;">
@@ -542,7 +542,7 @@ print(f"预计耗尽时间: {drain_analysis['depletion_days']:.0f} 天")</code><
                 </div>
             </div>
             
-            <h4>10.1.2 死亡螺旋（Death Spiral）深度分析</h4>
+            <h4>10.1.4 死亡螺旋（Death Spiral）深度分析</h4>
             <p>算法稳定币特有的攻击模式，通过数学模型量化其演化过程：</p>
             
             <div class="theory-box">
@@ -655,7 +655,7 @@ if len(critical_point) > 0:
                 </div>
             </div>
             
-            <h4>10.1.3 银行挤兑（Bank Run）模型</h4>
+            <h4>10.1.5 银行挤兑（Bank Run）模型</h4>
             <p>基于Diamond-Dybvig模型的深入分析，参数化稳定币系统的挤兑风险：</p>
             
             <div class="theory-box">
@@ -771,7 +771,7 @@ plt.show()</code></pre>
                 </div>
             </div>
             
-            <h4>10.1.4 反身性攻击（Reflexivity Attack）</h4>
+            <h4>10.1.6 反身性攻击（Reflexivity Attack）</h4>
             <p>基于索罗斯反身性理论，量化市场预期与基本面的相互作用：</p>
             
             <div class="theory-box">
@@ -903,7 +903,7 @@ plt.show()</code></pre>
                 </div>
             </div>
             
-            <h4>10.1.5 博弈论分析</h4>
+            <h4>10.1.7 博弈论分析</h4>
             <p>多方博弈中的纳什均衡与攻击激励分析：</p>
             
             <div class="theory-box">
@@ -1111,7 +1111,7 @@ fig = game.plot_evolutionary_dynamics(history)</code></pre>
             <p>为了分析系统的稳定性，我们使用Lyapunov函数方法：</p>
             
             <div class="code-block">
-                <div class="code-header">
+                <div class="code-header" onclick="toggleCode(this)">
                     Python 代码 <span class="toggle-icon">▼</span>
                 </div>
                 <div class="code-content" style="display: none;">
@@ -1259,7 +1259,7 @@ if simulation['collapse_time']:
             <p>基于上述理论框架，我们可以精确重现Terra生态系统的崩溃过程：</p>
             
             <div class="code-block">
-                <div class="code-header">
+                <div class="code-header" onclick="toggleCode(this)">
                     Python 代码 <span class="toggle-icon">▼</span>
                 </div>
                 <div class="code-content" style="display: none;">
@@ -1431,13 +1431,13 @@ plt.show()</code></pre>
             </div>
         </div>
 
-        <h4>10.1.2 博弈论分析</h4>
+        <h4>10.1.8 高级博弈论分析</h4>
         
         <div class="theory-section">
             <p>稳定币系统中的经济行为可以用博弈论模型来分析：</p>
             
             <div class="code-block">
-                <div class="code-header">
+                <div class="code-header" onclick="toggleCode(this)">
                     Python 代码 <span class="toggle-icon">▼</span>
                 </div>
                 <div class="code-content" style="display: none;">
@@ -2954,7 +2954,7 @@ contract IntentBasedTrading {
         
         <h5>攻击机制分析</h5>
         <div class="code-block">
-            <div class="code-header">
+            <div class="code-header" onclick="toggleCode(this)">
                 Python 代码 <span class="toggle-icon">▼</span>
             </div>
             <div class="code-content" style="display: none;">
@@ -3178,7 +3178,7 @@ contract RiskContagionModel {
         
         <h5>LRT风险缓释策略</h5>
         <div class="code-block">
-            <div class="code-header">
+            <div class="code-header" onclick="toggleCode(this)">
                 Python 代码 <span class="toggle-icon">▼</span>
             </div>
             <div class="code-content" style="display: none;">
@@ -3494,7 +3494,7 @@ contract MultiChainStablecoinOrchestrator {
         
         <h5>桥接风险缓释机制</h5>
         <div class="code-block">
-            <div class="code-header">
+            <div class="code-header" onclick="toggleCode(this)">
                 Python 代码 <span class="toggle-icon">▼</span>
             </div>
             <div class="code-content" style="display: none;">
@@ -4424,7 +4424,7 @@ contract DynamicCollateralRatio {
         </div>
         
         <div class="code-block">
-            <div class="code-header">
+            <div class="code-header" onclick="toggleCode(this)">
                 Python 代码 <span class="toggle-icon">▼</span>
             </div>
             <div class="code-content" style="display: none;">
@@ -4952,7 +4952,7 @@ contract RiskSharingPool {
             </div>
             
             <div class="code-block">
-                <div class="code-header">
+                <div class="code-header" onclick="toggleCode(this)">
                     Python 代码 <span class="toggle-icon">▼</span>
                 </div>
                 <div class="code-content" style="display: none;">
