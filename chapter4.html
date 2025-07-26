@@ -569,6 +569,105 @@ const liquidationParams = {
             <h4>4.2.1 清算触发条件</h4>
             <p>当CDP的抵押率低于清算线时，系统需要及时清算以保护整体偿付能力：</p>
             
+            <div class="theory-box" style="background: #fff3cd; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h5>🎯 深入理解：为什么需要及时清算？</h5>
+                
+                <p><strong>1. 抵押率恶化的连锁反应</strong></p>
+                <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <p>假设一个CDP的初始状态：</p>
+                    <ul>
+                        <li>抵押品：1 ETH（价值 $2000）</li>
+                        <li>借出稳定币：1000 DAI</li>
+                        <li>抵押率：200%（健康）</li>
+                        <li>清算线：150%</li>
+                    </ul>
+                    
+                    <p><strong>当ETH价格下跌到 $1400：</strong></p>
+                    <ul>
+                        <li>新抵押率 = $1400 / $1000 = 140% < 150%（触发清算）</li>
+                        <li>如果不清算，继续下跌到 $900，抵押率仅剩 90%</li>
+                        <li><span style="color: red;">此时抵押品价值已无法覆盖债务，系统出现坏账！</span></li>
+                    </ul>
+                </div>
+                
+                <p><strong>2. 系统偿付能力的保护机制</strong></p>
+                <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <p>及时清算的核心目的是确保系统始终保持<strong>超额抵押</strong>状态：</p>
+                    <ul>
+                        <li><strong>偿付能力</strong> = 所有抵押品总价值 / 所有稳定币总供应量</li>
+                        <li>健康系统的偿付能力应该 > 100%（最好 > 150%）</li>
+                        <li>每个未及时清算的不良CDP都会拉低整体偿付能力</li>
+                    </ul>
+                    
+                    <p><strong>清算时机的数学模型：</strong></p>
+                    <div style="font-family: monospace; background: #f8f9fa; padding: 10px; border-radius: 5px;">
+                        清算缓冲区 = 清算线 - 100%<br>
+                        价格下跌空间 = (当前抵押率 - 100%) / 当前抵押率<br>
+                        安全边际时间 = 价格下跌空间 / 历史波动率
+                    </div>
+                </div>
+                
+                <p><strong>3. 清算不及时的灾难性后果</strong></p>
+                <div style="background: #fee2e2; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <h6>案例：2020年3月12日 "黑色星期四"</h6>
+                    <ul>
+                        <li>ETH在24小时内下跌超过50%</li>
+                        <li>大量CDP瞬间变为严重抵押不足</li>
+                        <li>网络拥堵导致清算延迟</li>
+                        <li>MakerDAO系统产生了<strong>540万美元坏账</strong></li>
+                        <li>部分清算拍卖以0 DAI成交（清算系统故障）</li>
+                    </ul>
+                    
+                    <p><strong>教训：</strong>清算延迟 + 极端行情 = 系统性风险</p>
+                </div>
+                
+                <p><strong>4. 清算线设置的平衡艺术</strong></p>
+                <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+                    <tr style="background: #f8f9fa;">
+                        <th style="padding: 10px; border: 1px solid #dee2e6;">清算线高度</th>
+                        <th style="padding: 10px; border: 1px solid #dee2e6;">优点</th>
+                        <th style="padding: 10px; border: 1px solid #dee2e6;">缺点</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #dee2e6;"><strong>高清算线（如200%）</strong></td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6;">
+                            • 系统更安全<br>
+                            • 坏账风险极低<br>
+                            • 清算缓冲充足
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6;">
+                            • 资金效率低<br>
+                            • 用户体验差<br>
+                            • 频繁触发清算
+                        </td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 10px; border: 1px solid #dee2e6;"><strong>低清算线（如120%）</strong></td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6;">
+                            • 资金效率高<br>
+                            • 用户友好<br>
+                            • 清算频率低
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6;">
+                            • 系统脆弱<br>
+                            • 坏账风险高<br>
+                            • 极端行情易崩溃
+                        </td>
+                    </tr>
+                </table>
+                
+                <p><strong>5. 保护机制的多层设计</strong></p>
+                <div style="background: #e0f2fe; padding: 15px; border-radius: 8px;">
+                    <ol>
+                        <li><strong>第一道防线 - 高初始抵押率：</strong>新建CDP必须 > 200%</li>
+                        <li><strong>第二道防线 - 清算线缓冲：</strong>150%清算线，留50%缓冲</li>
+                        <li><strong>第三道防线 - 激励及时清算：</strong>给Keeper 3-13%奖励</li>
+                        <li><strong>第四道防线 - 紧急暂停：</strong>极端情况下冻结系统</li>
+                        <li><strong>最后防线 - 债务拍卖：</strong>铸造治理代币填补坏账</li>
+                    </ol>
+                </div>
+            </div>
+            
             <div class="code-block">
                 <div class="code-header" onclick="toggleCode(this)">清算引擎核心逻辑 <span class="toggle-icon">▼</span></div>
                 <div class="code-content" style="display: none;">
@@ -759,16 +858,392 @@ const liquidationParams = {
             
             <div class="tip-box">
                 <strong>🕸️ MEV在清算中的两种主要形式：</strong>
-                <ul>
-                    <li><strong>抢跑 (Front-running)：</strong>Keeper监控内存池，抢先执行有利可图的清算</li>
-                    <li><strong>三明治攻击 (Sandwiching)：</strong>在预言机更新前后操纵价格触发清算</li>
-                </ul>
-                <p><strong>缓解策略：</strong></p>
-                <ul>
-                    <li>批量拍卖：减少单个交易的MEV机会</li>
-                    <li>Commit-Reveal：隐藏意图直到执行</li>
-                    <li>Flashbots Protect：使用加密内存池</li>
-                </ul>
+                
+                <h5>1. 抢跑 (Front-running) 攻击详解</h5>
+                <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <p><strong>定义：</strong>MEV搜索者通过监控内存池（mempool），发现有利可图的清算交易，然后通过支付更高的gas费用抢先执行。</p>
+                    
+                    <p><strong>技术实现：</strong></p>
+                    <ul>
+                        <li><strong>内存池监控：</strong>运行全节点，实时扫描pending交易</li>
+                        <li><strong>利润计算：</strong>分析CDP健康度，计算清算奖励与成本</li>
+                        <li><strong>Gas价格竞拍：</strong>动态调整gasPrice，确保交易优先被打包</li>
+                        <li><strong>Flashloan集成：</strong>无需自有资金即可执行大额清算</li>
+                    </ul>
+                    
+                    <p><strong>典型流程：</strong></p>
+                    <ol>
+                        <li>检测到价格更新交易进入mempool</li>
+                        <li>模拟执行后发现CDP将变为可清算状态</li>
+                        <li>构造清算交易，设置gasPrice = 目标交易gasPrice × 1.2</li>
+                        <li>交易被矿工优先打包，获得清算奖励</li>
+                    </ol>
+                    
+                    <p><strong>案例：</strong>2021年5月19日加密市场崩盘期间，某MEV机器人通过抢跑获得超过1000万美元清算利润。</p>
+                </div>
+                
+                <h5>2. 三明治攻击 (Sandwiching) 详解</h5>
+                <div style="background: #fee2e2; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <p><strong>定义：</strong>攻击者在目标交易前后插入自己的交易，通过操纵价格获利。在清算场景中，通过操纵预言机价格触发清算。</p>
+                    
+                    <p><strong>攻击步骤：</strong></p>
+                    <ol>
+                        <li><strong>前置交易：</strong>大量卖出抵押品，压低价格</li>
+                        <li><strong>触发清算：</strong>预言机更新价格，CDP变为可清算</li>
+                        <li><strong>执行清算：</strong>以折扣价获得抵押品</li>
+                        <li><strong>后置交易：</strong>买回抵押品，恢复价格</li>
+                    </ol>
+                    
+                    <p><strong>数学模型：</strong></p>
+                    <ul>
+                        <li>操纵成本：C = SlippageCost + GasFees + LiquidityProvision</li>
+                        <li>清算利润：P = CollateralValue × (1 - LiquidationPenalty) - DebtValue</li>
+                        <li>净利润：NetProfit = P - C</li>
+                    </ul>
+                    
+                    <p><strong>真实案例：</strong>2022年某DeFi协议遭受三明治攻击，攻击者通过操纵TWAP预言机，在10分钟内触发价值200万美元的不当清算。</p>
+                </div>
+                
+                <h5>高级MEV策略</h5>
+                <div style="background: #e0f2fe; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <p><strong>1. 跨协议MEV：</strong></p>
+                    <ul>
+                        <li>同时监控多个借贷协议（Aave、Compound、MakerDAO）</li>
+                        <li>利用协议间的清算参数差异套利</li>
+                        <li>使用闪电贷进行跨协议清算组合</li>
+                    </ul>
+                    
+                    <p><strong>2. JIT (Just-In-Time) 流动性：</strong></p>
+                    <ul>
+                        <li>在清算前瞬间提供流动性到DEX</li>
+                        <li>确保能以最优价格处理清算获得的抵押品</li>
+                        <li>清算完成后立即撤出流动性</li>
+                    </ul>
+                    
+                    <p><strong>3. Bundle交易：</strong></p>
+                    <ul>
+                        <li>将多个相关交易打包成原子操作</li>
+                        <li>确保要么全部成功，要么全部失败</li>
+                        <li>通过Flashbots等私有交易池提交</li>
+                    </ul>
+                </div>
+                
+                <p><strong>缓解策略深度分析：</strong></p>
+                <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <h6>1. 批量拍卖机制</h6>
+                    <ul>
+                        <li><strong>原理：</strong>将一段时间内的清算需求聚合，统一拍卖</li>
+                        <li><strong>优势：</strong>减少gas竞争，提高清算效率</li>
+                        <li><strong>实现：</strong>使用荷兰拍卖或密封拍卖机制</li>
+                    </ul>
+                    
+                    <h6>2. Commit-Reveal机制</h6>
+                    <ul>
+                        <li><strong>第一阶段：</strong>提交加密的清算意图hash</li>
+                        <li><strong>第二阶段：</strong>揭示实际清算参数</li>
+                        <li><strong>效果：</strong>防止抢跑，但增加了交易复杂度</li>
+                    </ul>
+                    
+                    <h6>3. MEV-Share协议</h6>
+                    <ul>
+                        <li><strong>Flashbots Protect：</strong>私有交易池，防止mempool泄露</li>
+                        <li><strong>MEV收益共享：</strong>将部分MEV收益返还给用户</li>
+                        <li><strong>订单流拍卖：</strong>让搜索者竞标处理用户交易</li>
+                    </ul>
+                    
+                    <h6>4. 时间延迟机制</h6>
+                    <ul>
+                        <li><strong>渐进式清算：</strong>分阶段执行，给CDP所有者反应时间</li>
+                        <li><strong>Dutch Auction：</strong>清算折扣随时间递增</li>
+                        <li><strong>Grace Period：</strong>首次触发后的保护期</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">MEV Bot实现示例 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-javascript">// MEV搜索者机器人核心逻辑
+const { ethers } = require('ethers');
+const { FlashbotsBundleProvider } = require('@flashbots/ethers-provider-bundle');
+
+class MEVBot {
+    constructor(config) {
+        this.provider = new ethers.providers.WebSocketProvider(config.wsUrl);
+        this.wallet = new ethers.Wallet(config.privateKey);
+        this.flashbotsProvider = FlashbotsBundleProvider.create(
+            this.provider,
+            this.wallet,
+            config.flashbotsRpc
+        );
+        
+        // 监控的协议地址
+        this.protocols = {
+            makerdao: '0x...',
+            compound: '0x...',
+            aave: '0x...'
+        };
+        
+        // MEV配置参数
+        this.config = {
+            minProfit: ethers.utils.parseEther('0.1'), // 最小利润0.1 ETH
+            maxGasPrice: ethers.utils.parseUnits('300', 'gwei'),
+            slippageTolerance: 0.03 // 3%滑点容忍度
+        };
+    }
+    
+    async monitorMempool() {
+        // 监听pending交易
+        this.provider.on('pending', async (txHash) => {
+            try {
+                const tx = await this.provider.getTransaction(txHash);
+                if (!tx) return;
+                
+                // 检查是否是预言机更新交易
+                if (this.isOracleUpdate(tx)) {
+                    await this.analyzeOracleUpdate(tx);
+                }
+                
+                // 检查是否是大额交易（可能影响价格）
+                if (this.isLargeTrade(tx)) {
+                    await this.analyzePriceImpact(tx);
+                }
+            } catch (error) {
+                console.error('Error processing tx:', error);
+            }
+        });
+    }
+    
+    async analyzeOracleUpdate(tx) {
+        // 模拟交易执行
+        const { newPrice, affectedAsset } = await this.simulateOracleUpdate(tx);
+        
+        // 扫描所有协议中的CDP
+        for (const [protocol, address] of Object.entries(this.protocols)) {
+            const liquidations = await this.findLiquidatableCDPs(
+                protocol,
+                affectedAsset,
+                newPrice
+            );
+            
+            if (liquidations.length > 0) {
+                await this.executeMEVBundle(tx, liquidations);
+            }
+        }
+    }
+    
+    async executeMEVBundle(targetTx, liquidations) {
+        const bundle = [];
+        
+        // 1. 构建抢跑交易
+        for (const liquidation of liquidations) {
+            const flashloanTx = await this.buildFlashloanLiquidation(liquidation);
+            bundle.push({
+                signer: this.wallet,
+                transaction: flashloanTx
+            });
+        }
+        
+        // 2. 包含目标交易（预言机更新）
+        bundle.push({
+            signedTransaction: targetTx.raw
+        });
+        
+        // 3. 计算利润和成本
+        const profit = this.calculateProfit(liquidations);
+        const maxBribe = profit.mul(50).div(100); // 最多贿赂50%利润
+        
+        // 4. 提交到Flashbots
+        const blockNumber = await this.provider.getBlockNumber();
+        const bundleResponse = await this.flashbotsProvider.sendBundle(
+            bundle,
+            blockNumber + 1,
+            {
+                maxBlockNumber: blockNumber + 3, // 3个区块内有效
+                revertingTxHashes: [targetTx.hash] // 如果目标交易失败，整个bundle失败
+            }
+        );
+        
+        // 5. 模拟bundle执行
+        const simulation = await bundleResponse.simulate();
+        
+        if (simulation.firstRevert) {
+            console.error('Bundle reverted:', simulation.firstRevert);
+            return;
+        }
+        
+        console.log(`MEV Bundle submitted: ${simulation.totalGasUsed} gas, ${ethers.utils.formatEther(profit)} ETH profit`);
+    }
+    
+    async buildFlashloanLiquidation(liquidation) {
+        // 使用闪电贷执行清算，无需自有资金
+        const flashloanContract = new ethers.Contract(
+            '0x...', // Aave flashloan地址
+            ['function flashLoan(address asset, uint256 amount, bytes calldata params)'],
+            this.wallet
+        );
+        
+        const params = ethers.utils.defaultAbiCoder.encode(
+            ['address', 'address', 'uint256'],
+            [liquidation.protocol, liquidation.cdpId, liquidation.debtAmount]
+        );
+        
+        return flashloanContract.populateTransaction.flashLoan(
+            liquidation.collateralAsset,
+            liquidation.requiredCollateral,
+            params
+        );
+    }
+    
+    // 三明治攻击实现
+    async executeSandwichAttack(victimTx) {
+        const bundle = [];
+        
+        // 1. 前置交易：操纵价格
+        const frontrunTx = await this.buildManipulationTx(
+            victimTx.asset,
+            'sell',
+            this.calculateOptimalAmount(victimTx)
+        );
+        bundle.push(frontrunTx);
+        
+        // 2. 受害者交易
+        bundle.push({ signedTransaction: victimTx.raw });
+        
+        // 3. 后置交易：恢复价格并获利
+        const backrunTx = await this.buildManipulationTx(
+            victimTx.asset,
+            'buy',
+            frontrunTx.amount
+        );
+        bundle.push(backrunTx);
+        
+        // 提交bundle
+        return this.submitPrivateBundle(bundle);
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header" onclick="toggleCode(this)">MEV保护机制实现 <span class="toggle-icon">▼</span></div>
+                <div class="code-content" style="display: none;">
+                    <pre><code class="language-solidity">// MEV保护的清算系统
+contract MEVProtectedLiquidation {
+    using SafeMath for uint256;
+    
+    // 批量清算拍卖
+    struct LiquidationBatch {
+        uint256 startTime;
+        uint256 endTime;
+        address[] cdps;
+        uint256 totalDebt;
+        uint256 totalCollateral;
+        mapping(address => uint256) bids;
+        address winner;
+    }
+    
+    mapping(uint256 => LiquidationBatch) public batches;
+    uint256 public currentBatchId;
+    
+    // Commit-Reveal机制
+    mapping(bytes32 => bool) public commitments;
+    mapping(address => bytes32) public userCommitments;
+    
+    uint256 constant BATCH_DURATION = 300; // 5分钟批次
+    uint256 constant REVEAL_DURATION = 60;  // 1分钟揭示期
+    
+    // 提交清算意图（加密）
+    function commitLiquidation(bytes32 commitment) external {
+        require(!commitments[commitment], "Duplicate commitment");
+        commitments[commitment] = true;
+        userCommitments[msg.sender] = commitment;
+        
+        emit LiquidationCommitted(msg.sender, commitment);
+    }
+    
+    // 揭示清算参数
+    function revealLiquidation(
+        address cdp,
+        uint256 debtToCover,
+        uint256 minCollateralReceived,
+        uint256 nonce
+    ) external {
+        // 验证commitment
+        bytes32 commitment = keccak256(abi.encodePacked(
+            msg.sender,
+            cdp,
+            debtToCover,
+            minCollateralReceived,
+            nonce
+        ));
+        
+        require(userCommitments[msg.sender] == commitment, "Invalid reveal");
+        require(block.timestamp % BATCH_DURATION >= BATCH_DURATION - REVEAL_DURATION, "Not in reveal phase");
+        
+        // 添加到当前批次
+        _addToBatch(cdp, debtToCover, minCollateralReceived);
+    }
+    
+    // 荷兰拍卖清算
+    function dutchAuctionLiquidate(address cdp) external {
+        CDP memory position = getCDP(cdp);
+        require(position.healthFactor < 1e18, "CDP is healthy");
+        
+        uint256 timeSinceDefault = block.timestamp.sub(position.defaultTime);
+        
+        // 折扣随时间线性增加
+        uint256 discount = timeSinceDefault.mul(1e16).div(3600); // 每小时增加1%
+        discount = Math.min(discount, 15e16); // 最大15%折扣
+        
+        uint256 collateralPrice = oracle.getPrice(position.collateral);
+        uint256 discountedPrice = collateralPrice.mul(100e16 - discount).div(100e16);
+        
+        // 执行清算
+        _liquidateWithDiscount(cdp, msg.sender, discountedPrice);
+    }
+    
+    // MEV收益共享机制
+    contract MEVRewardDistribution {
+        uint256 public mevRewards;
+        mapping(address => uint256) public userShares;
+        
+        // 记录MEV收益
+        function recordMEVProfit(uint256 profit) external onlyKeeper {
+            mevRewards = mevRewards.add(profit);
+            
+            // 50%给协议，50%给受影响用户
+            uint256 protocolShare = profit.div(2);
+            uint256 userShare = profit.sub(protocolShare);
+            
+            _distributeToAffectedUsers(userShare);
+        }
+        
+        // 分发给受MEV影响的用户
+        function _distributeToAffectedUsers(uint256 amount) internal {
+            // 基于用户的交易量和受影响程度分配
+            // 实现细节...
+        }
+    }
+    
+    // 时间延迟保护
+    modifier withGracePeriod(address cdp) {
+        CDP storage position = cdps[cdp];
+        
+        if (position.healthFactor < LIQUIDATION_THRESHOLD) {
+            if (position.gracePeriodEnd == 0) {
+                // 首次进入危险区域，开始宽限期
+                position.gracePeriodEnd = block.timestamp.add(GRACE_PERIOD);
+                emit GracePeriodStarted(cdp, position.gracePeriodEnd);
+                return;
+            }
+            
+            require(block.timestamp > position.gracePeriodEnd, "Still in grace period");
+        }
+        _;
+    }
+}</code></pre>
+                </div>
             </div>
             
             <div class="code-block">
