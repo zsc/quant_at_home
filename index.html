@@ -4,8 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>区块链稳定币智能合约教程</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <!-- Preload critical resources -->
+    <link rel="preload" href="styles.css" as="style">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://unpkg.com">
+    
+    <!-- Critical CSS inlined for fast first paint -->
+    <style>
+        /* Critical styles for above-the-fold content */
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; }
+        .navbar { background: #1e293b; padding: 1rem 0; position: sticky; top: 0; z-index: 1000; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+        .navbar-brand { color: white; text-decoration: none; font-weight: bold; font-size: 1.25rem; }
+        .navbar-nav { display: none; } /* Hide complex nav on mobile first */
+        header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4rem 0; text-align: center; }
+        header h1 { font-size: 2.5rem; margin: 0 0 1rem 0; }
+        header p { font-size: 1.2rem; opacity: 0.9; margin: 0; }
+        @media (min-width: 768px) {
+            .navbar-nav { display: flex; list-style: none; margin: 0; padding: 0; }
+            .nav-link { color: white; text-decoration: none; padding: 0.5rem 1rem; }
+        }
+    </style>
+    <link rel="stylesheet" href="styles.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="styles.css"></noscript>
+    <!-- Defer non-critical CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet"></noscript>
 </head>
 <body>
     <!-- 导航栏 -->
@@ -74,8 +98,8 @@
         <!-- 章节关系脑图 -->
         <div class="chapter">
             <h2>章节关系脑图</h2>
-            <!-- Graphviz 渲染容器 -->
-            <div id="graphviz-mindmap" style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px; overflow-x: auto;">
+            <!-- Mermaid 渲染容器 -->
+            <div id="mermaid-mindmap" style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px; overflow-x: auto;">
                 <div style="min-width: 900px;">
                     <!-- 图形将通过 JavaScript 渲染到这里 -->
                 </div>
@@ -92,108 +116,176 @@
             </div>
         </div>
         
-        <!-- Graphviz 脚本和 D3-graphviz -->
-        <script src="https://unpkg.com/d3@7"></script>
-        <script src="https://unpkg.com/@hpcc-js/wasm@1/dist/index.min.js"></script>
-        <script src="https://unpkg.com/d3-graphviz@4"></script>
+        <!-- Lazy load Mermaid for mindmap -->
         <script>
-            // Graphviz DOT 语言定义脑图
-            const dotSource = `
-            digraph G {
-                // 图形属性
-                rankdir=TB;
-                bgcolor="transparent";
-                node [shape=box, style="rounded,filled", fontname="Arial"];
-                edge [color="#94a3b8", penwidth=2];
+            // Lazy load Mermaid when the mindmap section comes into view
+            function loadMermaid() {
+                if (window.mermaidLoaded) return;
+                window.mermaidLoaded = true;
                 
-                // 定义子图（分组）
-                subgraph cluster_foundation {
-                    label="基础篇";
-                    style=filled;
-                    fillcolor="#e0f2fe50";
-                    color="#0284c7";
-                    fontsize=16;
-                    fontcolor="#0284c7";
-                    
-                    intro [label="引言\\n历史与概念", fillcolor="#e0f2fe", color="#0284c7"];
-                    ch1 [label="第1章\\n区块链基础", fillcolor="#e0f2fe", color="#0284c7"];
-                    ch2 [label="第2章\\n分类与模型", fillcolor="#e0f2fe", color="#0284c7"];
-                    ch3 [label="第3章\\nERC-20标准", fillcolor="#e0f2fe", color="#0284c7"];
-                    
-                    intro -> ch1 -> ch2 -> ch3 [style=dashed, color="#0284c7"];
-                }
-                
-                subgraph cluster_design {
-                    label="设计篇";
-                    style=filled;
-                    fillcolor="#dcfce750";
-                    color="#10b981";
-                    fontsize=16;
-                    fontcolor="#10b981";
-                    
-                    ch4 [label="第4章\\n抵押型设计", fillcolor="#dcfce7", color="#10b981"];
-                    ch5 [label="第5章\\n数学模型", fillcolor="#dcfce7", color="#10b981"];
-                    ch6 [label="第6章\\nAMM集成", fillcolor="#dcfce7", color="#10b981"];
-                    ch7 [label="第7章\\n借贷协议", fillcolor="#dcfce7", color="#10b981"];
-                    ch8 [label="第8章\\n收益策略", fillcolor="#dcfce7", color="#10b981"];
-                    
-                    ch4 -> ch5 [style=dashed, color="#10b981"];
-                    ch6 -> ch7 [style=dashed, color="#10b981"];
-                    ch7 -> ch8 [style=dashed, color="#10b981"];
-                    ch6 -> ch8 [style=dashed, color="#10b981"];
-                }
-                
-                subgraph cluster_advanced {
-                    label="高级篇";
-                    style=filled;
-                    fillcolor="#fef3c750";
-                    color="#f59e0b";
-                    fontsize=16;
-                    fontcolor="#f59e0b";
-                    
-                    ch9 [label="第9章\\n合约安全", fillcolor="#fef3c7", color="#f59e0b"];
-                    ch10 [label="第10章\\n经济攻击", fillcolor="#fef3c7", color="#f59e0b"];
-                    ch11 [label="第11章\\n未来方向", fillcolor="#fef3c7", color="#f59e0b"];
-                    ch12 [label="第12章\\n生产部署", fillcolor="#fef3c7", color="#f59e0b"];
-                    ch13 [label="第13章\\n生态集成", fillcolor="#fef3c7", color="#f59e0b"];
-                    
-                    ch9 -> ch10 [style=dashed, color="#f59e0b"];
-                    ch9 -> ch12 [style=dashed, color="#f59e0b"];
-                    ch12 -> ch13 [style=dashed, color="#f59e0b"];
-                }
-                
-                // 中心节点
-                core [label="稳定币\\n智能合约", shape=circle, width=1.5, height=1.5, 
-                      style="filled,bold", fillcolor="#6366f1", 
-                      fontcolor="white", fontsize=16];
-                
-                // 主要连接线
-                ch3 -> core [color="#6366f1", penwidth=3];
-                ch4 -> core [color="#10b981", penwidth=3];
-                ch5 -> core [color="#10b981", penwidth=3];
-                ch6 -> core [color="#10b981", penwidth=3];
-                ch7 -> core [color="#10b981", penwidth=3];
-                ch8 -> core [color="#10b981", penwidth=3];
-                core -> ch9 [color="#f59e0b", penwidth=3];
-                core -> ch10 [color="#f59e0b", penwidth=3];
-                core -> ch11 [color="#f59e0b", penwidth=3];
-                core -> ch12 [color="#f59e0b", penwidth=3];
-                core -> ch13 [color="#f59e0b", penwidth=3];
-                
-                // 跨组依赖
-                ch3 -> ch4 [constraint=false, style=dotted, color="#64748b"];
-                ch5 -> ch10 [constraint=false, style=dotted, color="#64748b"];
-                ch8 -> ch11 [constraint=false, style=dotted, color="#64748b"];
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+                script.onload = () => {
+                    renderMermaidMindmap();
+                };
+                document.head.appendChild(script);
             }
-            `;
             
-            // 渲染 Graphviz
-            d3.select("#graphviz-mindmap > div").graphviz()
-                .width(900)
-                .height(600)
-                .fit(true)
-                .zoom(false)
-                .renderDot(dotSource);
+            function renderMermaidMindmap() {
+                // 配置 Mermaid 主题和样式
+                mermaid.initialize({
+                    startOnLoad: false,
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: '#6366f1',
+                        primaryTextColor: '#ffffff',
+                        primaryBorderColor: '#4f46e5',
+                        lineColor: '#94a3b8',
+                        secondaryColor: '#e0f2fe',
+                        tertiaryColor: '#dcfce7',
+                        background: '#ffffff',
+                        mainBkg: '#6366f1',
+                        secondBkg: '#10b981',
+                        tertiaryBkg: '#f59e0b',
+                        clusterBkg: '#f8fafc',
+                        altBackground: '#f1f5f9',
+                        nodeTextColor: '#1e293b'
+                    },
+                    flowchart: {
+                        htmlLabels: true,
+                        curve: 'cardinal'
+                    }
+                });
+                
+                // 定义流程图结构（使用flowchart替代mindmap以获得更好的控制）
+                const diagramCode = `
+flowchart TD
+    Core["🏛️ 稳定币<br/>智能合约"] 
+    
+    %% 基础篇
+    subgraph Foundation["🔵 基础篇"]
+        Intro["📚 引言<br/>历史与概念"]
+        Ch1["⛓️ 第1章<br/>区块链基础"]
+        Ch2["📊 第2章<br/>分类与模型"]
+        Ch3["🔗 第3章<br/>ERC-20标准"]
+        
+        Intro --> Ch1
+        Ch1 --> Ch2
+        Ch2 --> Ch3
+    end
+    
+    %% 设计篇
+    subgraph Design["🟢 设计篇"]
+        Ch4["🏦 第4章<br/>抵押型设计"]
+        Ch5["📐 第5章<br/>数学模型"]
+        Ch6["🌊 第6章<br/>AMM集成"]
+        Ch7["💰 第7章<br/>借贷协议"]
+        Ch8["📈 第8章<br/>收益策略"]
+        
+        Ch4 -.-> Ch5
+        Ch6 --> Ch7
+        Ch7 --> Ch8
+        Ch6 -.-> Ch8
+    end
+    
+    %% 高级篇
+    subgraph Advanced["🟡 高级篇"]
+        Ch9["🛡️ 第9章<br/>合约安全"]
+        Ch10["⚔️ 第10章<br/>经济攻击"]
+        Ch11["🚀 第11章<br/>未来方向"]
+        Ch12["🏭 第12章<br/>生产部署"]
+        Ch13["🌐 第13章<br/>生态集成"]
+        
+        Ch9 --> Ch10
+        Ch9 -.-> Ch12
+        Ch12 --> Ch13
+    end
+    
+    %% 核心连接
+    Ch3 ==> Core
+    Ch4 ==> Core
+    Ch5 ==> Core
+    Ch6 ==> Core
+    Ch7 ==> Core
+    Ch8 ==> Core
+    Core ==> Ch9
+    Core ==> Ch10
+    Core ==> Ch11
+    Core ==> Ch12
+    Core ==> Ch13
+    
+    %% 跨组依赖
+    Ch3 -.- Ch4
+    Ch5 -.- Ch10
+    Ch8 -.- Ch11
+    
+    %% 样式定义
+    classDef coreStyle fill:#6366f1,stroke:#4f46e5,stroke-width:3px,color:#fff,font-weight:bold
+    classDef foundationStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0284c7
+    classDef designStyle fill:#dcfce7,stroke:#10b981,stroke-width:2px,color:#10b981
+    classDef advancedStyle fill:#fef3c7,stroke:#f59e0b,stroke-width:2px,color:#f59e0b
+    classDef groupStyle fill:#f8fafc,stroke:#e2e8f0,stroke-width:2px
+    
+    class Core coreStyle
+    class Intro,Ch1,Ch2,Ch3 foundationStyle
+    class Ch4,Ch5,Ch6,Ch7,Ch8 designStyle
+    class Ch9,Ch10,Ch11,Ch12,Ch13 advancedStyle
+                `;
+                
+                try {
+                    const container = document.getElementById('mermaid-mindmap');
+                    container.innerHTML = `<div class="mermaid">${diagramCode}</div>`;
+                    mermaid.run();
+                    
+                    // 添加自定义样式增强
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        #mermaid-mindmap .mermaid {
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                        }
+                        #mermaid-mindmap svg {
+                            max-width: 100%;
+                            height: auto;
+                        }
+                        #mermaid-mindmap .cluster rect {
+                            fill: #f8fafc !important;
+                            stroke: #e2e8f0 !important;
+                            stroke-width: 2px !important;
+                            rx: 8px !important;
+                        }
+                        #mermaid-mindmap .cluster text {
+                            font-weight: bold !important;
+                            font-size: 14px !important;
+                        }
+                    `;
+                    document.head.appendChild(style);
+                    
+                } catch (error) {
+                    console.warn('Mermaid rendering failed:', error);
+                    document.getElementById('mermaid-mindmap').innerHTML = 
+                        '<p style="text-align: center; color: #666;">脑图渲染失败，请刷新页面重试</p>';
+                }
+            }
+            
+            // Intersection Observer for lazy loading
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        loadMermaid();
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { rootMargin: '100px' });
+            
+            // Observe the mindmap container when DOM is ready
+            document.addEventListener('DOMContentLoaded', () => {
+                const mindmapContainer = document.getElementById('mermaid-mindmap');
+                if (mindmapContainer) {
+                    // Add loading placeholder
+                    mindmapContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 400px; color: #666;"><div>🧠 思维导图加载中...</div></div>';
+                    observer.observe(mindmapContainer);
+                }
+            });
         </script>
         
         <!-- 章节概览 -->
@@ -205,11 +297,11 @@
                 <ul>
                     <li><a href="intro.html">引言：稳定币的历史、概念与市场格局</a>
                         <ul style="margin-left: 20px; font-size: 0.9em;">
-                            <li>• 基础概念厘清</li>
-                            <li>• 常见误区澄清</li>
-                            <li>• 稳定币发展简史</li>
-                            <li>• 核心概念回顾</li>
-                            <li>• 2024年市场格局</li>
+                            <li>• <a href="intro.html#basic-concepts">基础概念厘清</a></li>
+                            <li>• <a href="intro.html#common-misconceptions">常见误区澄清</a></li>
+                            <li>• <a href="intro.html#development-history">稳定币发展简史</a></li>
+                            <li>• <a href="intro.html#core-concepts">核心概念回顾</a></li>
+                            <li>• <a href="intro.html#market-landscape-2024">2024年市场格局</a></li>
                         </ul>
                     </li>
                     <li><a href="chapter1.html">第1章：区块链基础与稳定币</a>
@@ -426,11 +518,36 @@
         </div>
     </footer>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-solidity.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
-    <script src="script.js"></script>
+    <!-- Load only essential scripts on homepage -->
+    <script src="script.js" async></script>
+    
+    <!-- Performance optimizations -->
+    <script>
+        // Service Worker registration for caching
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {
+                    // Silently fail if no service worker
+                });
+            });
+        }
+        
+        // Prefetch navigation links on hover
+        document.addEventListener('DOMContentLoaded', () => {
+            const links = document.querySelectorAll('a[href$=".html"]');
+            links.forEach(link => {
+                link.addEventListener('mouseenter', () => {
+                    const linkPrefetch = document.createElement('link');
+                    linkPrefetch.rel = 'prefetch';
+                    linkPrefetch.href = link.href;
+                    document.head.appendChild(linkPrefetch);
+                }, { once: true });
+            });
+        });
+    </script>
+    
+    <!-- Preload Prism for other pages -->
+    <link rel="prefetch" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js">
+    <link rel="prefetch" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-solidity.min.js">
 </body>
 </html>
