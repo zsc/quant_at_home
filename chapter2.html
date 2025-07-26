@@ -992,7 +992,18 @@ class StablecoinControlSystem:
                 
                 <h4>部分算法稳定币：FRAX</h4>
                 
-                <p>FRAX采用部分抵押模式，根据市场条件动态调整抵押率，是算法稳定币的改进尝试。</p>
+                <p>FRAX采用部分抵押模式，根据市场条件动态调整抵押率，是算法稳定币的改进尝试。作为第一个成功存活下来的部分算法稳定币，FRAX为整个行业提供了宝贵的经验。</p>
+                
+                <div class="info-box">
+                    <h5>📈 FRAX的演进历程</h5>
+                    <p>FRAX代表了算法稳定币的务实转向：</p>
+                    <ul>
+                        <li><strong>V1（2020）</strong>：从85%抵押率起步，计划逐步降低</li>
+                        <li><strong>V2（2022）</strong>：UST崩盘后，提高至90%+抵押率</li>
+                        <li><strong>V3（2023）</strong>：引入sFRAX（生息版本），接近100%抵押</li>
+                        <li><strong>启示</strong>：市场最终选择了安全性而非资本效率</li>
+                    </ul>
+                </div>
                 
                 <h5>核心创新：分数算法稳定币</h5>
                 <div class="code-block">
@@ -1091,6 +1102,18 @@ contract FraxAMOMinter {
                     <li><strong>FPI</strong>：锚定CPI的通胀调整稳定币</li>
                 </ul>
                 
+                <div class="example-box">
+                    <h5>🔍 AMO（算法市场操作）的创新</h5>
+                    <p>FRAX的AMO系统是其最大的创新，允许协议在不影响抵押率的情况下进行市场操作：</p>
+                    <ul>
+                        <li><strong>Curve AMO</strong>：在Curve池中提供流动性，赚取交易费</li>
+                        <li><strong>Lending AMO</strong>：在Aave等平台上借贷，获得利息收入</li>
+                        <li><strong>Liquidity AMO</strong>：在Uniswap V3上主动管理流动性</li>
+                        <li><strong>Investor AMO</strong>：将闲置资金投资于低风险资产</li>
+                    </ul>
+                    <p>这些AMO在2023年为协议创造了超过$50M的收入，大大增强了系统的可持续性。</p>
+                </div>
+                
                 <h4>其他算法稳定币尝试</h4>
                 
                 <h5>Basis Cash（已失败）</h5>
@@ -1112,6 +1135,18 @@ contract FraxAMOMinter {
                     <li><strong>特点</strong>：不是传统意义的稳定币，更像"稳定购买力"</li>
                 </ul>
                 
+                <div class="example-box">
+                    <h5>📦 算法稳定币失败案例总结</h5>
+                    <p>从2020-2022年，数十个算法稳定币项目相继失败，损失超过$100B。它们的共同问题包括：</p>
+                    <ul>
+                        <li><strong>需求不足</strong>：缺乏真实使用场景，仅靠投机需求支撑</li>
+                        <li><strong>机制脆弱</strong>：在极端市场条件下无法维持稳定</li>
+                        <li><strong>信心依赖</strong>：过度依赖市场信心，一旦失去难以恢复</li>
+                        <li><strong>产品复杂</strong>：用户难以理解，增加了采用门槛</li>
+                    </ul>
+                    <p>这些失败为后来的项目提供了宝贵的经验教训。</p>
+                </div>
+                
                 <div class="tip">
                     <strong>💡 算法稳定币的未来方向：</strong>
                     <ul>
@@ -1126,12 +1161,22 @@ contract FraxAMOMinter {
             <div class="theory-section">
                 <h3>2.4 混合模型与创新</h3>
                 
-                <p>随着稳定币生态的成熟，出现了结合多种机制优点的混合模型，以及针对特定用例的创新设计。</p>
+                <p>随着稳定币生态的成熟，出现了结合多种机制优点的混合模型，以及针对特定用例的创新设计。这些新一代稳定币吸取了前人的教训，在机制设计上更加成熟和复杂。</p>
                 
                 <h4>2024年最新创新：Ethena与合成美元</h4>
                 
                 <h5>USDe：Delta中性稳定币</h5>
-                <p>Ethena Protocol推出的USDe代表了稳定币设计的新范式：通过衍生品对冲而非抵押品来维持稳定。</p>
+                <p>Ethena Protocol推出的USDe代表了稳定币设计的新范式：通过衍生品对冲而非抵押品来维持稳定。这种“合成美元”的概念吸引了大量关注，但也引发了关于其可持续性的讨论。</p>
+                
+                <div class="info-box">
+                    <h5>💡 USDe的核心创新</h5>
+                    <ul>
+                        <li><strong>持有现货ETH</strong>：协议持有实际的ETH作为基础资产</li>
+                        <li><strong>做空永续合约</strong>：通过做空等值的ETH永续合约对冲价格风险</li>
+                        <li><strong>赚取资金费率</strong>：当资金费率为正时（多头付给空头），协议获得收益</li>
+                        <li><strong>sUSDe质押</strong>：用户可以质押USDe获得资金费率收益</li>
+                    </ul>
+                </div>
                 
                 <div class="code-block">
                     <div class="code-header" onclick="toggleCode(this)">Ethena核心机制：Delta中性策略 <span class="toggle-icon">▼</span></div>
