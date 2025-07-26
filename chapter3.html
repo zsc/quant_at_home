@@ -69,6 +69,98 @@
                 </ul>
             </div>
 
+            <h3>FAQ: ERC与EIP的区别</h3>
+            <div class="info-box" style="background-color: #e0f2fe; border-left: 4px solid #0284c7;">
+                <h4>🤔 经常混淆的概念：ERC-XX vs EIP-YY</h4>
+                
+                <div style="margin: 1rem 0;">
+                    <h5>什么是EIP？</h5>
+                    <p><strong>EIP (Ethereum Improvement Proposal)</strong> 是以太坊改进提案的总称，涵盖了所有对以太坊协议的改进建议。</p>
+                    <ul>
+                        <li><strong>范围：</strong>核心协议、网络、接口、应用标准等</li>
+                        <li><strong>编号：</strong>按提交顺序递增（如EIP-1, EIP-20, EIP-1559）</li>
+                        <li><strong>类别：</strong>
+                            <ul>
+                                <li>Core - 核心协议改进</li>
+                                <li>Networking - 网络协议</li>
+                                <li>Interface - API/RPC规范</li>
+                                <li>ERC - 应用级标准（见下文）</li>
+                                <li>Meta - 流程相关</li>
+                                <li>Informational - 指南说明</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div style="margin: 1rem 0;">
+                    <h5>什么是ERC？</h5>
+                    <p><strong>ERC (Ethereum Request for Comments)</strong> 是EIP的一个子类别，专门定义应用级标准。</p>
+                    <ul>
+                        <li><strong>范围：</strong>代币标准、名称注册、钱包格式等应用层协议</li>
+                        <li><strong>关系：</strong>每个ERC都是一个EIP，但并非所有EIP都是ERC</li>
+                        <li><strong>编号混淆：</strong>ERC-20实际上是EIP-20，但习惯称为ERC-20</li>
+                    </ul>
+                </div>
+                
+                <div style="background-color: #dbeafe; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <h5>📋 常见标准对照表</h5>
+                    <table style="width: 100%; margin-top: 0.5rem;">
+                        <tr style="background: #f0f9ff;">
+                            <th style="padding: 0.5rem; text-align: left;">通用名称</th>
+                            <th style="padding: 0.5rem; text-align: left;">正式编号</th>
+                            <th style="padding: 0.5rem; text-align: left;">类型</th>
+                            <th style="padding: 0.5rem; text-align: left;">用途</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem;">ERC-20</td>
+                            <td style="padding: 0.5rem;">EIP-20</td>
+                            <td style="padding: 0.5rem;">ERC</td>
+                            <td style="padding: 0.5rem;">同质化代币标准</td>
+                        </tr>
+                        <tr style="background: #f0f9ff;">
+                            <td style="padding: 0.5rem;">ERC-721</td>
+                            <td style="padding: 0.5rem;">EIP-721</td>
+                            <td style="padding: 0.5rem;">ERC</td>
+                            <td style="padding: 0.5rem;">非同质化代币(NFT)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem;">ERC-1155</td>
+                            <td style="padding: 0.5rem;">EIP-1155</td>
+                            <td style="padding: 0.5rem;">ERC</td>
+                            <td style="padding: 0.5rem;">多代币标准</td>
+                        </tr>
+                        <tr style="background: #f0f9ff;">
+                            <td style="padding: 0.5rem;">EIP-1559</td>
+                            <td style="padding: 0.5rem;">EIP-1559</td>
+                            <td style="padding: 0.5rem;">Core</td>
+                            <td style="padding: 0.5rem;">Gas费用改革</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem;">EIP-712</td>
+                            <td style="padding: 0.5rem;">EIP-712</td>
+                            <td style="padding: 0.5rem;">Interface</td>
+                            <td style="padding: 0.5rem;">结构化数据签名</td>
+                        </tr>
+                        <tr style="background: #f0f9ff;">
+                            <td style="padding: 0.5rem;">ERC-2612</td>
+                            <td style="padding: 0.5rem;">EIP-2612</td>
+                            <td style="padding: 0.5rem;">ERC</td>
+                            <td style="padding: 0.5rem;">Permit（签名授权）</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div style="margin-top: 1rem; padding: 1rem; background-color: #fef3c7; border-radius: 8px;">
+                    <h5>💡 记忆技巧</h5>
+                    <ul>
+                        <li><strong>ERC = 应用标准：</strong>如果是关于代币、NFT等应用层的，通常是ERC</li>
+                        <li><strong>纯EIP = 协议改进：</strong>如果是关于以太坊核心功能的，通常只称EIP</li>
+                        <li><strong>习惯用法：</strong>社区习惯说"ERC-20代币"而不是"EIP-20代币"</li>
+                        <li><strong>查找方法：</strong>在eips.ethereum.org可以找到所有提案的正式文档</li>
+                    </ul>
+                </div>
+            </div>
+
             <h3>3.1 标准代币接口深度解析</h3>
             
             <h4>3.1.1 ERC-20标准的演进历程</h4>
@@ -1331,6 +1423,148 @@ describe("EnterpriseStablecoin", function () {
                 </div>
             </div>
             
+            <h3>EIP-712：结构化数据签名标准</h3>
+            <div class="info-box" style="background-color: #e0e7ff; border-left: 4px solid #6366f1;">
+                <h4>🔐 EIP-712的重要性</h4>
+                <p><strong>EIP-712</strong>定义了以太坊中结构化数据的签名标准，是实现Permit等高级功能的基础。它解决了原始签名方法的安全问题，让用户能够清楚地看到他们签名的内容。</p>
+                
+                <div style="margin: 1rem 0;">
+                    <h5>核心概念</h5>
+                    <ul>
+                        <li><strong>类型化数据：</strong>将数据组织成结构化的类型，而不是简单的字节串</li>
+                        <li><strong>域分离：</strong>每个应用有自己的签名域，防止跨应用重放攻击</li>
+                        <li><strong>人类可读：</strong>钱包可以显示结构化的数据，用户知道自己在签什么</li>
+                        <li><strong>链下签名：</strong>用户可以在不发送交易的情况下授权操作</li>
+                    </ul>
+                </div>
+                
+                <div style="background-color: #c7d2fe; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                    <h5>📋 EIP-712数据结构</h5>
+                    <pre style="background-color: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 4px; overflow-x: auto;">
+{
+    domain: {
+        name: "MyStablecoin",
+        version: "1",
+        chainId: 1,
+        verifyingContract: "0x..."
+    },
+    message: {
+        owner: "0x...",
+        spender: "0x...",
+        value: 1000000,
+        nonce: 0,
+        deadline: 1234567890
+    },
+    primaryType: "Permit",
+    types: {
+        Permit: [
+            {name: "owner", type: "address"},
+            {name: "spender", type: "address"},
+            {name: "value", type: "uint256"},
+            {name: "nonce", type: "uint256"},
+            {name: "deadline", type: "uint256"}
+        ]
+    }
+}</pre>
+                </div>
+                
+                <div style="margin: 1rem 0;">
+                    <h5>在稳定币中的应用</h5>
+                    <ul>
+                        <li><strong>Permit（ERC-2612）：</strong>用户签名授权，无需先发送approve交易</li>
+                        <li><strong>元交易：</strong>用户签名交易意图，第三方支付Gas费</li>
+                        <li><strong>批量操作：</strong>一次签名授权多个操作</li>
+                        <li><strong>治理投票：</strong>链下签名投票，降低参与成本</li>
+                    </ul>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header" onclick="toggleCode(this)">EIP-712签名实现示例 <span class="toggle-icon">▼</span></div>
+                    <div class="code-content" style="display: none;">
+                        <pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract EIP712Example {
+    bytes32 public constant DOMAIN_TYPEHASH = keccak256(
+        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+    );
+    
+    bytes32 public constant PERMIT_TYPEHASH = keccak256(
+        "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+    );
+    
+    bytes32 public immutable DOMAIN_SEPARATOR;
+    
+    constructor() {
+        DOMAIN_SEPARATOR = keccak256(
+            abi.encode(
+                DOMAIN_TYPEHASH,
+                keccak256(bytes("MyStablecoin")),
+                keccak256(bytes("1")),
+                block.chainid,
+                address(this)
+            )
+        );
+    }
+    
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
+        require(deadline >= block.timestamp, "Permit expired");
+        
+        bytes32 structHash = keccak256(
+            abi.encode(
+                PERMIT_TYPEHASH,
+                owner,
+                spender,
+                value,
+                nonces[owner]++,
+                deadline
+            )
+        );
+        
+        bytes32 hash = keccak256(
+            abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, structHash)
+        );
+        
+        address signer = ecrecover(hash, v, r, s);
+        require(signer == owner, "Invalid signature");
+        
+        _approve(owner, spender, value);
+    }
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="example-box">
+                    <h5>🔍 实际案例：USDC的Permit功能</h5>
+                    <p>USDC v2引入了EIP-2612 Permit功能，带来了显著的用户体验改善：</p>
+                    <ul>
+                        <li><strong>Gas节省：</strong>用户无需先发送approve交易，节省约50%的Gas</li>
+                        <li><strong>原子操作：</strong>授权和使用可以在同一笔交易中完成</li>
+                        <li><strong>更好的UX：</strong>DeFi协议可以代用户支付Gas（元交易）</li>
+                        <li><strong>安全性：</strong>每个签名都有deadline，防止过期签名被利用</li>
+                    </ul>
+                    <p>截至2024年，超过80%的主流稳定币都已支持Permit功能。</p>
+                </div>
+                
+                <div class="warning-box">
+                    <strong>⚠️ EIP-712安全注意事项</strong>
+                    <ul>
+                        <li><strong>签名重放：</strong>必须包含chainId防止跨链重放</li>
+                        <li><strong>Phishing攻击：</strong>恶意网站可能诱导用户签名</li>
+                        <li><strong>前端安全：</strong>确保正确显示签名内容给用户</li>
+                        <li><strong>Nonce管理：</strong>防止签名被重复使用</li>
+                    </ul>
+                </div>
+            </div>
+
             <h3>练习题</h3>
             
             <div class="exercise">

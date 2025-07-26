@@ -429,6 +429,26 @@ UTXOStablecoin {
                 <div class="example-box">
                     <h5>案例1：Bitcoin上的Omni USDT</h5>
                     <p>作为最早的稳定币之一，Omni USDT展示了在UTXO模型上实现代币的挑战。Omni Layer通过在比特币交易中嵌入元数据来记录USDT转账，这种方式虽然安全，但效率低下且成本高昂。每笔USDT交易都需要支付比特币网络费用，在网络拥堵时可能高达数十美元。</p>
+                    
+                    <div class="info-box" style="background-color: #fef3c7; border-left: 4px solid #f59e0b; margin-top: 1rem;">
+                        <h6>💡 为什么网络拥堵时USDT交易费会大幅增加？</h6>
+                        <p>Omni USDT的费用机制与比特币网络紧密绑定：</p>
+                        <ul>
+                            <li><strong>竞价机制：</strong>比特币采用"费用市场"，矿工优先打包高手续费交易</li>
+                            <li><strong>区块容量限制：</strong>每个区块最多容纳约3000笔交易（1MB区块大小）</li>
+                            <li><strong>USDT的额外负担：</strong>Omni交易需要嵌入额外的OP_RETURN数据（约80字节），占用更多空间</li>
+                            <li><strong>双重支付：</strong>除了比特币矿工费，还需要少量BTC作为"彩色币"载体</li>
+                        </ul>
+                        
+                        <p><strong>实际案例：</strong>2017年12月牛市高峰期，比特币网络极度拥堵：</p>
+                        <ul>
+                            <li>普通BTC交易费：$20-50</li>
+                            <li>Omni USDT交易费：$50-100（因为需要更高费率才能被优先打包）</li>
+                            <li>确认时间：从10分钟延长至数小时甚至数天</li>
+                        </ul>
+                        
+                        <p><strong>这就是为什么Tether后来将重心转向了以太坊（ERC-20 USDT）和波场（TRC-20 USDT），这些网络提供了更高的吞吐量和更低的费用。</strong></p>
+                    </div>
                 </div>
                 
                 <div class="example-box">
