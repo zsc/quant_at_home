@@ -221,6 +221,24 @@ header h1 {
     margin: 0.25rem 0;
 }
 
+/* Nested list styling */
+.chapter ul ul {
+    margin-left: 1.5rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Timeline and box nested lists */
+.timeline ul,
+.info-box ul ul,
+.warning-box ul ul,
+.theory-box ul ul,
+.tip-box ul ul,
+.example-box ul ul,
+.code-example ul ul {
+    margin-left: 1.5rem;
+}
+
 /* 示例框 */
 .example-box {
     background-color: #f0f9ff;
